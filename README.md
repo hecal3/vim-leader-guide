@@ -1,6 +1,6 @@
 # vim-leader-guide
 
-vim-leader-guide is an vim <leader> keymap-display loosely inspired by emacs's [guide-key](https://github.com/kai2nenobu/guide-key).
+vim-leader-guide is a vim keymap-display loosely inspired by emacs's [guide-key](https://github.com/kai2nenobu/guide-key).
 
 ![img1.png](https://raw.githubusercontent.com/hecal3/vim-leader-guide/master/img1.png)
 
@@ -47,10 +47,10 @@ let g:lmap.g = {
 nnoremap <silent> <leader> :LeaderGuide g:lmap.main<CR>
 ```
 
-Try pressing <leader> and wait.
+Try pressing leader.
 The top-level will pop up depending on you timeoutlen setting.
 
-Alternatively press <leader>f. Assuming <leader>f is not mapped otherwise, the plugin will take straight to the file sub-menu.
+Alternatively press leader-f. Assuming leader-f is not mapped otherwise, the plugin will take straight to the file sub-menu.
 
 Despite its name this plugin is not limited to the leader-key. Other first level mappings will work as well.
 
