@@ -2,7 +2,7 @@
 
 vim-leader-guide is an vim <leader> keymap-display loosely inspired by emacs's [guide-key](https://github.com/kai2nenobu/guide-key).
 
-![img1.png](https://bitbucket.org/repo/E47GK8/images/1954090304-img1.png)
+![img1.png](https://raw.githubusercontent.com/hecal3/vim-leader-guide/master/img1.png)
 
 ## Usage Examples
 The plugin configuration is based on vim's dictionarys.
@@ -93,8 +93,7 @@ let g:leaderGuide_position = 'botright'
 :LeaderGuide {dict}
 ```
 
-![img2.png](https://bitbucket.org/repo/E47GK8/images/2336119850-img2.png)
-
+![img2.png](https://raw.githubusercontent.com/hecal3/vim-leader-guide/master/img2.png)
 
 ## TODO and Ideas
 
