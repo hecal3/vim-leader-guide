@@ -18,6 +18,8 @@ let g:lmap.main = {
 " Second level dictionarys:
 let g:lmap.f = {}
 let g:lmap.o = {}
+" Dictionarys don't have to be nested and the names do not matter.
+" Naming them after their key mappings helps with self-documentation:
 " Document existing keymappings:
 	nmap <silent> <leader>fd :e $MYVIMRC<CR>
 	let g:lmap.f.d = ['e $MYVIMRC', 'Open vimrc']
@@ -43,16 +45,20 @@ let g:lmap.g = {
                 \'w' : ['Gwrite',  'Git Write'],
                 \}
 
-" Plugin mapping
+" Leader + timeoutlen opens the main menu
 nnoremap <silent> <leader> :LeaderGuide g:lmap.main<CR>
+
+" Mappings other than leader work as well.
 ```
 
 Try pressing leader.
-The top-level will pop up depending on you timeoutlen setting.
+The top-level will pop up depending on you timeoutlen setting, awaiting further keystrokes.
 
-Alternatively press leader-f. Assuming leader-f is not mapped otherwise, the plugin will take straight to the file sub-menu.
+Alternatively press leader-f. Assuming leader-f is not mapped otherwise you will end up in the file menu.
 
-Despite its name this plugin is not limited to the leader-key. Other first level mappings will work as well.
+Please note that no matter which mappings and menus you configure, your original leader mappings will remain unaffected.
+The key guide is an additional layer. It will only activate, when you do not complete your input during the timeoutlen duration.
+
 
 ## Special keys and Mappings
 
@@ -97,6 +103,6 @@ let g:leaderGuide_position = 'botright'
 
 ## TODO and Ideas
 
-1. Documentation
-2. Visual Mappings
-3. The redefintion of existing leader-mappings is clunky and verbose. It might be possible to automate this(read existing mappings).
+- Documentation
+- Visual Mappings
+- The redefintion of existing leader-mappings is clunky and verbose. It might be possible to automate this(read existing mappings).
