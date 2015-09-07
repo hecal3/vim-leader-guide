@@ -34,9 +34,9 @@ function! leaderGuide#Create_string(dkmap, ncols, colwidth)
 				let entry_len += 1
 			endwhile
 		endif
-		execute "cmap " . k . " " . leaderGuide#Escape_keys(k) ."<CR>"
+		execute "cmap <buffer> " . k . " " . leaderGuide#Escape_keys(k) ."<CR>"
 	endfor
-	cmap <Space> <Space><CR>
+	cmap <buffer> <Space> <Space><CR>
 	return [output, nrows]
 endfunction
 
@@ -56,9 +56,9 @@ endfunction
 
 function! leaderGuide#Umap_keys(maplist)
 	for k in a:maplist
-		execute 'cunmap '.k
+		execute 'cunmap <buffer>'.k
 	endfor
-	cunmap <Space>
+	cunmap <buffer> <Space>
 endfunction
 
 function! leaderGuide#Start_buffer(lmap)
