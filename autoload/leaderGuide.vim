@@ -25,32 +25,28 @@ function! leaderGuide#Map_them_all(dkmap)
 	endfor
 endfunction
 
-function! leaderGuide#Create_string(dkmap)
-	let coldat = leaderGuide#Calc_layout(a:dkmap)
+function! leaderGuide#Create_string(dkmap, coldat)
 	let output = []
 	let colnum = 1
-	let dimension = 1
+	let nrows = 1
 	for [k, v] in sort(items(a:dkmap),'i')
 		let displaystring = "[".k."] ".v[1]
 		let entry_len = strdisplaywidth(displaystring)
         call add(output, displaystring)
-		if colnum == coldat[0] || g:leaderGuide_vertical
+		if colnum == a:coldat[0] || g:leaderGuide_vertical
 			call add(output, "\n")
-			let dimension += 1
+			let nrows += 1
 			let colnum = 1
 		else
 			let colnum += 1
-			while entry_len < coldat[1]
+			while entry_len < a:coldat[1]
 				call add(output, ' ')
 				let entry_len += 1
 			endwhile
 		endif
 		execute "cmap " . k . " " . leaderGuide#Escape_keys(k) ."<CR>"
 	endfor
-	if g:leaderGuide_vertical
-		let dimension = coldat[2]
-	endif
-	return [output, dimension]
+	return [output, nrows]
 endfunction
 
 function! leaderGuide#Start_cmdwin(dkmap)
@@ -73,8 +69,16 @@ function! leaderGuide#Umap_keys(maplist)
 endfunction
 
 function! leaderGuide#Start_buffer(lmap)
-	let output = leaderGuide#Create_string(a:lmap)
-	call leaderGuide#Create_buffer(output[1])
+	call leaderGuide#Create_buffer()
+	let layout = leaderGuide#Calc_layout(a:lmap)
+	let output = leaderGuide#Create_string(a:lmap, layout)
+
+	if g:leaderGuide_vertical
+		execute 'vert res '.layout[2]
+	else
+		execute 'res '.output[1]
+	endif
+
 	execute "normal! i ".join(output[0],'')
 	redraw
 	let inp = input("")
@@ -89,15 +93,15 @@ function! leaderGuide#Start_buffer(lmap)
 	execute fsel
 endfunction
 
-function! leaderGuide#Create_buffer(dimension)
+
+function! leaderGuide#Create_buffer()
 	if g:leaderGuide_vertical
-		execute g:leaderGuide_position.' '.a:dimension.'vnew'
+		execute g:leaderGuide_position.' 1vnew'
 	else
-		execute g:leaderGuide_position.' '.a:dimension.'new'
+		execute g:leaderGuide_position.' 1new'
 	endif
-	set filetype=leaderGuide
-	set nonumber
-	set nowrap
+	setlocal filetype=leaderGuide nonumber nowrap
+	setlocal nobuflisted buftype=nofile bufhidden=wipe noswapfile
 	nnoremap <buffer> <silent> <ESC> :bdelete!<cr>
 	autocmd WinLeave <buffer> :bdelete!
 endfunction
