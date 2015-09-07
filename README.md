@@ -60,12 +60,14 @@ Despite its name this plugin is not limited to the leader-key. Other first level
 " Special key mapping:
 let g:lmap.g = {
 				\'<tab>' : ['Gstatus', 'Git Status'],
-                \'<BS>' : ['Gpull',   'Git Pull'],
+                \'<BS>'  : ['Gpull',   'Git Pull'],
                 \'<C-P>' : ['Gpush',   'Git Push'],
-                \'c' : ['Gcommit', 'Git Commit'],
-                \'w' : ['Gwrite',  'Git Write'],
+                \'/'     : ['Gcommit', 'Git Commit'],
+                \'<F4>'  : ['Gwrite',  'Git Write'],
+                \' '     : ['ThisIsSpace',  'SomeDescription'],
                 \}
-" Trigger other mappings:
+
+" Call other mappings ( Trigger with <leader>, ):
 let g:lmap.main[','] = ['call feedkeys("\<Plug>(easymotion-prefix)")', 'EasyMotion Prefix']
 ```
 
@@ -89,8 +91,6 @@ let g:leaderGuide_position = 'topleft'
 let g:leaderGuide_vertical = 1
 let g:leaderGuide_position = 'botright'
 
-" General command
-:LeaderGuide {dict}
 ```
 
 ![img2.png](https://raw.githubusercontent.com/hecal3/vim-leader-guide/master/img2.png)

@@ -36,6 +36,7 @@ function! leaderGuide#Create_string(dkmap, ncols, colwidth)
 		endif
 		execute "cmap " . k . " " . leaderGuide#Escape_keys(k) ."<CR>"
 	endfor
+	cmap <Space> <Space><CR>
 	return [output, nrows]
 endfunction
 
@@ -48,7 +49,7 @@ function! leaderGuide#Start_cmdwin(lmap)
 	else
 		let fsel = ''
 	endif
-	call leaderGuide#Umap_keys(keys(a:lmap))
+	silent! call leaderGuide#Umap_keys(keys(a:lmap))
 	redraw
 	execute fsel
 endfunction
@@ -57,6 +58,7 @@ function! leaderGuide#Umap_keys(maplist)
 	for k in a:maplist
 		execute 'cunmap '.k
 	endfor
+	cunmap <Space>
 endfunction
 
 function! leaderGuide#Start_buffer(lmap)
@@ -78,7 +80,7 @@ function! leaderGuide#Start_buffer(lmap)
 	else
 		let fsel = 'call feedkeys("\<ESC>")'
 	endif
-	call leaderGuide#Umap_keys(keys(a:lmap))
+	silent! call leaderGuide#Umap_keys(keys(a:lmap))
 	bdelete!
 	redraw
 	execute fsel
