@@ -15,17 +15,7 @@ function! leaderGuide#Escape_keys(inp)
 	return substitute(a:inp, "<", "<lt>", "")
 endfunction
 
-function! leaderGuide#Map_them_all(dkmap)
-	for [k, v] in items(a:dkmap)
-		if has_key(v, '1')
-			let ausg = "" . k . "->" .v[1]
-		else
-			call leaderGuide#Map_them_all(a:dkmap.g)
-		endif
-	endfor
-endfunction
-
-function! leaderGuide#Create_string(dkmap, coldat)
+function! leaderGuide#Create_string(dkmap, ncols, colwidth)
 	let output = []
 	let colnum = 1
 	let nrows = 1
@@ -33,13 +23,13 @@ function! leaderGuide#Create_string(dkmap, coldat)
 		let displaystring = "[".k."] ".v[1]
 		let entry_len = strdisplaywidth(displaystring)
         call add(output, displaystring)
-		if colnum == a:coldat[0] || g:leaderGuide_vertical
+		if colnum == a:ncols || g:leaderGuide_vertical
 			call add(output, "\n")
 			let nrows += 1
 			let colnum = 1
 		else
 			let colnum += 1
-			while entry_len < a:coldat[1]
+			while entry_len < a:colwidth
 				call add(output, ' ')
 				let entry_len += 1
 			endwhile
@@ -49,15 +39,16 @@ function! leaderGuide#Create_string(dkmap, coldat)
 	return [output, nrows]
 endfunction
 
-function! leaderGuide#Start_cmdwin(dkmap)
-    let output = leaderGuide#Create_string(a:dkmap)
-    let inp = input('Insert Key: '."\n".join(output[0],'')."\n")
+function! leaderGuide#Start_cmdwin(lmap)
+	let [ncols, colwidth, maxlen] = leaderGuide#Calc_layout(a:lmap)
+	let [string, nrows] = leaderGuide#Create_string(a:lmap, ncols, colwidth)
+    let inp = input('Insert Key: '."\n".join(string,'')."\n")
     if inp != ''
-		let fsel = get(a:dkmap, inp)[0]
+		let fsel = get(a:lmap, inp)[0]
 	else
 		let fsel = ''
 	endif
-	cmapclear
+	call leaderGuide#Umap_keys(keys(a:lmap))
 	redraw
 	execute fsel
 endfunction
@@ -70,16 +61,16 @@ endfunction
 
 function! leaderGuide#Start_buffer(lmap)
 	call leaderGuide#Create_buffer()
-	let layout = leaderGuide#Calc_layout(a:lmap)
-	let output = leaderGuide#Create_string(a:lmap, layout)
+	let [ncols, colwidth, maxlen] = leaderGuide#Calc_layout(a:lmap)
+	let [string, nrows] = leaderGuide#Create_string(a:lmap, ncols, colwidth)
 
 	if g:leaderGuide_vertical
-		execute 'vert res '.layout[2]
+		execute 'vert res '.maxlen
 	else
-		execute 'res '.output[1]
+		execute 'res '.nrows
 	endif
 
-	execute "normal! i ".join(output[0],'')
+	execute "normal! i ".join(string,'')
 	redraw
 	let inp = input("")
     if inp != '' && inp!= "<lt>ESC>"
@@ -88,7 +79,7 @@ function! leaderGuide#Start_buffer(lmap)
 		let fsel = 'call feedkeys("\<ESC>")'
 	endif
 	call leaderGuide#Umap_keys(keys(a:lmap))
-	:bdelete!
+	bdelete!
 	redraw
 	execute fsel
 endfunction
