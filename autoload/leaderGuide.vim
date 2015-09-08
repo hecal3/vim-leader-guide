@@ -11,7 +11,7 @@ function! s:calc_layout(dkmap)
 	return [cols, colwidth, maxlength]
 endfunction
 
-function! leaderGuide#Escape_keys(inp)
+function! s:escape_keys(inp)
 	return substitute(a:inp, "<", "<lt>", "")
 endfunction
 
@@ -34,7 +34,7 @@ function! s:create_string(dkmap, ncols, colwidth)
 				let entry_len += 1
 			endwhile
 		endif
-		execute "cmap <buffer> " . k . " " . leaderGuide#Escape_keys(k) ."<CR>"
+		execute "cmap <buffer> " . k . " " . s:escape_keys(k) ."<CR>"
 	endfor
 	cmap <buffer> <Space> <Space><CR>
 	return [output, nrows]
@@ -52,13 +52,6 @@ function! s:start_cmdwin(lmap)
 	silent! call s:unmap_keys(keys(a:lmap))
 	redraw
 	execute fsel
-endfunction
-
-function! s:unmap_keys(maplist)
-	for k in a:maplist
-		execute 'cunmap <buffer>'.k
-	endfor
-	cunmap <buffer> <Space>
 endfunction
 
 function! s:start_buffer(lmap)
@@ -80,7 +73,6 @@ function! s:start_buffer(lmap)
 	else
 		let fsel = 'call feedkeys("\<ESC>")'
 	endif
-	silent! call s:unmap_keys(keys(a:lmap))
 	bdelete!
 	execute s:winnr.'wincmd w'
 	call winrestview(s:winv)
