@@ -8,36 +8,35 @@ vim-leader-guide is a vim keymap-display loosely inspired by emacs's [guide-key]
 The plugin configuration is based on vim's dictionarys.
 
 ```vim
+" Define Top Level Dictionary
 let g:lmap =  {}
-" Top level dictionary
-let g:lmap.main = {
-				\'g' : ['LeaderGuide g:lmap.g', 'Git Menu'],
-				\'f' : ['LeaderGuide g:lmap.f', 'File Menu'],
-				\'o' : ['LeaderGuide g:lmap.o', 'Open stuff'],
-				\}
+
 " Second level dictionarys:
-let g:lmap.f = {}
-let g:lmap.o = {}
-" Dictionarys don't have to be nested and the names do not matter.
-" Naming them after their key mappings helps with self-documentation:
+let g:lmap.f = { 'name' : 'File Menu' }
+let g:lmap.o = { 'name' : 'Open Stuff' }
+
+" You will need one top level dictionary per prefix key.
+" The naming scheme is imporant for the keymap parser.
+
 " Document existing keymappings:
 	nmap <silent> <leader>fd :e $MYVIMRC<CR>
 	let g:lmap.f.d = ['e $MYVIMRC', 'Open vimrc']
 
 	nmap <silent> <leader>fs :so %<CR>
-	let g:lmap.f.s = ['so %', 'Source file']
+	" let g:lmap.f.s = ['so %', 'Source file']
 
 	nmap <silent> <leader>oo  :copen<CR>
-	let g:lmap.o.o = ['copen', 'Open quickfix']
+	" let g:lmap.o.o = ['copen', 'Open quickfix']
 
 	nmap <silent> <leader>ol  :lopen<CR>
-	let g:lmap.o.l = ['lopen', 'Open locationlist']
+	" let g:lmap.o.l = ['lopen', 'Open locationlist']
 
 	nmap <silent> <leader>fw :w<CR>
-	let g:lmap.f.w = ['w', 'Write file']
+	" let g:lmap.f.w = ['w', 'Write file']
 
 " Create new menus not based on existing mappings:
 let g:lmap.g = {
+				\'name' : 'Git Menu',
 				\'s' : ['Gstatus', 'Git Status'],
                 \'p' : ['Gpull',   'Git Pull'],
                 \'u' : ['Gpush',   'Git Push'],
@@ -49,7 +48,25 @@ let g:lmap.g = {
 nnoremap <silent> <leader> :LeaderGuide g:lmap.main<CR>
 vnoremap <silent> <leader> :LeaderGuideVisual g:lmap.main<CR>
 
-" Mappings other than leader work as well.
+" Populate the Dictionary depending on your <leader> key:
+call leaderGuide#PopulateDictionary("<Space>","g:lmap")
+" or
+" call leaderGuide#PopulateDictionary(",","g:lmap")
+
+" Mappings you did not define manualle should work as well.
+" Instead of an description the command itself will be displayed
+" The populateDictionary function will not overwrite mappings,
+" descriptions or group names you defined manually.
+
+
+" Another Map for the localleader-prefix:
+let g:anotherdict = {}
+" No renaming and descriptions, just get the mappings:
+call leaderGuide#PopulateDictionary(",","g:anotherdict")
+" call the addon
+nnoremap <silent> <localleader> :LeaderGuide g:anotherdict<CR>
+vnoremap <silent> <localleader> :LeaderGuideVisual g:anotherdict<CR>
+
 ```
 
 Try pressing leader.
