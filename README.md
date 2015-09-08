@@ -104,5 +104,4 @@ let g:leaderGuide_position = 'botright'
 ## TODO and Ideas
 
 - Documentation
-- Visual Mappings
 - The redefintion of existing leader-mappings is clunky and verbose. It might be possible to automate this(read existing mappings).

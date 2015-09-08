@@ -10,4 +10,4 @@ if !exists('g:leaderGuide_position')
 	let g:leaderGuide_position = 'botright'
 endif
 
-command! -nargs=1 LeaderGuide call leaderGuide#Start(<args>)
+command! -range -nargs=1 LeaderGuide <line1>,<line2>call leaderGuide#Start(<args>)

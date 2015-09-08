@@ -83,9 +83,16 @@ function! leaderGuide#Start_buffer(lmap)
 	silent! call leaderGuide#Umap_keys(keys(a:lmap))
 	bdelete!
 	execute s:winnr.'wincmd w'
-	call winrestview(g:winv)
+	call winrestview(s:winv)
+	if s:range
+		normal gv
+	endif
 	redraw
-	execute fsel
+	if s:range
+		execute s:firstline.','.s:lastline.fsel
+	else
+		execute fsel
+	endif
 endfunction
 
 
@@ -101,9 +108,13 @@ function! leaderGuide#Create_buffer()
 	autocmd WinLeave <buffer> :bdelete!
 endfunction
 
-function! leaderGuide#Start(dict)
-	let g:winv = winsaveview()
+function! leaderGuide#Start(dict) range
+	let s:range = a:firstline != a:lastline ? 1 : 0
+	let s:firstline = a:firstline
+	let s:lastline = a:lastline
+	let s:winv = winsaveview()
 	let s:winnr = winnr()
+
 	if g:leaderGuide_use_buffer
 		call leaderGuide#Start_buffer(a:dict)
 	else
