@@ -1,4 +1,4 @@
-function! leaderGuide#Calc_layout(dkmap)
+function! s:calc_layout(dkmap)
 	let maxlength = 0
 	for [k, v] in items(a:dkmap)
 		let currlen = strdisplaywidth("[".k."] ".v[1]."\t\t")
@@ -15,7 +15,7 @@ function! leaderGuide#Escape_keys(inp)
 	return substitute(a:inp, "<", "<lt>", "")
 endfunction
 
-function! leaderGuide#Create_string(dkmap, ncols, colwidth)
+function! s:create_string(dkmap, ncols, colwidth)
 	let output = []
 	let colnum = 1
 	let nrows = 1
@@ -40,31 +40,31 @@ function! leaderGuide#Create_string(dkmap, ncols, colwidth)
 	return [output, nrows]
 endfunction
 
-function! leaderGuide#Start_cmdwin(lmap)
-	let [ncols, colwidth, maxlen] = leaderGuide#Calc_layout(a:lmap)
-	let [string, nrows] = leaderGuide#Create_string(a:lmap, ncols, colwidth)
+function! s:start_cmdwin(lmap)
+	let [ncols, colwidth, maxlen] = s:calc_layout(a:lmap)
+	let [string, nrows] = s:create_string(a:lmap, ncols, colwidth)
     let inp = input('Insert Key: '."\n".join(string,'')."\n")
     if inp != ''
 		let fsel = get(a:lmap, inp)[0]
 	else
 		let fsel = ''
 	endif
-	silent! call leaderGuide#Umap_keys(keys(a:lmap))
+	silent! call s:unmap_keys(keys(a:lmap))
 	redraw
 	execute fsel
 endfunction
 
-function! leaderGuide#Umap_keys(maplist)
+function! s:unmap_keys(maplist)
 	for k in a:maplist
 		execute 'cunmap <buffer>'.k
 	endfor
 	cunmap <buffer> <Space>
 endfunction
 
-function! leaderGuide#Start_buffer(lmap)
-	call leaderGuide#Create_buffer()
-	let [ncols, colwidth, maxlen] = leaderGuide#Calc_layout(a:lmap)
-	let [string, nrows] = leaderGuide#Create_string(a:lmap, ncols, colwidth)
+function! s:start_buffer(lmap)
+	call s:create_buffer()
+	let [ncols, colwidth, maxlen] = s:calc_layout(a:lmap)
+	let [string, nrows] = s:create_string(a:lmap, ncols, colwidth)
 
 	if g:leaderGuide_vertical
 		execute 'vert res '.maxlen
@@ -80,7 +80,7 @@ function! leaderGuide#Start_buffer(lmap)
 	else
 		let fsel = 'call feedkeys("\<ESC>")'
 	endif
-	silent! call leaderGuide#Umap_keys(keys(a:lmap))
+	silent! call s:unmap_keys(keys(a:lmap))
 	bdelete!
 	execute s:winnr.'wincmd w'
 	call winrestview(s:winv)
@@ -95,8 +95,7 @@ function! leaderGuide#Start_buffer(lmap)
 	endif
 endfunction
 
-
-function! leaderGuide#Create_buffer()
+function! s:create_buffer()
 	if g:leaderGuide_vertical
 		execute g:leaderGuide_position.' 1vnew'
 	else
@@ -116,8 +115,8 @@ function! leaderGuide#Start(dict) range
 	let s:winnr = winnr()
 
 	if g:leaderGuide_use_buffer
-		call leaderGuide#Start_buffer(a:dict)
+		call s:start_buffer(a:dict)
 	else
-		call leaderGuide#Start_cmdwin(a:dict)
+		call s:start_cmdwin(a:dict)
 	endif
 endfunction
