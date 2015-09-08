@@ -66,6 +66,7 @@ function! s:start_buffer(lmap)
 	endif
 
 	execute "normal! i ".join(string,'')
+	setlocal nomodifiable
 	redraw
 	let inp = input("")
     if inp != '' && inp!= "<lt>ESC>"
