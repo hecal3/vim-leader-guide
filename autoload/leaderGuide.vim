@@ -82,6 +82,8 @@ function! leaderGuide#Start_buffer(lmap)
 	endif
 	silent! call leaderGuide#Umap_keys(keys(a:lmap))
 	bdelete!
+	execute s:winnr.'wincmd w'
+	call winrestview(g:winv)
 	redraw
 	execute fsel
 endfunction
@@ -100,6 +102,8 @@ function! leaderGuide#Create_buffer()
 endfunction
 
 function! leaderGuide#Start(dict)
+	let g:winv = winsaveview()
+	let s:winnr = winnr()
 	if g:leaderGuide_use_buffer
 		call leaderGuide#Start_buffer(a:dict)
 	else
