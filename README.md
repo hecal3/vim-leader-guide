@@ -47,6 +47,7 @@ let g:lmap.g = {
 
 " Leader + timeoutlen opens the main menu
 nnoremap <silent> <leader> :LeaderGuide g:lmap.main<CR>
+vnoremap <silent> <leader> :LeaderGuideVisual g:lmap.main<CR>
 
 " Mappings other than leader work as well.
 ```
