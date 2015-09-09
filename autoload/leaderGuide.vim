@@ -1,27 +1,34 @@
-function! leaderGuide#PopulateDictionary(key, dictname)
-	let readinput = ""
-	redir => readinput
-	silent execute "map ".a:key
+function! s:get_map(cmd)
+	let readmap = ""
+	redir => readmap
+	silent execute a:cmd
 	redir END
-	let lines = split(readinput, "\n")
+	let lines = split(readmap, "\n")
+	return lines
+endfunction
+
+function! leaderGuide#PopulateDictionary(key, dictname)
+	let lines = s:get_map("map ".a:key)
 	for line in lines
-		call s:handle_line(line, a:key, a:dictname)
+		let maps = s:handle_line(line)
+		let maps[1] = substitute(maps[1], a:key, "", "")
+		let maps[1] = substitute(maps[1], "<Space>", " ", "g")
+		let maps[3] = substitute(maps[3], "^[:| ]*", "", "")
+		let maps[3] = substitute(maps[3], "<CR>$", "", "")
+		"echo maps
+		if maps[1] != ''
+			call s:add_mapping(maps[1], maps[3], 0, a:dictname)
+		endif
 	endfor
 endfunction
 
-function! s:handle_line(line, key, dictname)
-	let mlist = matchlist(a:line, '\([xnv ]\) *\('.a:key.'\)\([^ ]*\)[ |:|\*]*\(.*\)$')
+function! s:handle_line(line)
+	"echo a:line
+	let mlist = matchlist(a:line, '\([xnvc ]\) *\([^ ]*\) *\([@&\*]\{0,3}\)\(.*\)$')
 	"echo mlist
-	"let mode = mlist[1]
-	"let prefix = mlist[2]
-	"let map = mlist[3]
-	"let cmd = mlist[4]
-	if mlist[3] != ''
-		let mlist[3] = substitute(mlist[3], "<Space>", " ", "")
-		let mlist[4] = substitute(mlist[4], "<CR>$", "", "")
-		call s:add_mapping(mlist[3], mlist[4], 0, a:dictname)
-	endif
+	return mlist[1:]
 endfunction
+
 
 function! s:add_mapping(key, cmd, level, dictname)
 	if len(a:key) > a:level+1
@@ -64,7 +71,7 @@ function! s:add_mapping(key, cmd, level, dictname)
 endfunction
 
 function! s:escape_mappings(string)
-	return substitute(a:string, '\([@]\?\)\(<Plug>.*\)$', 'call feedkeys("\\\2")', '')
+	return substitute(a:string, '\(<Plug>.*\)$', 'call feedkeys("\\\1")', '')
 endfunction
 
 function! s:calc_layout(dkmap)
