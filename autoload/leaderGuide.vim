@@ -120,10 +120,10 @@ function! s:create_string(dkmap, ncols, colwidth)
 				let entry_len += 1
 			endwhile
 		endif
-		execute "cmap <buffer> " . k . " " . s:escape_keys(k) ."<CR>"
+		execute "cmap <nowait> <buffer> " . k . " " . s:escape_keys(k) ."<CR>"
 		endif
 	endfor
-	cmap <buffer> <Space> <Space><CR>
+	cmap <nowait> <buffer> <Space> <Space><CR>
 	return [output, nrows]
 endfunction
 
