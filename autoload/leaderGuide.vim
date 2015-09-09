@@ -7,37 +7,29 @@ function! leaderGuide#PopulateDictionary(key, dictname)
 	for line in lines
 		if !match(line, ".*Last set.*") == 0
 			call s:handle_line(line, a:key, a:dictname)
-			echo line
+			"echo line
 		else
 			"echo line
 		endif
 	endfor
-	let input = input("")
+	"let input = input("")
 endfunction
 
 function! s:handle_line(line, key, dictname)
-	"echo a:line
-	"let mlist = matchlist(a:line, '\([xnv ]\) *\(<Space>\)\([^ ]*\)[ |:|\*]*\(.*\)$')
 	let mlist = matchlist(a:line, '\([xnv ]\) *\('.a:key.'\)\([^ ]*\)[ |:|\*]*\(.*\)$')
-	echo mlist
-	let mlist[4] = substitute(mlist[4], "<CR>$", "", "")
-	let mode = mlist[1]
-	let prefix = mlist[2]
-	let map = mlist[3]
-	let cmd = mlist[4]
-	"echo "mode:".mode
-	"echo "prefix:".prefix
-	"echo "map:".map
-	"echo "cmd:".cmd
-	if map != ''
-		let map = substitute(map, "<Space>", " ", "")
-		call s:add_mapping(map, cmd, 0, a:dictname)
-		"call s:addmapp(map, cmd, 0, 'g:lmap')
+	"echo mlist
+	"let mode = mlist[1]
+	"let prefix = mlist[2]
+	"let map = mlist[3]
+	"let cmd = mlist[4]
+	if mlist[3] != ''
+		let mlist[3] = substitute(mlist[3], "<Space>", " ", "")
+		let mlist[4] = substitute(mlist[4], "<CR>$", "", "")
+		call s:add_mapping(mlist[3], mlist[4], 0, a:dictname)
 	endif
 endfunction
 
 function! s:add_mapping(key, cmd, level, dictname)
-	""" WORKS 
 	if len(a:key) > a:level+1
 		" Go to next level
 		if a:level == 0
@@ -46,7 +38,6 @@ function! s:add_mapping(key, cmd, level, dictname)
 			endif
 		elseif a:level == 1
 			if !has_key({a:dictname}[a:key[a:level-1]], a:key[a:level])
-				echo a:dictname
 				let {a:dictname}[a:key[a:level-1]][a:key[a:level]] = { 'name' : 'NONAME' }
 			endif
 		elseif a:level == 2
@@ -208,6 +199,7 @@ function! s:create_buffer()
 endfunction
 
 function! leaderGuide#Start(vis, dict)
+
 	let s:vis = a:vis
 	let s:winv = winsaveview()
 	let s:winnr = winnr()
@@ -215,6 +207,5 @@ function! leaderGuide#Start(vis, dict)
 	if g:leaderGuide_use_buffer
 		call s:start_buffer(a:dict)
 	else
-		call s:start_cmdwin(a:dict)
 	endif
 endfunction

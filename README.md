@@ -2,6 +2,8 @@
 
 vim-leader-guide is a vim keymap-display loosely inspired by emacs's [guide-key](https://github.com/kai2nenobu/guide-key).
 
+This Plugin is not stable yet. The configuration and commands might change in the future.
+
 ![img1.png](https://raw.githubusercontent.com/hecal3/vim-leader-guide/master/img1.png)
 
 ## Usage Examples
@@ -14,9 +16,9 @@ let g:lmap =  {}
 " Second level dictionarys:
 let g:lmap.f = { 'name' : 'File Menu' }
 let g:lmap.o = { 'name' : 'Open Stuff' }
-
-" You will need one top level dictionary per prefix key.
-" The naming scheme is imporant for the keymap parser.
+" 'name' is a special field. It will define the name of the group.
+" leader-f is the "File Menu" group.
+" Unnamed groups will show a default string
 
 " Document existing keymappings:
 	nmap <silent> <leader>fd :e $MYVIMRC<CR>
@@ -44,29 +46,37 @@ let g:lmap.g = {
                 \'w' : ['Gwrite',  'Git Write'],
                 \}
 
+" If you use NERDCommenter:
+let g:lmap.c = { 'name' : 'Comments' }
+" Define some Descriptions
+let g:lmap.c.c = ['call feedkeys("\<Plug>NERDCommenterComment")','Comment']
+let g:lmap.c[' '] = ['call feedkeys("\<Plug>NERDCommenterToggle")','Toggle']
+" The Descriptions for other mappings defined by NerdCommenter, will default
+" to their respective commands.
+
 " Leader + timeoutlen opens the main menu
 nnoremap <silent> <leader> :LeaderGuide g:lmap.main<CR>
 vnoremap <silent> <leader> :LeaderGuideVisual g:lmap.main<CR>
 
 " Populate the Dictionary depending on your <leader> key:
-call leaderGuide#PopulateDictionary("<Space>","g:lmap")
-" or
-" call leaderGuide#PopulateDictionary(",","g:lmap")
+call leaderGuide#PopulateDictionary("<Space>", "g:lmap")
+" call leaderGuide#PopulateDictionary(",", "g:lmap")
+" You might want to call this later, after all mappings are set.
+" Alternatively use the following line to rescan the mappings
+" whenever the Guide pops up:
+autocmd FileType leaderGuide call leaderGuide#PopulateDictionary("<Space>", "g:lmap")
 
-" Mappings you did not define manualle should work as well.
-" Instead of an description the command itself will be displayed
-" The populateDictionary function will not overwrite mappings,
-" descriptions or group names you defined manually.
 
 
 " Another Map for the localleader-prefix:
 let g:anotherdict = {}
-" No renaming and descriptions, just get the mappings:
-call leaderGuide#PopulateDictionary(",","g:anotherdict")
-" call the addon
 nnoremap <silent> <localleader> :LeaderGuide g:anotherdict<CR>
 vnoremap <silent> <localleader> :LeaderGuideVisual g:anotherdict<CR>
 
+" No renaming and descriptions, just get the mappings:
+call leaderGuide#PopulateDictionary(",", "g:anotherdict")
+" As above, make sure to call this after all mappings are set,
+" e.g after loading a filetype plugin.
 ```
 
 Try pressing leader.
@@ -92,7 +102,7 @@ let g:lmap.g = {
                 \}
 
 " Call other mappings ( Trigger with <leader>, ):
-let g:lmap.main[','] = ['call feedkeys("\<Plug>(easymotion-prefix)")', 'EasyMotion Prefix']
+let g:lmap[','] = ['call feedkeys("\<Plug>(easymotion-prefix)")', 'EasyMotion Prefix']
 ```
 
 ## Other settings
@@ -122,4 +132,4 @@ let g:leaderGuide_position = 'botright'
 ## TODO and Ideas
 
 - Documentation
-- The redefintion of existing leader-mappings is clunky and verbose. It might be possible to automate this(read existing mappings).
+- Support for vim's buildin mappings?
