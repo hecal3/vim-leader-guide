@@ -164,7 +164,6 @@ function! s:start_buffer(lmap)
 	bdelete!
 	execute s:winnr.'wincmd w'
 	call winrestview(s:winv)
-	redraw
 	if type(fsel) == type({})
 		if s:vis
 			normal gv
@@ -173,6 +172,7 @@ function! s:start_buffer(lmap)
 			LeaderGuide fsel
 		endif
 	else
+		redraw
 		if s:vis
 			normal gv
 		endif
