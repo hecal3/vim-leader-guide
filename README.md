@@ -6,6 +6,9 @@ This Plugin is not stable yet. The configuration and commands might change in th
 
 ![img1.png](https://raw.githubusercontent.com/hecal3/vim-leader-guide/master/img1.png)
 
+
+![img3.png](https://raw.githubusercontent.com/hecal3/vim-leader-guide/master/img3.png)
+
 ## Usage Examples
 The plugin configuration is based on vim's dictionarys.
 
@@ -55,8 +58,8 @@ let g:lmap.c[' '] = ['call feedkeys("\<Plug>NERDCommenterToggle")','Toggle']
 " to their respective commands.
 
 " Leader + timeoutlen opens the main menu
-nnoremap <silent> <leader> :LeaderGuide g:lmap.main<CR>
-vnoremap <silent> <leader> :LeaderGuideVisual g:lmap.main<CR>
+nnoremap <silent> <leader> :LeaderGuide g:lmap<CR>
+vnoremap <silent> <leader> :LeaderGuideVisual g:lmap<CR>
 
 " Populate the Dictionary depending on your <leader> key:
 call leaderGuide#PopulateDictionary("<Space>", "g:lmap")
@@ -126,8 +129,6 @@ let g:leaderGuide_vertical = 1
 let g:leaderGuide_position = 'botright'
 
 ```
-
-![img2.png](https://raw.githubusercontent.com/hecal3/vim-leader-guide/master/img2.png)
 
 ## TODO and Ideas
 
