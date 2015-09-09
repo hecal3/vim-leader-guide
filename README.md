@@ -94,9 +94,10 @@ The key guide is an additional layer. It will only activate, when you do not com
 ## Special keys and Mappings
 
 ```vim
-" Special key mapping:
+" Special key mapping.
+" Use <C-I> to map the Tab key
 let g:lmap.g = {
-				\'<tab>' : ['Gstatus', 'Git Status'],
+				\'<C-I>' : ['Gstatus', 'Git Status'],
                 \'<BS>'  : ['Gpull',   'Git Pull'],
                 \'<C-P>' : ['Gpush',   'Git Push'],
                 \'/'     : ['Gcommit', 'Git Commit'],

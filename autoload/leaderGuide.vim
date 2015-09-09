@@ -13,11 +13,12 @@ function! leaderGuide#PopulateDictionary(key, dictname)
 		let maps = s:handle_line(line)
 		let maps[1] = substitute(maps[1], a:key, "", "")
 		let maps[1] = substitute(maps[1], "<Space>", " ", "g")
+		let maps[1] = substitute(maps[1], "<Tab>", "<C-I>", "g")
 		let maps[3] = substitute(maps[3], "^[:| ]*", "", "")
 		let maps[3] = substitute(maps[3], "<CR>$", "", "")
 		"echo maps
 		if maps[1] != ''
-			call s:add_mapping(maps[1], maps[3], 0, a:dictname)
+			call s:add_mapping(s:string_to_keys(maps[1]), maps[3], 0, a:dictname)
 		endif
 	endfor
 endfunction
@@ -30,17 +31,17 @@ function! s:handle_line(line)
 endfunction
 
 function! s:add_mapping(key, cmd, level, dictname)
-	if len(a:key) > a:level+1
+	if len(a:key) > a:level+1 && a:key[a:level] != '<'
 		" Go to next level
-		if a:level == 0
+		if a:level ==? 0
 			if !has_key({a:dictname}, a:key[a:level])
 				let {a:dictname}[a:key[a:level]] = { 'name' : 'NONAME' }
 			endif
-		elseif a:level == 1
+		elseif a:level ==? 1
 			if !has_key({a:dictname}[a:key[a:level-1]], a:key[a:level])
 				let {a:dictname}[a:key[a:level-1]][a:key[a:level]] = { 'name' : 'NONAME' }
 			endif
-		elseif a:level == 2
+		elseif a:level ==? 2
 			if !has_key({a:dictname}[a:key[a:level-2]][a:key[a:level-1]], a:key[a:level])
 				let {a:dictname}[a:key[a:level-2]][a:key[a:level-1]][a:key[a:level]] = { 'name' : 'NONAME' }
 			endif
@@ -49,19 +50,19 @@ function! s:add_mapping(key, cmd, level, dictname)
 	else
 		" This level
 		let command = s:escape_mappings(a:cmd)
-		if a:level == 0
+		if a:level ==? 0
 			if !has_key({a:dictname}, a:key[0])
 				let {a:dictname}[a:key[0]] = [command, a:cmd]
 			endif
-		elseif a:level == 1
+		elseif a:level ==? 1
 			if !has_key({a:dictname}[a:key[a:level-1]], a:key[a:level])
 				let {a:dictname}[a:key[a:level-1]][a:key[a:level]] = [ command, a:cmd ]
 			endif
-		elseif a:level == 2
+		elseif a:level ==? 2
 			if !has_key({a:dictname}[a:key[a:level-2]][a:key[a:level-1]], a:key[a:level])
 				let {a:dictname}[a:key[a:level-2]][a:key[a:level-1]][a:key[a:level]] = [ command, a:cmd ]
 			endif
-		elseif a:level == 3
+		elseif a:level ==? 3
 			if !has_key({a:dictname}[a:key[a:level-3]][a:key[a:level-2]][a:key[a:level-1]], a:key[a:level])
 				let {a:dictname}[a:key[a:level-3]][a:key[a:level-2]][a:key[a:level-1]][a:key[a:level]] = [ command, a:cmd ]
 			endif
@@ -73,11 +74,31 @@ function! s:escape_mappings(string)
 	return substitute(a:string, '\(<Plug>.*\)$', 'call feedkeys("\\\1")', '')
 endfunction
 
+function! s:string_to_keys(input)
+	let retlist = []
+	let si = 0
+	let go = 1
+	while si < len(a:input)
+		if go
+			call add(retlist, a:input[si])
+		else
+			let retlist[-1] .= a:input[si]
+		endif
+		if a:input[si] ==? '<'
+			let go = 0
+		elseif a:input[si] ==? '>'
+			let go = 1
+		end
+		let si += 1
+	endw
+	return retlist
+endfunction
+
 function! s:calc_layout(dkmap)
 	let maxlength = 0
 	for k in keys(a:dkmap)
 		if k != 'name'
-		if type(a:dkmap[k]) == type({})
+		if type(a:dkmap[k]) ==? type({})
 			let currlen = strdisplaywidth("[".k."] ". a:dkmap[k].name ."\t\t")
 		else
 			let string = a:dkmap[k]
@@ -98,6 +119,16 @@ function! s:escape_keys(inp)
 	return substitute(a:inp, "<", "<lt>", "")
 endfunction
 
+let s:displaynames = {'<C-I>': '<Tab>',
+					\ '<C-H>': '<BS>'}
+
+function! s:show_displayname(inp)
+	if has_key(s:displaynames, a:inp)
+		return s:displaynames[a:inp]
+	else
+		return a:inp
+	end
+endfunction
 
 function! s:create_string(dkmap, ncols, colwidth)
 	"echo a:dkmap
@@ -107,15 +138,15 @@ function! s:create_string(dkmap, ncols, colwidth)
 	for k in sort(keys(a:dkmap),'i')
 		if k != 'name'
 		if type(a:dkmap[k]) == type({})
-			let displaystring = "[".k."] ".a:dkmap[k].name
+			let displaystring = "[".s:show_displayname(toupper(k))."] ".a:dkmap[k].name
 		else
 			let string = a:dkmap[k]
 			let desc = string[1]
-			let displaystring = "[".k."] ". desc
+			let displaystring = "[".s:show_displayname(toupper(k))."] ". desc
 		endif
 		let entry_len = strdisplaywidth(displaystring)
         call add(output, displaystring)
-		if colnum == a:ncols || g:leaderGuide_vertical
+		if colnum ==? a:ncols || g:leaderGuide_vertical
 			call add(output, "\n")
 			let nrows += 1
 			let colnum = 1
@@ -170,7 +201,7 @@ function! s:start_buffer(lmap)
 	bdelete!
 	execute s:winnr.'wincmd w'
 	call winrestview(s:winv)
-	if type(fsel) == type({})
+	if type(fsel) ==? type({})
 		if s:vis
 			normal gv
 			LeaderGuideVisual fsel
@@ -207,5 +238,6 @@ function! leaderGuide#Start(vis, dict)
 	if g:leaderGuide_use_buffer
 		call s:start_buffer(a:dict)
 	else
+		call s:start_cmdwin(a:dict)
 	endif
 endfunction
