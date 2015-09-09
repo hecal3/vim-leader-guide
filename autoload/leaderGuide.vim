@@ -1,18 +1,12 @@
 function! leaderGuide#PopulateDictionary(key, dictname)
 	let readinput = ""
 	redir => readinput
-	silent execute "verbose map ".a:key
+	silent execute "map ".a:key
 	redir END
 	let lines = split(readinput, "\n")
 	for line in lines
-		if !match(line, ".*Last set.*") == 0
-			call s:handle_line(line, a:key, a:dictname)
-			"echo line
-		else
-			"echo line
-		endif
+		call s:handle_line(line, a:key, a:dictname)
 	endfor
-	"let input = input("")
 endfunction
 
 function! s:handle_line(line, key, dictname)
