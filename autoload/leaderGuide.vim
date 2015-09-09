@@ -36,7 +36,7 @@ function! s:handle_line(line)
 endfunction
 
 function! s:add_mapping(key, cmd, desc, level, dictname)
-	if len(a:key) > a:level+1 && a:key[a:level] != '<'
+	if len(a:key) > a:level+1
 		" Go to next level
 		if a:level ==? 0
 			if !has_key({a:dictname}, a:key[a:level])
@@ -91,23 +91,27 @@ function! s:escape_mappings(string)
 endfunction
 
 function! s:string_to_keys(input)
-	let retlist = []
-	let si = 0
-	let go = 1
-	while si < len(a:input)
-		if go
-			call add(retlist, a:input[si])
-		else
-			let retlist[-1] .= a:input[si]
-		endif
-		if a:input[si] ==? '<'
-			let go = 0
-		elseif a:input[si] ==? '>'
-			let go = 1
-		end
-		let si += 1
-	endw
-	return retlist
+	" Avoid special case: <>
+	if match(a:input, '<.\+>') != -1
+		let retlist = []
+		let si = 0
+		let go = 1
+		while si < len(a:input)
+			if go
+				call add(retlist, a:input[si])
+			else
+				let retlist[-1] .= a:input[si]
+			endif
+			if a:input[si] ==? '<'
+				let go = 0
+			elseif a:input[si] ==? '>'
+				let go = 1
+			end
+			let si += 1
+		endw
+		return retlist
+	else
+		return split(a:input, '\zs')
 endfunction
 
 function! s:calc_layout(dkmap)
