@@ -11,67 +11,83 @@ function! leaderGuide#PopulateDictionary(key, dictname)
 	let lines = s:get_map("map ".a:key)
 	for line in lines
 		let maps = s:handle_line(line)
+		let display = maps[3]
 		let maps[1] = substitute(maps[1], a:key, "", "")
 		let maps[1] = substitute(maps[1], "<Space>", " ", "g")
+		let maps[3] = substitute(maps[3], "<Space>", "<lt>Space>", "g")
 		let maps[1] = substitute(maps[1], "<Tab>", "<C-I>", "g")
-		let maps[3] = substitute(maps[3], "^[:| ]*", "", "")
-		let maps[3] = substitute(maps[3], "<CR>$", "", "")
+		let maps[3] = substitute(maps[3], "^ *", "", "")
+		let display = substitute(display, "^[:| ]*", "", "")
+		let display = substitute(display, "<CR>$", "", "")
 		"echo maps
 		if maps[1] != ''
-			call s:add_mapping(s:string_to_keys(maps[1]), maps[3], 0, a:dictname)
+			call s:add_mapping(s:string_to_keys(maps[1]), maps[3],
+						\display, 0, a:dictname)
 		endif
 	endfor
 endfunction
 
 function! s:handle_line(line)
 	"echo a:line
-	let mlist = matchlist(a:line, '\([xnvc ]\) *\([^ ]*\) *\([@&\*]\{0,3}\)\(.*\)$')
+	let mlist =
+	\matchlist(a:line,'\([xnvco ]\{0,3}\) *\([^ ]*\) *\([@&\*]\{0,3}\)\(.*\)$')
 	"echo mlist
 	return mlist[1:]
 endfunction
 
-function! s:add_mapping(key, cmd, level, dictname)
+function! s:add_mapping(key, cmd, desc, level, dictname)
 	if len(a:key) > a:level+1 && a:key[a:level] != '<'
 		" Go to next level
 		if a:level ==? 0
 			if !has_key({a:dictname}, a:key[a:level])
-				let {a:dictname}[a:key[a:level]] = { 'name' : 'NONAME' }
+				let {a:dictname}[a:key[a:level]] = { 'name' : 'NoName' }
 			endif
 		elseif a:level ==? 1
 			if !has_key({a:dictname}[a:key[a:level-1]], a:key[a:level])
-				let {a:dictname}[a:key[a:level-1]][a:key[a:level]] = { 'name' : 'NONAME' }
+				let {a:dictname}[a:key[a:level-1]][a:key[a:level]] =
+							\{ 'name' : 'NoName' }
 			endif
 		elseif a:level ==? 2
-			if !has_key({a:dictname}[a:key[a:level-2]][a:key[a:level-1]], a:key[a:level])
-				let {a:dictname}[a:key[a:level-2]][a:key[a:level-1]][a:key[a:level]] = { 'name' : 'NONAME' }
+			if !has_key({a:dictname}[a:key[a:level-2]][a:key[a:level-1]],
+						\a:key[a:level])
+				let {a:dictname}[a:key[a:level-2]][a:key[a:level-1]]
+							\[a:key[a:level]] = { 'name' : 'NoName' }
 			endif
 		endif
-		call s:add_mapping(a:key, a:cmd, a:level + 1, a:dictname)
+		call s:add_mapping(a:key, a:cmd, a:desc, a:level + 1, a:dictname)
 	else
 		" This level
 		let command = s:escape_mappings(a:cmd)
 		if a:level ==? 0
 			if !has_key({a:dictname}, a:key[0])
-				let {a:dictname}[a:key[0]] = [command, a:cmd]
+				let {a:dictname}[a:key[0]] = [command,  a:desc]
 			endif
 		elseif a:level ==? 1
 			if !has_key({a:dictname}[a:key[a:level-1]], a:key[a:level])
-				let {a:dictname}[a:key[a:level-1]][a:key[a:level]] = [ command, a:cmd ]
+				let {a:dictname}[a:key[a:level-1]][a:key[a:level]] 
+							\= [ command, a:desc ]
 			endif
 		elseif a:level ==? 2
-			if !has_key({a:dictname}[a:key[a:level-2]][a:key[a:level-1]], a:key[a:level])
-				let {a:dictname}[a:key[a:level-2]][a:key[a:level-1]][a:key[a:level]] = [ command, a:cmd ]
+			if !has_key({a:dictname}[a:key[a:level-2]][a:key[a:level-1]], 
+						\a:key[a:level])
+				let {a:dictname}[a:key[a:level-2]][a:key[a:level-1]]
+							\[a:key[a:level]] = [ command, a:desc ]
 			endif
 		elseif a:level ==? 3
-			if !has_key({a:dictname}[a:key[a:level-3]][a:key[a:level-2]][a:key[a:level-1]], a:key[a:level])
-				let {a:dictname}[a:key[a:level-3]][a:key[a:level-2]][a:key[a:level-1]][a:key[a:level]] = [ command, a:cmd ]
+			if !has_key({a:dictname}[a:key[a:level-3]][a:key[a:level-2]]
+						\[a:key[a:level-1]], a:key[a:level])
+				let {a:dictname}[a:key[a:level-3]][a:key[a:level-2]]
+							\[a:key[a:level-1]][a:key[a:level]]
+							\ = [ command, a:desc ]
 			endif
 		endif
 	endif
 endfunction
 
 function! s:escape_mappings(string)
-	return substitute(a:string, '\(<Plug>.*\)$', 'call feedkeys("\\\1")', '')
+	let rstring = substitute(a:string, '<\([^<>]*\)>', '\\<\1>', 'g')
+	let rstring = 'call feedkeys("'.rstring.'")'
+	return rstring
 endfunction
 
 function! s:string_to_keys(input)
@@ -123,8 +139,8 @@ let s:displaynames = {'<C-I>': '<Tab>',
 					\ '<C-H>': '<BS>'}
 
 function! s:show_displayname(inp)
-	if has_key(s:displaynames, a:inp)
-		return s:displaynames[a:inp]
+	if has_key(s:displaynames, toupper(a:inp))
+		return s:displaynames[toupper(a:inp)]
 	else
 		return a:inp
 	end
@@ -138,11 +154,11 @@ function! s:create_string(dkmap, ncols, colwidth)
 	for k in sort(keys(a:dkmap),'i')
 		if k != 'name'
 		if type(a:dkmap[k]) == type({})
-			let displaystring = "[".s:show_displayname(toupper(k))."] ".a:dkmap[k].name
+			let displaystring = "[".s:show_displayname(k)."] ".a:dkmap[k].name
 		else
 			let string = a:dkmap[k]
 			let desc = string[1]
-			let displaystring = "[".s:show_displayname(toupper(k))."] ". desc
+			let displaystring = "[".s:show_displayname(k)."] ". desc
 		endif
 		let entry_len = strdisplaywidth(displaystring)
         call add(output, displaystring)
