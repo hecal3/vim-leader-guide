@@ -29,7 +29,6 @@ function! s:handle_line(line)
 	return mlist[1:]
 endfunction
 
-
 function! s:add_mapping(key, cmd, level, dictname)
 	if len(a:key) > a:level+1
 		" Go to next level
@@ -127,10 +126,10 @@ function! s:create_string(dkmap, ncols, colwidth)
 				let entry_len += 1
 			endwhile
 		endif
-		execute "cmap <buffer> " . k . " " . s:escape_keys(k) ."<CR>"
+		execute "cmap <nowait> <buffer> " . k . " " . s:escape_keys(k) ."<CR>"
 		endif
 	endfor
-	cmap <buffer> <Space> <Space><CR>
+	cmap <nowait> <buffer> <Space> <Space><CR>
 	return [output, nrows]
 endfunction
 
