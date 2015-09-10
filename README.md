@@ -23,7 +23,7 @@ let g:lmap.o = { 'name' : 'Open Stuff' }
 " leader-f is the "File Menu" group.
 " Unnamed groups will show a default string
 
-" Document existing keymappings:
+" Provide commands and descriptions for existing mappings
 	nmap <silent> <leader>fd :e $MYVIMRC<CR>
 	let g:lmap.f.d = ['e $MYVIMRC', 'Open vimrc']
 
@@ -57,29 +57,53 @@ let g:lmap.c[' '] = ['call feedkeys("\<Plug>NERDCommenterToggle")','Toggle']
 " The Descriptions for other mappings defined by NerdCommenter, will default
 " to their respective commands.
 
-" Leader + timeoutlen opens the main menu
-nnoremap <silent> <leader> :LeaderGuide g:lmap<CR>
-vnoremap <silent> <leader> :LeaderGuideVisual g:lmap<CR>
+```
 
-" Populate the Dictionary depending on your <leader> key:
-call leaderGuide#PopulateDictionary("<Space>", "g:lmap")
-" call leaderGuide#PopulateDictionary(",", "g:lmap")
-" You might want to call this later, after all mappings are set.
-" Alternatively use the following line to rescan the mappings
-" whenever the Guide pops up:
-autocmd FileType leaderGuide call leaderGuide#PopulateDictionary("<Space>", "g:lmap")
+There are two ways of calling the Plugin:
+
+" Recommended:
+" Register the description dictionary for the prefix
+" (assuming <Space> is your leader)
+
+```vim
+call leaderGuide#register_prefix_descriptions("<Space>", "g:lmap")
+nnoremap <silent> <leader> :LeaderGuide '<Space>'<CR>
+vnoremap <silent> <leader> :LeaderGuideVisual '<Space>'<CR>
+```
+
+The guide will be up to date at all times.
+
+Vim-style mappings found by the parser will always take 
+precedence over dictionary-only mappings (e.g. the git menu above)
 
 
 
-" Another Map for the localleader-prefix:
-let g:anotherdict = {}
-nnoremap <silent> <localleader> :LeaderGuide g:anotherdict<CR>
-vnoremap <silent> <localleader> :LeaderGuideVisual g:anotherdict<CR>
+Not Recommended. Call by providing a dictionary directly
+When the mappings change, the guide will not update itself
 
-" No renaming and descriptions, just get the mappings:
-call leaderGuide#PopulateDictionary(",", "g:anotherdict")
-" As above, make sure to call this after all mappings are set,
-" e.g after loading a filetype plugin.
+```vim
+nnoremap <silent> <leader> :LeaderGuideD g:lmap<CR>
+vnoremap <silent> <leader> :LeaderGuideVisualD g:lmap<CR>
+"" Get all <Space> mappings into the dictionary:
+"call leaderGuide#populate_dictionary("<Space>", "g:lmap")
+```
+
+
+You can hook in the guide for every prefix.
+A description dictionary is not strictly necessary.
+
+```vim
+nnoremap <localleader> :LeaderGuide  ','<CR>
+vnoremap <localleader> :LeaderGuideVisual  ','<CR>
+" This variant won't habe any group names.
+
+" Group names can be defined by filetype. Add the following lines:
+let g:llmap = {}
+autocmd FileType tex let g:llmap.l = { 'name' : 'vimtex' }
+call leaderGuide#register_prefix_descriptions(",", "g:llmap")
+" to name the <localleader>-n group vimtex in tex files.
+
+
 ```
 
 Try pressing leader.
@@ -128,7 +152,15 @@ let g:leaderGuide_position = 'topleft'
 " Right
 let g:leaderGuide_vertical = 1
 let g:leaderGuide_position = 'botright'
+```
 
+Do NOT update the guide automatically: (Not recommended)
+
+The update is almost instantaneous and will only run when the guide
+actually pops up. Otherwise the automatic update has no performance impact.
+
+```vim
+let g:leaderGuide_run_map_on_popup = 0
 ```
 
 ## TODO and Ideas

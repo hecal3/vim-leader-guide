@@ -1,3 +1,34 @@
+fun! s:merge(dict_t, dict_o)
+	let target = a:dict_t
+	let other = a:dict_o
+	for k in keys(target)
+		if type(target[k]) == type({}) && has_key(other, k)
+			if type(other[k]) == type({})
+				if has_key(target[k], 'name')
+					let other[k].name = target[k].name
+				endif
+				call s:merge(target[k], other[k])
+			elseif type(other[k]) == type([])
+				let target[k] = other[k]
+			endif
+		endif
+	endfor
+	call extend(target, other, "keep")
+endf
+
+fun! s:create_target_dict(key)
+	if has_key(g:desc_lookup, a:key)
+		let tardict = deepcopy({g:desc_lookup[a:key]})
+		let mapdict = g:cached_dicts[a:key]
+		"echo tardict
+		"echo mapdict
+		call s:merge(tardict, mapdict)
+	else
+		let tardict = g:cached_dicts[a:key]
+	endif
+	return tardict
+endf
+
 function! s:get_map(cmd)
 	let readmap = ""
 	redir => readmap
@@ -7,7 +38,31 @@ function! s:get_map(cmd)
 	return lines
 endfunction
 
-function! leaderGuide#PopulateDictionary(key, dictname)
+fun! s:create_cache()
+	let g:desc_lookup = {}
+	let g:cached_dicts = {}
+endf
+
+fun! leaderGuide#register_prefix_descriptions(key, dictname)
+	if !exists('g:desc_lookup')
+		call s:create_cache()
+	endif
+	if !has_key(g:desc_lookup, a:key)
+		let g:desc_lookup[a:key] = a:dictname
+	endif
+endf
+
+function! leaderGuide#populate_dictionary(key, dictname)
+	call s:start_parser(a:key, g:cached_dicts[a:key])
+endfunction
+
+fun! leaderGuide#parseMappings()
+	for [k, v] in items(g:cached_dicts)
+		call s:start_parser(k, v)
+	endfor
+endf
+
+fun! s:start_parser(key, dict)
 	let lines = s:get_map("map ".a:key)
 	for line in lines
 		let maps = s:handle_line(line)
@@ -22,10 +77,10 @@ function! leaderGuide#PopulateDictionary(key, dictname)
 		"echo maps
 		if maps[1] != ''
 			call s:add_mapping(s:string_to_keys(maps[1]), maps[3],
-						\display, 0, a:dictname)
+						\display, 0, a:dict)
 		endif
 	endfor
-endfunction
+endf
 
 function! s:handle_line(line)
 	"echo a:line
@@ -35,48 +90,48 @@ function! s:handle_line(line)
 	return mlist[1:]
 endfunction
 
-function! s:add_mapping(key, cmd, desc, level, dictname)
+function! s:add_mapping(key, cmd, desc, level, dict)
 	if len(a:key) > a:level+1
 		" Go to next level
 		if a:level ==? 0
-			if !has_key({a:dictname}, a:key[a:level])
-				let {a:dictname}[a:key[a:level]] = { 'name' : 'NoName' }
+			if !has_key(a:dict, a:key[a:level])
+				let a:dict[a:key[a:level]] = { 'name' : '' }
 			endif
 		elseif a:level ==? 1
-			if !has_key({a:dictname}[a:key[a:level-1]], a:key[a:level])
-				let {a:dictname}[a:key[a:level-1]][a:key[a:level]] =
-							\{ 'name' : 'NoName' }
+			if !has_key(a:dict[a:key[a:level-1]], a:key[a:level])
+				let a:dict[a:key[a:level-1]][a:key[a:level]] =
+							\{ 'name' : '' }
 			endif
 		elseif a:level ==? 2
-			if !has_key({a:dictname}[a:key[a:level-2]][a:key[a:level-1]],
+			if !has_key(a:dict[a:key[a:level-2]][a:key[a:level-1]],
 						\a:key[a:level])
-				let {a:dictname}[a:key[a:level-2]][a:key[a:level-1]]
-							\[a:key[a:level]] = { 'name' : 'NoName' }
+				let a:dict[a:key[a:level-2]][a:key[a:level-1]]
+							\[a:key[a:level]] = { 'name' : '' }
 			endif
 		endif
-		call s:add_mapping(a:key, a:cmd, a:desc, a:level + 1, a:dictname)
+		call s:add_mapping(a:key, a:cmd, a:desc, a:level + 1, a:dict)
 	else
 		" This level
 		let command = s:escape_mappings(a:cmd)
 		if a:level ==? 0
-			if !has_key({a:dictname}, a:key[0])
-				let {a:dictname}[a:key[0]] = [command,  a:desc]
+			if !has_key(a:dict, a:key[0])
+				let a:dict[a:key[0]] = [command,  a:desc]
 			endif
 		elseif a:level ==? 1
-			if !has_key({a:dictname}[a:key[a:level-1]], a:key[a:level])
-				let {a:dictname}[a:key[a:level-1]][a:key[a:level]] 
+			if !has_key(a:dict[a:key[a:level-1]], a:key[a:level])
+				let a:dict[a:key[a:level-1]][a:key[a:level]] 
 							\= [ command, a:desc ]
 			endif
 		elseif a:level ==? 2
-			if !has_key({a:dictname}[a:key[a:level-2]][a:key[a:level-1]], 
+			if !has_key(a:dict[a:key[a:level-2]][a:key[a:level-1]], 
 						\a:key[a:level])
-				let {a:dictname}[a:key[a:level-2]][a:key[a:level-1]]
+				let a:dict[a:key[a:level-2]][a:key[a:level-1]]
 							\[a:key[a:level]] = [ command, a:desc ]
 			endif
 		elseif a:level ==? 3
-			if !has_key({a:dictname}[a:key[a:level-3]][a:key[a:level-2]]
+			if !has_key(a:dict[a:key[a:level-3]][a:key[a:level-2]]
 						\[a:key[a:level-1]], a:key[a:level])
-				let {a:dictname}[a:key[a:level-3]][a:key[a:level-2]]
+				let a:dict[a:key[a:level-3]][a:key[a:level-2]]
 							\[a:key[a:level-1]][a:key[a:level]]
 							\ = [ command, a:desc ]
 			endif
@@ -244,15 +299,43 @@ function! s:create_buffer()
 	autocmd WinLeave <buffer> :bdelete!
 endfunction
 
-function! leaderGuide#Start(vis, dict)
-
-	let s:vis = a:vis
+fun! s:start_guide(mappings)
 	let s:winv = winsaveview()
 	let s:winnr = winnr()
-	
+
 	if g:leaderGuide_use_buffer
-		call s:start_buffer(a:dict)
+		call s:start_buffer(a:mappings)
 	else
-		call s:start_cmdwin(a:dict)
+		call s:start_cmdwin(a:mappings)
 	endif
+endf
+
+fun! leaderGuide#start_by_prefix(vis, key)
+
+	if a:key ==? ' '
+		let startkey = "<Space>"
+	else
+		let startkey = s:escape_keys(a:key)
+	endif
+
+	if !has_key(g:cached_dicts, startkey) || g:leaderGuide_run_map_on_popup
+		"first run
+		let g:cached_dicts[startkey] = {}
+		call s:start_parser(startkey, g:cached_dicts[startkey])
+	endif
+	
+	if has_key(g:desc_lookup, startkey)
+		let rundict = s:create_target_dict(startkey)
+	else
+		let rundict = g:cached_dicts[startkey]
+	endif
+	
+	let s:vis = a:vis
+	call s:start_guide(rundict)
+endf
+
+function! leaderGuide#Start(vis, dict)
+	"call leaderGuide#parseMappings()
+	let s:vis = a:vis
+	call s:start_guide(a:dict)
 endfunction
