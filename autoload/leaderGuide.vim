@@ -3,12 +3,14 @@ fun! s:merge(dict_t, dict_o)
 	let other = a:dict_o
 	for k in keys(target)
 		if type(target[k]) == type({}) && has_key(other, k)
+			"echom k.' other:'type(other[k])
 			if type(other[k]) == type({})
 				if has_key(target[k], 'name')
 					let other[k].name = target[k].name
 				endif
 				call s:merge(target[k], other[k])
 			elseif type(other[k]) == type([])
+				let target[k.'m'] = target[k]
 				let target[k] = other[k]
 			endif
 		endif
