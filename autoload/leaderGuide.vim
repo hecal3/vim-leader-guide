@@ -65,6 +65,7 @@ endf
 fun! s:start_parser(key, dict)
 	let lines = s:get_map("map ".a:key)
 	for line in lines
+		"echo line
 		let maps = s:handle_line(line)
 		let display = maps[3]
 		let maps[1] = substitute(maps[1], a:key, "", "")
@@ -74,10 +75,15 @@ fun! s:start_parser(key, dict)
 		let maps[3] = substitute(maps[3], "^ *", "", "")
 		let display = substitute(display, "^[:| ]*", "", "")
 		let display = substitute(display, "<CR>$", "", "")
-		"echo maps
+		"echom join(maps)
 		if maps[1] != ''
+			if s:vis && match(maps[0], "[vx ]") >= 0
 			call s:add_mapping(s:string_to_keys(maps[1]), maps[3],
-						\display, 0, a:dict)
+						\display, 0, a:dict, maps[0])
+			elseif !s:vis && match(maps[0], "[vx]") == -1
+			call s:add_mapping(s:string_to_keys(maps[1]), maps[3],
+						\display, 0, a:dict, maps[0])
+			endif
 		endif
 	endfor
 endf
@@ -85,12 +91,12 @@ endf
 function! s:handle_line(line)
 	"echo a:line
 	let mlist =
-	\matchlist(a:line,'\([xnvco ]\{0,3}\) *\([^ ]*\) *\([@&\*]\{0,3}\)\(.*\)$')
+	\matchlist(a:line,'\([xnvco]\{0,3}\) *\([^ ]*\) *\([@&\*]\{0,3}\)\(.*\)$')
 	"echo mlist
 	return mlist[1:]
 endfunction
 
-function! s:add_mapping(key, cmd, desc, level, dict)
+function! s:add_mapping(key, cmd, desc, level, dict, mode)
 	if len(a:key) > a:level+1
 		" Go to next level
 		if a:level ==? 0
@@ -109,30 +115,38 @@ function! s:add_mapping(key, cmd, desc, level, dict)
 							\[a:key[a:level]] = { 'name' : '' }
 			endif
 		endif
-		call s:add_mapping(a:key, a:cmd, a:desc, a:level + 1, a:dict)
+		call s:add_mapping(a:key, a:cmd, a:desc, a:level + 1, a:dict, a:mode)
 	else
+		"echo a:mode."|"
+		let thekey = a:key[a:level]
+		"if a:mode == "v"
+			"echo "visual"
+			"let thekey = thekey.'v'
+		"endif
+		"echo thekey
+			
 		" This level
 		let command = s:escape_mappings(a:cmd)
 		if a:level ==? 0
-			if !has_key(a:dict, a:key[0])
-				let a:dict[a:key[0]] = [command,  a:desc]
+			if !has_key(a:dict, thekey)
+				let a:dict[thekey] = [command,  a:desc]
 			endif
 		elseif a:level ==? 1
-			if !has_key(a:dict[a:key[a:level-1]], a:key[a:level])
-				let a:dict[a:key[a:level-1]][a:key[a:level]] 
+			if !has_key(a:dict[a:key[a:level-1]], thekey)
+				let a:dict[a:key[a:level-1]][thekey] 
 							\= [ command, a:desc ]
 			endif
 		elseif a:level ==? 2
 			if !has_key(a:dict[a:key[a:level-2]][a:key[a:level-1]], 
-						\a:key[a:level])
+						\thekey)
 				let a:dict[a:key[a:level-2]][a:key[a:level-1]]
-							\[a:key[a:level]] = [ command, a:desc ]
+							\[thekey] = [ command, a:desc ]
 			endif
 		elseif a:level ==? 3
 			if !has_key(a:dict[a:key[a:level-3]][a:key[a:level-2]]
-						\[a:key[a:level-1]], a:key[a:level])
+						\[a:key[a:level-1]], thekey)
 				let a:dict[a:key[a:level-3]][a:key[a:level-2]]
-							\[a:key[a:level-1]][a:key[a:level]]
+							\[a:key[a:level-1]][thekey]
 							\ = [ command, a:desc ]
 			endif
 		endif
@@ -311,6 +325,7 @@ fun! s:start_guide(mappings)
 endf
 
 fun! leaderGuide#start_by_prefix(vis, key)
+	let s:vis = a:vis
 
 	if a:key ==? ' '
 		let startkey = "<Space>"
