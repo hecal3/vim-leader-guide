@@ -61,9 +61,9 @@ let g:lmap.c[' '] = ['call feedkeys("\<Plug>NERDCommenterToggle")','Toggle']
 
 There are two ways of calling the Plugin:
 
-" Recommended:
-" Register the description dictionary for the prefix
-" (assuming <Space> is your leader)
+Recommended:
+Register the description dictionary for the prefix
+(assuming Space is your leader)
 
 ```vim
 call leaderGuide#register_prefix_descriptions("<Space>", "g:lmap")
@@ -72,11 +72,10 @@ vnoremap <silent> <leader> :LeaderGuideVisual '<Space>'<CR>
 ```
 
 The guide will be up to date at all times.
-
-Vim-style mappings found by the parser will always take 
+Native vim mappings will always take 
 precedence over dictionary-only mappings (e.g. the git menu above)
 
-
+---
 
 Not Recommended. Call by providing a dictionary directly
 When the mappings change, the guide will not update itself
@@ -154,14 +153,14 @@ let g:leaderGuide_vertical = 1
 let g:leaderGuide_position = 'botright'
 ```
 
-Do NOT update the guide automatically: (Not recommended)
-
-The update is almost instantaneous and will only run when the guide
-actually pops up. Otherwise the automatic update has no performance impact.
+Don't update the guide automatically: (Not recommended)
 
 ```vim
 let g:leaderGuide_run_map_on_popup = 0
 ```
+
+The update is almost instantaneous and will only run when the guide
+actually pops up. Otherwise the automatic update has no performance impact.
 
 ## TODO and Ideas
 
