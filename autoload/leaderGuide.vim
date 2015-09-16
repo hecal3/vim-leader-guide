@@ -19,14 +19,14 @@ fun! s:merge(dict_t, dict_o)
 endf
 
 fun! s:create_target_dict(key)
-	if has_key(g:desc_lookup, a:key)
-		let tardict = deepcopy({g:desc_lookup[a:key]})
-		let mapdict = g:cached_dicts[a:key]
+	if has_key(s:desc_lookup, a:key)
+		let tardict = deepcopy({s:desc_lookup[a:key]})
+		let mapdict = s:cached_dicts[a:key]
 		"echo tardict
 		"echo mapdict
 		call s:merge(tardict, mapdict)
 	else
-		let tardict = g:cached_dicts[a:key]
+		let tardict = s:cached_dicts[a:key]
 	endif
 	return tardict
 endf
@@ -41,25 +41,25 @@ function! s:get_map(cmd)
 endfunction
 
 fun! s:create_cache()
-	let g:desc_lookup = {}
-	let g:cached_dicts = {}
+	let s:desc_lookup = {}
+	let s:cached_dicts = {}
 endf
 
 fun! leaderGuide#register_prefix_descriptions(key, dictname)
-	if !exists('g:desc_lookup')
+	if !exists('s:desc_lookup')
 		call s:create_cache()
 	endif
-	if !has_key(g:desc_lookup, a:key)
-		let g:desc_lookup[a:key] = a:dictname
+	if !has_key(s:desc_lookup, a:key)
+		let s:desc_lookup[a:key] = a:dictname
 	endif
 endf
 
 function! leaderGuide#populate_dictionary(key, dictname)
-	call s:start_parser(a:key, g:cached_dicts[a:key])
+	call s:start_parser(a:key, s:cached_dicts[a:key])
 endfunction
 
 fun! leaderGuide#parseMappings()
-	for [k, v] in items(g:cached_dicts)
+	for [k, v] in items(s:cached_dicts)
 		call s:start_parser(k, v)
 	endfor
 endf
@@ -294,16 +294,16 @@ fun! leaderGuide#start_by_prefix(vis, key)
 		let startkey = s:escape_keys(a:key)
 	endif
 
-	if !has_key(g:cached_dicts, startkey) || g:leaderGuide_run_map_on_popup
+	if !has_key(s:cached_dicts, startkey) || g:leaderGuide_run_map_on_popup
 		"first run
-		let g:cached_dicts[startkey] = {}
-		call s:start_parser(startkey, g:cached_dicts[startkey])
+		let s:cached_dicts[startkey] = {}
+		call s:start_parser(startkey, s:cached_dicts[startkey])
 	endif
 	
-	if has_key(g:desc_lookup, startkey)
+	if has_key(s:desc_lookup, startkey)
 		let rundict = s:create_target_dict(startkey)
 	else
-		let rundict = g:cached_dicts[startkey]
+		let rundict = s:cached_dicts[startkey]
 	endif
 	
 	let s:vis = a:vis
