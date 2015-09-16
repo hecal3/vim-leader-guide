@@ -1,35 +1,56 @@
-fun! s:merge(dict_t, dict_o)
-	let target = a:dict_t
-	let other = a:dict_o
-	for k in keys(target)
-		if type(target[k]) == type({}) && has_key(other, k)
-			"echom k.' other:'type(other[k])
-			if type(other[k]) == type({})
-				if has_key(target[k], 'name')
-					let other[k].name = target[k].name
-				endif
-				call s:merge(target[k], other[k])
-			elseif type(other[k]) == type([])
-				let target[k.'m'] = target[k]
-				let target[k] = other[k]
-			endif
-		endif
-	endfor
-	call extend(target, other, "keep")
-endf
-
-fun! s:create_target_dict(key)
-	if has_key(s:desc_lookup, a:key)
-		let tardict = deepcopy({s:desc_lookup[a:key]})
-		let mapdict = s:cached_dicts[a:key]
-		"echo tardict
-		"echo mapdict
-		call s:merge(tardict, mapdict)
-	else
-		let tardict = s:cached_dicts[a:key]
+function! leaderGuide#register_prefix_descriptions(key, dictname)
+	if !exists('s:desc_lookup')
+		call s:create_cache()
 	endif
-	return tardict
-endf
+	if !has_key(s:desc_lookup, a:key)
+		let s:desc_lookup[a:key] = a:dictname
+	endif
+endfunction
+
+function! leaderGuide#populate_dictionary(key, dictname)
+	call s:start_parser(a:key, s:cached_dicts[a:key])
+endfunction
+
+function! leaderGuide#parseMappings()
+	for [k, v] in items(s:cached_dicts)
+		call s:start_parser(k, v)
+	endfor
+endfunction
+
+function! leaderGuide#start_by_prefix(vis, key)
+	let s:vis = a:vis
+
+	if a:key ==? ' '
+		let startkey = "<Space>"
+	else
+		let startkey = s:escape_keys(a:key)
+	endif
+
+	if !has_key(s:cached_dicts, startkey) || g:leaderGuide_run_map_on_popup
+		"first run
+		let s:cached_dicts[startkey] = {}
+		call s:start_parser(startkey, s:cached_dicts[startkey])
+	endif
+	
+	if has_key(s:desc_lookup, startkey)
+		let rundict = s:create_target_dict(startkey)
+	else
+		let rundict = s:cached_dicts[startkey]
+	endif
+	
+	let s:vis = a:vis
+	call s:start_guide(rundict)
+endfunction
+
+function! leaderGuide#start(vis, dict)
+	let s:vis = a:vis
+	call s:start_guide(a:dict)
+endfunction
+
+function! s:create_cache()
+	let s:desc_lookup = {}
+	let s:cached_dicts = {}
+endfunction
 
 function! s:get_map(cmd)
 	let readmap = ""
@@ -40,35 +61,11 @@ function! s:get_map(cmd)
 	return lines
 endfunction
 
-fun! s:create_cache()
-	let s:desc_lookup = {}
-	let s:cached_dicts = {}
-endf
-
-fun! leaderGuide#register_prefix_descriptions(key, dictname)
-	if !exists('s:desc_lookup')
-		call s:create_cache()
-	endif
-	if !has_key(s:desc_lookup, a:key)
-		let s:desc_lookup[a:key] = a:dictname
-	endif
-endf
-
-function! leaderGuide#populate_dictionary(key, dictname)
-	call s:start_parser(a:key, s:cached_dicts[a:key])
-endfunction
-
-fun! leaderGuide#parseMappings()
-	for [k, v] in items(s:cached_dicts)
-		call s:start_parser(k, v)
-	endfor
-endf
-
-fun! s:start_parser(key, dict)
+function! s:start_parser(key, dict)
 	let lines = s:get_map("map ".a:key)
 	for line in lines
 		"echo line
-		let maps = s:handle_line(line)
+		let maps = s:split_mapline(line)
 		let display = maps[3]
 		let maps[1] = substitute(maps[1], a:key, "", "")
 		let maps[1] = substitute(maps[1], "<Space>", " ", "g")
@@ -79,32 +76,27 @@ fun! s:start_parser(key, dict)
 		let display = substitute(display, "<CR>$", "", "")
 		"echom join(maps)
 		if maps[1] != ''
-			if s:vis && match(maps[0], "[vx ]") >= 0
-			call s:add_mapping(s:string_to_keys(maps[1]), maps[3],
-						\display, 0, a:dict, maps[0])
-			elseif !s:vis && match(maps[0], "[vx]") == -1
-			call s:add_mapping(s:string_to_keys(maps[1]), maps[3],
+			if (s:vis && match(maps[0], "[vx ]") >= 0) ||
+						\ (!s:vis && match(maps[0], "[vx]") == -1)
+			call s:add_map_to_dict(s:string_to_keys(maps[1]), maps[3],
 						\display, 0, a:dict, maps[0])
 			endif
 		endif
 	endfor
-endf
+endfunction
 
-function! s:handle_line(line)
-	"echo a:line
+function! s:split_mapline(line)
 	let mlist =
 	\matchlist(a:line,'\([xnvco]\{0,3}\) *\([^ ]*\) *\([@&\*]\{0,3}\)\(.*\)$')
-	"echo mlist
 	return mlist[1:]
 endfunction
 
-function! s:add_mapping(key, cmd, desc, level, dict, mode)
+function! s:add_map_to_dict(key, cmd, desc, level, dict, mode)
 	if len(a:key) > a:level+1
-		" Go to next level
 		if !has_key(a:dict, a:key[a:level])
 			let a:dict[a:key[a:level]] = { 'name' : '' }
 		endif
-		call s:add_mapping(a:key, a:cmd, a:desc, a:level + 1,
+		call s:add_map_to_dict(a:key, a:cmd, a:desc, a:level + 1,
 					\a:dict[a:key[a:level]], a:mode)
 	else
 		let cmd = s:escape_mappings(a:cmd)
@@ -118,7 +110,6 @@ function! s:escape_mappings(string)
 	let rstring = substitute(a:string, '<\([^<>]*\)>', '\\<\1>', 'g')
 	let rstring = substitute(rstring, '"', '\\"', 'g')
 	let rstring = 'call feedkeys("'.rstring.'")'
-	echom rstring
 	return rstring
 endfunction
 
@@ -144,6 +135,36 @@ function! s:string_to_keys(input)
 		return retlist
 	else
 		return split(a:input, '\zs')
+endfunction
+
+function! s:create_target_dict(key)
+	if has_key(s:desc_lookup, a:key)
+		let tardict = deepcopy({s:desc_lookup[a:key]})
+		let mapdict = s:cached_dicts[a:key]
+		call s:merge(tardict, mapdict)
+	else
+		let tardict = s:cached_dicts[a:key]
+	endif
+	return tardict
+endfunction
+
+function! s:merge(dict_t, dict_o)
+	let target = a:dict_t
+	let other = a:dict_o
+	for k in keys(target)
+		if type(target[k]) == type({}) && has_key(other, k)
+			if type(other[k]) == type({})
+				if has_key(target[k], 'name')
+					let other[k].name = target[k].name
+				endif
+				call s:merge(target[k], other[k])
+			elseif type(other[k]) == type([])
+				let target[k.'m'] = target[k]
+				let target[k] = other[k]
+			endif
+		endif
+	endfor
+	call extend(target, other, "keep")
 endfunction
 
 function! s:calc_layout(dkmap)
@@ -173,7 +194,6 @@ endfunction
 
 let s:displaynames = {'<C-I>': '<Tab>',
 					\ '<C-H>': '<BS>'}
-
 function! s:show_displayname(inp)
 	if has_key(s:displaynames, toupper(a:inp))
 		return s:displaynames[toupper(a:inp)]
@@ -262,7 +282,7 @@ function! s:create_buffer()
 	autocmd WinLeave <buffer> :bdelete!
 endfunction
 
-fun! s:start_guide(mappings)
+function! s:start_guide(mappings)
 	let s:winv = winsaveview()
 	let s:winnr = winnr()
 
@@ -271,37 +291,6 @@ fun! s:start_guide(mappings)
 	else
 		call s:start_cmdwin(a:mappings)
 	endif
-endf
-
-fun! leaderGuide#start_by_prefix(vis, key)
-	let s:vis = a:vis
-
-	if a:key ==? ' '
-		let startkey = "<Space>"
-	else
-		let startkey = s:escape_keys(a:key)
-	endif
-
-	if !has_key(s:cached_dicts, startkey) || g:leaderGuide_run_map_on_popup
-		"first run
-		let s:cached_dicts[startkey] = {}
-		call s:start_parser(startkey, s:cached_dicts[startkey])
-	endif
-	
-	if has_key(s:desc_lookup, startkey)
-		let rundict = s:create_target_dict(startkey)
-	else
-		let rundict = s:cached_dicts[startkey]
-	endif
-	
-	let s:vis = a:vis
-	call s:start_guide(rundict)
-endf
-
-function! leaderGuide#Start(vis, dict)
-	"call leaderGuide#parseMappings()
-	let s:vis = a:vis
-	call s:start_guide(a:dict)
 endfunction
 
 function! s:start_cmdwin(lmap)
