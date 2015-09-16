@@ -101,56 +101,15 @@ endfunction
 function! s:add_mapping(key, cmd, desc, level, dict, mode)
 	if len(a:key) > a:level+1
 		" Go to next level
-		if a:level ==? 0
-			if !has_key(a:dict, a:key[a:level])
-				let a:dict[a:key[a:level]] = { 'name' : '' }
-			endif
-		elseif a:level ==? 1
-			if !has_key(a:dict[a:key[a:level-1]], a:key[a:level])
-				let a:dict[a:key[a:level-1]][a:key[a:level]] =
-							\{ 'name' : '' }
-			endif
-		elseif a:level ==? 2
-			if !has_key(a:dict[a:key[a:level-2]][a:key[a:level-1]],
-						\a:key[a:level])
-				let a:dict[a:key[a:level-2]][a:key[a:level-1]]
-							\[a:key[a:level]] = { 'name' : '' }
-			endif
+		if !has_key(a:dict, a:key[a:level])
+			let a:dict[a:key[a:level]] = { 'name' : '' }
 		endif
-		call s:add_mapping(a:key, a:cmd, a:desc, a:level + 1, a:dict, a:mode)
+		call s:add_mapping(a:key, a:cmd, a:desc, a:level + 1,
+					\a:dict[a:key[a:level]], a:mode)
 	else
-		"echo a:mode."|"
-		let thekey = a:key[a:level]
-		"if a:mode == "v"
-			"echo "visual"
-			"let thekey = thekey.'v'
-		"endif
-		"echo thekey
-			
-		" This level
-		let command = s:escape_mappings(a:cmd)
-		if a:level ==? 0
-			if !has_key(a:dict, thekey)
-				let a:dict[thekey] = [command,  a:desc]
-			endif
-		elseif a:level ==? 1
-			if !has_key(a:dict[a:key[a:level-1]], thekey)
-				let a:dict[a:key[a:level-1]][thekey] 
-							\= [ command, a:desc ]
-			endif
-		elseif a:level ==? 2
-			if !has_key(a:dict[a:key[a:level-2]][a:key[a:level-1]], 
-						\thekey)
-				let a:dict[a:key[a:level-2]][a:key[a:level-1]]
-							\[thekey] = [ command, a:desc ]
-			endif
-		elseif a:level ==? 3
-			if !has_key(a:dict[a:key[a:level-3]][a:key[a:level-2]]
-						\[a:key[a:level-1]], thekey)
-				let a:dict[a:key[a:level-3]][a:key[a:level-2]]
-							\[a:key[a:level-1]][thekey]
-							\ = [ command, a:desc ]
-			endif
+		let cmd = s:escape_mappings(a:cmd)
+		if !has_key(a:dict, a:key[a:level])
+			let a:dict[a:key[a:level]] = [cmd, a:desc]
 		endif
 	endif
 endfunction
