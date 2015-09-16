@@ -116,7 +116,9 @@ endfunction
 
 function! s:escape_mappings(string)
 	let rstring = substitute(a:string, '<\([^<>]*\)>', '\\<\1>', 'g')
+	let rstring = substitute(rstring, '"', '\\"', 'g')
 	let rstring = 'call feedkeys("'.rstring.'")'
+	echom rstring
 	return rstring
 endfunction
 
@@ -214,20 +216,6 @@ function! s:create_string(dkmap, ncols, colwidth)
 	return [output, nrows]
 endfunction
 
-function! s:start_cmdwin(lmap)
-	let [ncols, colwidth, maxlen] = s:calc_layout(a:lmap)
-	let [string, nrows] = s:create_string(a:lmap, ncols, colwidth)
-    let inp = input('Insert Key: '."\n".join(string,'')."\n")
-    if inp != ''
-		let fsel = get(a:lmap, inp)[0]
-	else
-		let fsel = ''
-	endif
-	silent! call s:unmap_keys(keys(a:lmap))
-	redraw
-	execute fsel
-endfunction
-
 function! s:start_buffer(lmap)
 	call s:create_buffer()
 	let [ncols, colwidth, maxlen] = s:calc_layout(a:lmap)
@@ -314,4 +302,18 @@ function! leaderGuide#Start(vis, dict)
 	"call leaderGuide#parseMappings()
 	let s:vis = a:vis
 	call s:start_guide(a:dict)
+endfunction
+
+function! s:start_cmdwin(lmap)
+	let [ncols, colwidth, maxlen] = s:calc_layout(a:lmap)
+	let [string, nrows] = s:create_string(a:lmap, ncols, colwidth)
+    let inp = input('Insert Key: '."\n".join(string,'')."\n")
+    if inp != ''
+		let fsel = get(a:lmap, inp)[0]
+	else
+		let fsel = ''
+	endif
+	silent! call s:unmap_keys(keys(a:lmap))
+	redraw
+	execute fsel
 endfunction
