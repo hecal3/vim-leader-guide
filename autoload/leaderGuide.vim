@@ -264,7 +264,7 @@ function! s:start_buffer(lmap)
 	else
 		redraw
 		if s:vis
-			normal gv
+			normal! gv
 		endif
 		execute fsel[0]
 	endif
