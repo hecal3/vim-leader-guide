@@ -248,7 +248,7 @@ function! s:start_buffer(lmap)
 	endif
 
 	execute "normal! i ".join(string,'')
-	setlocal nomodifiable
+	setlocal nomodifiable nolist
 	redraw
 	let inp = input("")
     if inp != '' && inp!= "<lt>ESC>"
