@@ -207,7 +207,7 @@ function! s:create_string(dkmap, ncols, colwidth)
 	let output = []
 	let colnum = 1
 	let nrows = 1
-	for k in sort(keys(a:dkmap),'i')
+	for k in sort(keys(a:dkmap),'1')
 		if k != 'name'
 		if type(a:dkmap[k]) == type({})
 			let displaystring = "[".s:show_displayname(k)."] ".a:dkmap[k].name
