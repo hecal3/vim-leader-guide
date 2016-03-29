@@ -273,7 +273,7 @@ endfunction
 
 function! s:create_buffer()
     if !exists('s:bufnr')
-        let s:bufnr = 0
+        let s:bufnr = -1
     endif
     if bufexists(s:bufnr)
         if g:leaderGuide_vertical
