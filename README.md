@@ -59,7 +59,7 @@ let g:lmap.c[' '] = ['call feedkeys("\<Plug>NERDCommenterToggle")','Toggle']
 
 ```
 
-There are two ways of calling the Plugin:
+There are two ways to call the Plugin:
 
 Recommended:
 Register the description dictionary for the prefix
@@ -77,7 +77,8 @@ precedence over dictionary-only mappings (e.g. the git menu above)
 
 ---
 
-Not Recommended. Call by providing a dictionary directly
+Not Recommended:
+Call by providing a dictionary directly
 When the mappings change, the guide will not update itself
 
 ```vim
@@ -87,9 +88,11 @@ vnoremap <silent> <leader> :LeaderGuideVisualD g:lmap<CR>
 "call leaderGuide#populate_dictionary("<Space>", "g:lmap")
 ```
 
+---
 
-You can hook in the guide for every prefix.
-A description dictionary is not strictly necessary.
+
+It is possible to call the guide for keys other than `leader`:
+A description dictionary is not necessary.
 
 ```vim
 nnoremap <localleader> :LeaderGuide  ','<CR>
@@ -106,7 +109,7 @@ call leaderGuide#register_prefix_descriptions(",", "g:llmap")
 ```
 
 Try pressing leader.
-The top-level will pop up depending on you timeoutlen setting, awaiting further keystrokes.
+The top-level will pop up depending on you `timeoutlen` setting, awaiting further keystrokes.
 
 Alternatively press leader-f. Assuming leader-f is not mapped otherwise you will end up in the file menu.
 

@@ -237,10 +237,11 @@ function! s:create_string(dkmap, ncols, colwidth)
 endfunction
 
 function! s:start_buffer(lmap)
-	call s:create_buffer()
+    call s:create_buffer()
 	let [ncols, colwidth, maxlen] = s:calc_layout(a:lmap)
 	let [string, nrows] = s:create_string(a:lmap, ncols, colwidth)
 
+    setlocal modifiable
 	if g:leaderGuide_vertical
 		execute 'vert res '.maxlen
 	else
@@ -256,7 +257,7 @@ function! s:start_buffer(lmap)
 	else
 		let fsel = ['call feedkeys("\<ESC>")']
 	endif
-	bdelete!
+	close!
 	execute s:winnr.'wincmd w'
 	call winrestview(s:winv)
 	if type(fsel) ==? type({})
@@ -271,15 +272,30 @@ function! s:start_buffer(lmap)
 endfunction
 
 function! s:create_buffer()
-	if g:leaderGuide_vertical
-		execute g:leaderGuide_position.' 1vnew'
-	else
-		execute g:leaderGuide_position.' 1new'
-	endif
+    if !exists('s:bufnr')
+        let s:bufnr = 0
+    endif
+    if bufexists(s:bufnr)
+        if g:leaderGuide_vertical
+            execute g:leaderGuide_position.'1vs'
+        else
+            execute g:leaderGuide_position.'1sp'
+        endif
+        execute	'buffer '.s:bufnr
+        cmapclear <buffer>
+    else
+        if g:leaderGuide_vertical
+            execute g:leaderGuide_position.' 1vnew'
+        else
+            execute g:leaderGuide_position.' 1new'
+        endif
+    endif
 	setlocal filetype=leaderGuide nonumber nowrap
-	setlocal nobuflisted buftype=nofile bufhidden=wipe noswapfile
-	nnoremap <buffer> <silent> <ESC> :bdelete!<cr>
-	autocmd WinLeave <buffer> :bdelete!
+	setlocal nobuflisted buftype=nofile bufhidden=unload noswapfile
+	let s:bufnr = bufnr('%')
+    nnoremap <buffer> <silent> <ESC> :close!<cr>
+    autocmd WinLeave <buffer> :close!
+    "autocmd WinLeave <buffer> :bwipeout!
 endfunction
 
 function! s:start_guide(mappings)
