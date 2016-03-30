@@ -267,7 +267,11 @@ function! s:start_buffer(lmap)
 		if s:vis
 			normal! gv
 		endif
-		execute fsel[0]
+        try
+            execute fsel[0]
+        catch
+            echom v:exception
+        endtry
 	endif
 endfunction
 
