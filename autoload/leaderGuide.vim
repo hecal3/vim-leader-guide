@@ -294,8 +294,7 @@ function! s:create_buffer()
 	setlocal nobuflisted buftype=nofile bufhidden=unload noswapfile
 	let s:bufnr = bufnr('%')
     nnoremap <buffer> <silent> <ESC> :close!<cr>
-    autocmd WinLeave <buffer> :close!
-    "autocmd WinLeave <buffer> :bwipeout!
+    autocmd WinLeave <buffer> close!
 endfunction
 
 function! s:start_guide(mappings)
