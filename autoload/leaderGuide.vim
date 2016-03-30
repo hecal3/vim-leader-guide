@@ -277,10 +277,15 @@ function! s:winopen()
     endif
     let pos = g:leaderGuide_position == 'topleft' ? 'topleft' : 'botright'
     if bufexists(s:bufnr)
+        let qfbuf = &buftype == 'quickfix'
         let splitcmd = g:leaderGuide_vertical ? ' 1vs' : ' 1sp'
         execute pos.splitcmd
+        let bnum = bufnr('%')
         execute	'buffer '.s:bufnr
         cmapclear <buffer>
+        if qfbuf
+            execute bnum.'bwipeout!'
+        endif
     else
         let splitcmd = g:leaderGuide_vertical ? ' 1vnew' : ' 1new'
         execute pos.splitcmd
