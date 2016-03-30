@@ -51,7 +51,7 @@ let g:lmap.g = {
 
 " If you use NERDCommenter:
 let g:lmap.c = { 'name' : 'Comments' }
-" Define some Descriptions
+" Define some descriptions
 let g:lmap.c.c = ['call feedkeys("\<Plug>NERDCommenterComment")','Comment']
 let g:lmap.c[' '] = ['call feedkeys("\<Plug>NERDCommenterToggle")','Toggle']
 " The Descriptions for other mappings defined by NerdCommenter, will default
@@ -59,11 +59,11 @@ let g:lmap.c[' '] = ['call feedkeys("\<Plug>NERDCommenterToggle")','Toggle']
 
 ```
 
-There are two ways to call the Plugin:
+There are two ways to call the plugin:
 
 Recommended:
 Register the description dictionary for the prefix
-(assuming Space is your leader)
+(assuming Space is your leader):
 
 ```vim
 call leaderGuide#register_prefix_descriptions("<Space>", "g:lmap")
@@ -78,7 +78,7 @@ precedence over dictionary-only mappings (e.g. the git menu above)
 ---
 
 Not Recommended:
-Call by providing a dictionary directly
+Call by providing a dictionary directly.
 When the mappings change, the guide will not update itself
 
 ```vim
@@ -92,7 +92,6 @@ vnoremap <silent> <leader> :LeaderGuideVisualD g:lmap<CR>
 
 
 It is possible to call the guide for keys other than `leader`:
-A description dictionary is not necessary.
 
 ```vim
 nnoremap <localleader> :LeaderGuide  ','<CR>
@@ -108,10 +107,14 @@ call leaderGuide#register_prefix_descriptions(",", "g:llmap")
 
 ```
 
-Try pressing leader.
-The top-level will pop up depending on you `timeoutlen` setting, awaiting further keystrokes.
+Note that, as shown in the example above, a description dictionary is not necessary.
+All mappings will be displayed regardless.
+The dictionary configuration is necessary however, to provide group names or a description text.
 
-Alternatively press leader-f. Assuming leader-f is not mapped otherwise you will end up in the file menu.
+After pressing `leader` the guide buffer will pop up when there are no further keystrokes within `timeoutlen`.
+
+Pressing other keys within `timeoutlen` will either complete the mapping or open a subgroup.
+In the example above `leader-f` will open up the file menu.
 
 Please note that no matter which mappings and menus you configure, your original leader mappings will remain unaffected.
 The key guide is an additional layer. It will only activate, when you do not complete your input during the timeoutlen duration.
