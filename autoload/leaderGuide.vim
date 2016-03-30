@@ -237,7 +237,7 @@ function! s:create_string(dkmap, ncols, colwidth)
 endfunction
 
 function! s:start_buffer(lmap)
-    call s:create_buffer()
+    call s:winopen()
 	let [ncols, colwidth, maxlen] = s:calc_layout(a:lmap)
 	let [string, nrows] = s:create_string(a:lmap, ncols, colwidth)
 
@@ -257,7 +257,7 @@ function! s:start_buffer(lmap)
 	else
 		let fsel = ['call feedkeys("\<ESC>")']
 	endif
-	close!
+    call s:winclose()
 	execute s:winnr.'wincmd w'
 	call winrestview(s:winv)
 	if type(fsel) ==? type({})
@@ -271,35 +271,40 @@ function! s:start_buffer(lmap)
 	endif
 endfunction
 
-function! s:create_buffer()
+function! s:winopen()
     if !exists('s:bufnr')
         let s:bufnr = -1
     endif
+    let pos = g:leaderGuide_position == 'topleft' ? 'topleft' : 'botright'
     if bufexists(s:bufnr)
-        if g:leaderGuide_vertical
-            execute g:leaderGuide_position.'1vs'
-        else
-            execute g:leaderGuide_position.'1sp'
-        endif
+        let splitcmd = g:leaderGuide_vertical ? ' 1vs' : ' 1sp'
+        execute pos.splitcmd
         execute	'buffer '.s:bufnr
         cmapclear <buffer>
     else
-        if g:leaderGuide_vertical
-            execute g:leaderGuide_position.' 1vnew'
-        else
-            execute g:leaderGuide_position.' 1new'
-        endif
+        let splitcmd = g:leaderGuide_vertical ? ' 1vnew' : ' 1new'
+        execute pos.splitcmd
+        let s:bufnr = bufnr('%')
+        nnoremap <buffer> <silent> <ESC> call s:winclose()<CR>
+        autocmd WinLeave <buffer> call s:winclose()
     endif
-	setlocal filetype=leaderGuide nonumber nowrap
-	setlocal nobuflisted buftype=nofile bufhidden=unload noswapfile
-	let s:bufnr = bufnr('%')
-    nnoremap <buffer> <silent> <ESC> :close!<cr>
-    autocmd WinLeave <buffer> close!
+    let s:gwin = winnr()
+    setlocal filetype=leaderGuide nonumber nowrap
+    setlocal nobuflisted buftype=nofile bufhidden=unload noswapfile
+endfunction
+
+function! s:winclose()
+    if s:gwin == winnr()
+        close
+        exe s:winres
+        let s:gwin = -1
+    endif
 endfunction
 
 function! s:start_guide(mappings)
 	let s:winv = winsaveview()
 	let s:winnr = winnr()
+	let s:winres = winrestcmd()
 
 	if g:leaderGuide_use_buffer
 		call s:start_buffer(a:mappings)
