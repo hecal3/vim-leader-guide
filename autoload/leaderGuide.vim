@@ -1,3 +1,6 @@
+let s:save_cpo = &cpo
+set cpo&vim
+
 function! leaderGuide#register_prefix_descriptions(key, dictname)
 	if !exists('s:desc_lookup')
 		call s:create_cache()
@@ -335,3 +338,6 @@ function! s:start_cmdwin(lmap)
 	redraw
 	execute fsel
 endfunction
+
+let &cpo = s:save_cpo
+unlet s:save_cpo
