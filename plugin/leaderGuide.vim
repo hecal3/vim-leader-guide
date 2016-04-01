@@ -10,7 +10,7 @@ if !exists('g:leaderGuide_position')
 	let g:leaderGuide_position = 'botright'
 endif
 
-if !exists('ifleaderGuide_run_map_on_popup')
+if !exists('g:leaderGuide_run_map_on_popup')
 	let g:leaderGuide_run_map_on_popup = 1
 endif
 
