@@ -175,11 +175,11 @@ function! s:calc_layout(dkmap)
 	for k in keys(a:dkmap)
 		if k != 'name'
 		if type(a:dkmap[k]) == type({})
-			let currlen = strdisplaywidth("[".k."] ". a:dkmap[k].name ."\t\t")
+			let currlen = strdisplaywidth("[".k."] ". a:dkmap[k].name) + g:leaderGuide_vspace
 		else
 			let string = a:dkmap[k]
 			let desc = string[1]
-			let currlen = strdisplaywidth("[".k."] ".desc."\t\t")
+			let currlen = strdisplaywidth("[".k."] ".desc) + g:leaderGuide_vspace
 		endif
 		if currlen > maxlength
 			let maxlength = currlen

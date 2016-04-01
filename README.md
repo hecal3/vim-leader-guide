@@ -165,6 +165,12 @@ Don't update the guide automatically: (Not recommended)
 let g:leaderGuide_run_map_on_popup = 0
 ```
 
+Minimum vertical space between columns:
+
+```vim
+let g:leaderGuide_vspace = 5
+```
+
 The update is almost instantaneous and will only run when the guide
 actually pops up. Otherwise the automatic update has no performance impact.
 
