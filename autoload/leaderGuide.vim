@@ -1,6 +1,9 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+let s:displaynames = {'<C-I>': '<Tab>',
+					\ '<C-H>': '<BS>'}
+
 function! leaderGuide#register_prefix_descriptions(key, dictname)
 	if !exists('s:desc_lookup')
 		call s:create_cache()
@@ -22,12 +25,7 @@ endfunction
 
 function! leaderGuide#start_by_prefix(vis, key)
 	let s:vis = a:vis
-
-	if a:key ==? ' '
-		let startkey = "<Space>"
-	else
-		let startkey = s:escape_keys(a:key)
-	endif
+    let startkey = a:key ==? ' ' ? "<Space>" : s:escape_keys(a:key)
 
 	if !has_key(s:cached_dicts, startkey) || g:leaderGuide_run_map_on_popup
 		"first run
@@ -41,7 +39,6 @@ function! leaderGuide#start_by_prefix(vis, key)
 		let rundict = s:cached_dicts[startkey]
 	endif
 	
-	let s:vis = a:vis
 	call s:start_guide(rundict)
 endfunction
 
@@ -55,19 +52,14 @@ function! s:create_cache()
 	let s:cached_dicts = {}
 endfunction
 
-function! s:get_map(cmd)
+function! s:start_parser(key, dict)
 	let readmap = ""
 	redir => readmap
-	silent execute a:cmd
+	silent execute 'map '.a:key
 	redir END
 	let lines = split(readmap, "\n")
-	return lines
-endfunction
 
-function! s:start_parser(key, dict)
-	let lines = s:get_map("map ".a:key)
 	for line in lines
-		"echo line
 		let maps = s:split_mapline(line)
 		let display = maps[3]
 		let maps[1] = substitute(maps[1], a:key, "", "")
@@ -77,7 +69,6 @@ function! s:start_parser(key, dict)
 		let maps[3] = substitute(maps[3], "^ *", "", "")
 		let display = substitute(display, "^[:| ]*", "", "")
 		let display = substitute(display, "<CR>$", "", "")
-		"echom join(maps)
 		if maps[1] != ''
 			if (s:vis && match(maps[0], "[vx ]") >= 0) ||
 						\ (!s:vis && match(maps[0], "[vx]") == -1)
@@ -195,8 +186,6 @@ function! s:escape_keys(inp)
 	return substitute(a:inp, "<", "<lt>", "")
 endfunction
 
-let s:displaynames = {'<C-I>': '<Tab>',
-					\ '<C-H>': '<BS>'}
 function! s:show_displayname(inp)
 	if has_key(s:displaynames, toupper(a:inp))
 		return s:displaynames[toupper(a:inp)]
@@ -206,7 +195,6 @@ function! s:show_displayname(inp)
 endfunction
 
 function! s:create_string(dkmap, ncols, colwidth)
-	"echo a:dkmap
 	let output = []
 	let colnum = 1
 	let nrows = 1
@@ -253,7 +241,7 @@ function! s:start_buffer(lmap)
 
 	execute "normal! i ".join(string,'')
 	setlocal nomodifiable nolist
-	redraw
+    redraw
 	let inp = input("")
     if inp != '' && inp!= "<lt>ESC>"
 		let fsel = get(a:lmap, inp)
