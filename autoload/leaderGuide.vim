@@ -163,13 +163,11 @@ endfunction
 
 function! s:calc_layout(dkmap)
 	let maxlength = 0
-	for k in keys(a:dkmap)
-		if k != 'name'
+	for k in filter(keys(a:dkmap), 'v:val != "name"')
 		let desc = type(a:dkmap[k]) == type({}) ? a:dkmap[k].name : a:dkmap[k][1]
         let currlen = strdisplaywidth("[".k."] ".desc) + g:leaderGuide_vspace
 		if currlen > maxlength
 			let maxlength = currlen
-		endif
 		endif
 	endfor
 	let cols = winwidth(0) / maxlength
@@ -193,8 +191,7 @@ function! s:create_string(dkmap, ncols, colwidth)
 	let output = []
 	let colnum = 1
 	let nrows = 1
-	for k in sort(keys(a:dkmap),'1')
-		if k != 'name'
+	for k in sort(filter(keys(a:dkmap), 'v:val != "name"'),'1')
 		let desc = type(a:dkmap[k]) == type({}) ? a:dkmap[k].name : a:dkmap[k][1]
         let displaystring = "[".s:show_displayname(k)."] ".desc
 
@@ -208,7 +205,6 @@ function! s:create_string(dkmap, ncols, colwidth)
             call add(output, repeat(' ', a:colwidth - strdisplaywidth(displaystring)))
 		endif
 		execute "cmap <nowait> <buffer> " . k . " " . s:escape_keys(k) ."<CR>"
-		endif
 	endfor
 	cmap <nowait> <buffer> <Space> <Space><CR>
 	return [output, nrows]
@@ -304,11 +300,8 @@ function! s:start_cmdwin(lmap)
 	let [ncols, colwidth, maxlen] = s:calc_layout(a:lmap)
 	let [string, nrows] = s:create_string(a:lmap, ncols, colwidth)
     let inp = input('Insert Key: '."\n".join(string,'')."\n")
-    if inp != ''
-		let fsel = get(a:lmap, inp)[0]
-	else
-		let fsel = ''
-	endif
+    let fsel = inp != '' ? get(a:lmap, inp)[0] : ''
+
 	silent! call s:unmap_keys(keys(a:lmap))
 	redraw
 	execute fsel
