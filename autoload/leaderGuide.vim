@@ -165,13 +165,8 @@ function! s:calc_layout(dkmap)
 	let maxlength = 0
 	for k in keys(a:dkmap)
 		if k != 'name'
-		if type(a:dkmap[k]) == type({})
-			let currlen = strdisplaywidth("[".k."] ". a:dkmap[k].name) + g:leaderGuide_vspace
-		else
-			let string = a:dkmap[k]
-			let desc = string[1]
-			let currlen = strdisplaywidth("[".k."] ".desc) + g:leaderGuide_vspace
-		endif
+		let desc = type(a:dkmap[k]) == type({}) ? a:dkmap[k].name : a:dkmap[k][1]
+        let currlen = strdisplaywidth("[".k."] ".desc) + g:leaderGuide_vspace
 		if currlen > maxlength
 			let maxlength = currlen
 		endif
@@ -200,13 +195,9 @@ function! s:create_string(dkmap, ncols, colwidth)
 	let nrows = 1
 	for k in sort(keys(a:dkmap),'1')
 		if k != 'name'
-		if type(a:dkmap[k]) == type({})
-			let displaystring = "[".s:show_displayname(k)."] ".a:dkmap[k].name
-		else
-			let string = a:dkmap[k]
-			let desc = string[1]
-			let displaystring = "[".s:show_displayname(k)."] ". desc
-		endif
+		let desc = type(a:dkmap[k]) == type({}) ? a:dkmap[k].name : a:dkmap[k][1]
+        let displaystring = "[".s:show_displayname(k)."] ".desc
+
         call add(output, displaystring)
 		if colnum ==? a:ncols || g:leaderGuide_vertical
 			call add(output, "\n")
@@ -214,7 +205,7 @@ function! s:create_string(dkmap, ncols, colwidth)
 			let colnum = 1
 		else
 			let colnum += 1
-			call add(output, repeat(' ', a:colwidth - strdisplaywidth(displaystring)))
+            call add(output, repeat(' ', a:colwidth - strdisplaywidth(displaystring)))
 		endif
 		execute "cmap <nowait> <buffer> " . k . " " . s:escape_keys(k) ."<CR>"
 		endif
