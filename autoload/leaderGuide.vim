@@ -207,7 +207,6 @@ function! s:create_string(dkmap, ncols, colwidth)
 			let desc = string[1]
 			let displaystring = "[".s:show_displayname(k)."] ". desc
 		endif
-		let entry_len = strdisplaywidth(displaystring)
         call add(output, displaystring)
 		if colnum ==? a:ncols || g:leaderGuide_vertical
 			call add(output, "\n")
@@ -215,10 +214,7 @@ function! s:create_string(dkmap, ncols, colwidth)
 			let colnum = 1
 		else
 			let colnum += 1
-			while entry_len < a:colwidth
-				call add(output, ' ')
-				let entry_len += 1
-			endwhile
+			call add(output, repeat(' ', a:colwidth - strdisplaywidth(displaystring)))
 		endif
 		execute "cmap <nowait> <buffer> " . k . " " . s:escape_keys(k) ."<CR>"
 		endif
