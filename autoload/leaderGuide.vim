@@ -162,14 +162,11 @@ function! s:merge(dict_t, dict_o)
 endfunction
 
 function! s:calc_layout(dkmap)
-	let maxlength = 0
-	for k in filter(keys(a:dkmap), 'v:val != "name"')
-		let desc = type(a:dkmap[k]) == type({}) ? a:dkmap[k].name : a:dkmap[k][1]
-        let currlen = strdisplaywidth("[".k."] ".desc) + g:leaderGuide_vspace
-		if currlen > maxlength
-			let maxlength = currlen
-		endif
-	endfor
+	" calculate max entry length
+	let length = values(map(filter(copy(a:dkmap), 'v:key != "name"'), 
+                \ 'strdisplaywidth("[".v:key."]".'.
+                \ '(type(v:val) == type({}) ? v:val["name"] : v:val[1]))'))
+	let maxlength = max(length) + g:leaderGuide_vspace
 	let cols = winwidth(0) / maxlength
 	let colwidth = winwidth(0) / cols
 	return [cols, colwidth, maxlength]
