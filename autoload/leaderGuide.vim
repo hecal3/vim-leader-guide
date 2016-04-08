@@ -25,7 +25,7 @@ endfunction
 
 function! leaderGuide#start_by_prefix(vis, key)
 	let s:vis = a:vis
-    let startkey = a:key ==? ' ' ? "<Space>" : s:escape_keys(a:key)
+    let startkey = a:key ==? ' ' ? "<Space>" : a:key
 
 	if !has_key(s:cached_dicts, startkey) || g:leaderGuide_run_map_on_popup
 		"first run
@@ -39,7 +39,7 @@ function! leaderGuide#start_by_prefix(vis, key)
 		let rundict = s:cached_dicts[startkey]
 	endif
 	
-	call s:start_guide(rundict)
+    call s:start_guide(rundict)
 endfunction
 
 function! leaderGuide#start(vis, dict)
@@ -61,15 +61,18 @@ function! s:start_parser(key, dict)
 
 	for line in lines
 		let maps = s:split_mapline(line)
+		if maps[1] =~ '<Plug>.*'
+		    continue
+        endif
 		let display = maps[3]
 		let maps[1] = substitute(maps[1], a:key, "", "")
 		let maps[1] = substitute(maps[1], "<Space>", " ", "g")
-		let maps[3] = substitute(maps[3], "<Space>", "<lt>Space>", "g")
 		let maps[1] = substitute(maps[1], "<Tab>", "<C-I>", "g")
+		let maps[3] = substitute(maps[3], "<Space>", "<lt>Space>", "g")
 		let maps[3] = substitute(maps[3], "^ *", "", "")
 		let display = substitute(display, "^[:| ]*", "", "")
 		let display = substitute(display, "<CR>$", "", "")
-		if maps[1] != ''
+		if maps[1] != '' && display !~ 'LeaderGuide.*'
 			if (s:vis && match(maps[0], "[vx ]") >= 0) ||
 						\ (!s:vis && match(maps[0], "[vx]") == -1)
 			call s:add_map_to_dict(s:string_to_keys(maps[1]), maps[3],
@@ -101,7 +104,8 @@ function! s:add_map_to_dict(key, cmd, desc, level, dict, mode)
 endfunction
 
 function! s:escape_mappings(string)
-	let rstring = substitute(a:string, '<\([^<>]*\)>', '\\<\1>', 'g')
+	let rstring = substitute(a:string, '\', '\\\\', 'g')
+	let rstring = substitute(rstring, '<\([^<>]*\)>', '\\<\1>', 'g')
 	let rstring = substitute(rstring, '"', '\\"', 'g')
 	let rstring = 'call feedkeys("'.rstring.'")'
 	return rstring
@@ -201,7 +205,8 @@ function! s:create_string(dkmap, ncols, colwidth)
 			let colnum += 1
             call add(output, repeat(' ', a:colwidth - strdisplaywidth(displaystring)))
 		endif
-		execute "cmap <nowait> <buffer> " . k . " " . s:escape_keys(k) ."<CR>"
+        execute "cnoremap <nowait> <buffer> " . k . " " . s:escape_keys(k) ."<CR>"
+        "let cmd = "cnoremap <nowait> <buffer> " . k . " " . k ."<CR>"
 	endfor
 	cmap <nowait> <buffer> <Space> <Space><CR>
 	return [output, nrows]
@@ -239,6 +244,7 @@ function! s:start_buffer(lmap)
 			normal! gv
 		endif
         try
+            echo fsel[0]
             execute fsel[0]
         catch
             echom v:exception

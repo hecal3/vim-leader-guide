@@ -120,6 +120,27 @@ Please note that no matter which mappings and menus you configure, your original
 The key guide is an additional layer. It will only activate, when you do not complete your input during the timeoutlen duration.
 
 
+## Display mappings without prefix:
+
+Additionally it is possible to display all buffer local mappings with `:LeaderGuide '<buffer>'`.
+
+This feature is useful to explore mappings defined by plugins in their respecive buffers. (fugitive, tagbar, vimfiler, Nerdtree, etc.)
+To make the usage of `LeaderGuide '<buffer>'` in those plugin buffers more convenient one can make use of autocommands.
+
+Examples:
+
+```vim
+autocmd FileType gitcommit  noremap <buffer> <leader> :LeaderGuide '<buffer>'<CR>
+" for fugitive
+
+autocmd BufEnter __Tagbar__  noremap <buffer> <leader> :LeaderGuide '<buffer>'<CR>
+" for tagbar
+```
+
+
+To open a guide with all mappings use `:LeaderGuide '  '`.
+
+
 ## Special keys and Mappings
 
 ```vim
