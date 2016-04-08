@@ -5,11 +5,12 @@ let s:displaynames = {'<C-I>': '<Tab>',
 					\ '<C-H>': '<BS>'}
 
 function! leaderGuide#register_prefix_descriptions(key, dictname)
+    let key = a:key == '<Space>' ? ' ' : a:key
 	if !exists('s:desc_lookup')
 		call s:create_cache()
 	endif
-	if !has_key(s:desc_lookup, a:key)
-		let s:desc_lookup[a:key] = a:dictname
+	if !has_key(s:desc_lookup, key)
+		let s:desc_lookup[key] = a:dictname
 	endif
 endfunction
 
@@ -25,18 +26,17 @@ endfunction
 
 function! leaderGuide#start_by_prefix(vis, key)
 	let s:vis = a:vis
-    let startkey = a:key ==? ' ' ? "<Space>" : a:key
 
-	if !has_key(s:cached_dicts, startkey) || g:leaderGuide_run_map_on_popup
+	if !has_key(s:cached_dicts, a:key) || g:leaderGuide_run_map_on_popup
 		"first run
-		let s:cached_dicts[startkey] = {}
-		call s:start_parser(startkey, s:cached_dicts[startkey])
+		let s:cached_dicts[a:key] = {}
+		call s:start_parser(a:key, s:cached_dicts[a:key])
 	endif
 	
-	if has_key(s:desc_lookup, startkey)
-		let rundict = s:create_target_dict(startkey)
+	if has_key(s:desc_lookup, a:key)
+		let rundict = s:create_target_dict(a:key)
 	else
-		let rundict = s:cached_dicts[startkey]
+		let rundict = s:cached_dicts[a:key]
 	endif
 	
     call s:start_guide(rundict)
@@ -53,33 +53,34 @@ function! s:create_cache()
 endfunction
 
 function! s:start_parser(key, dict)
+    let key = a:key ==? ' ' ? "<Space>" : a:key
 	let readmap = ""
 	redir => readmap
-	silent execute 'map '.a:key
+	silent execute 'map '.key
 	redir END
 	let lines = split(readmap, "\n")
 
 	for line in lines
 	    let sp = split(line, ' ', 1)
 		let k = sp[2] != '' ? sp[2] : sp[3]
-	    let map = maparg(k, sp[0], 0, 1)
-		if map.lhs =~ '<Plug>.*'
+	    let mapd = maparg(k, sp[0], 0, 1)
+		if mapd.lhs =~ '<Plug>.*'
 		    continue
         endif
-		let display = map.rhs
-        let map.lhs = substitute(map.lhs, a:key, "", "")
-		let map.lhs = substitute(map.lhs, "<Space>", " ", "g")
-		let map.lhs = substitute(map.lhs, "<Tab>", "<C-I>", "g")
-		let map.rhs = substitute(map.rhs, "<Space>", "<lt>Space>", "g")
-		let map.rhs = substitute(map.rhs, "<SID>", "<SNR>".map['sid']."_", "g")
+		let display = mapd.rhs
+        let mapd.lhs = substitute(mapd.lhs, key, "", "")
+		let mapd.lhs = substitute(mapd.lhs, "<Space>", " ", "g")
+		let mapd.lhs = substitute(mapd.lhs, "<Tab>", "<C-I>", "g")
+		let mapd.rhs = substitute(mapd.rhs, "<Space>", "<lt>Space>", "g")
+		let mapd.rhs = substitute(mapd.rhs, "<SID>", "<SNR>".mapd['sid']."_", "g")
 		"let display = substitute(display, "^[:| ]*", "", "")
 		let display = substitute(display, "<cr>$", "", "")
 		let display = substitute(display, "<CR>$", "", "")
-		if map.lhs != '' && display !~ 'LeaderGuide.*'
-			if (s:vis && match(map.mode, "[vx ]") >= 0) ||
-						\ (!s:vis && match(map.mode, "[vx]") == -1)
-			call s:add_map_to_dict(s:string_to_keys(map.lhs), map.rhs,
-						\display, 0, a:dict, map.mode)
+		if mapd.lhs != '' && display !~ 'LeaderGuide.*'
+			if (s:vis && match(mapd.mode, "[vx ]") >= 0) ||
+						\ (!s:vis && match(mapd.mode, "[vx]") == -1)
+			call s:add_map_to_dict(s:string_to_keys(mapd.lhs), mapd.rhs,
+						\display, 0, a:dict, mapd.mode)
 			endif
 		endif
 	endfor
