@@ -138,7 +138,11 @@ autocmd BufEnter __Tagbar__  noremap <buffer> <leader> :LeaderGuide '<buffer>'<C
 ```
 
 
-To open a guide with all mappings use `:LeaderGuide '  '`. Note the two whitespaces.
+To open a guide showing not only the buffer-local but all mappings use
+```vim
+:LeaderGuide '  '
+```
+Note the two whitespaces.
 
 To name items on this level, the dictionaries for `leader`, `localleader`, from the examples above, as well as other dictionaries one might have defined, can be combined into a single top-level dictionary:
 
@@ -156,7 +160,10 @@ call leaderGuide#register_prefix_descriptions("", "g:topd")
 "call leaderGuide#register_prefix_descriptions("<Space>", "g:lmap")
 ```
 
-This configuration will provide access to the `leader` and `localleader` spaces when calling with `:LeaderGuide '  '`
+This configuration will provide access to the `leader` and `localleader` spaces when calling with
+```vim
+:LeaderGuide '  '
+```
 
 
 ## Special keys and Mappings
