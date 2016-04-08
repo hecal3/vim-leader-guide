@@ -9,6 +9,10 @@ function! leaderGuide#register_prefix_descriptions(key, dictname)
 	if !exists('s:desc_lookup')
 		call s:create_cache()
 	endif
+	if strlen(key) == 0
+	    let s:desc_lookup['top'] = a:dictname
+	    return
+	endif
 	if !has_key(s:desc_lookup, key)
 		let s:desc_lookup[key] = a:dictname
 	endif
@@ -26,6 +30,7 @@ endfunction
 
 function! leaderGuide#start_by_prefix(vis, key)
 	let s:vis = a:vis
+	let s:toplevel = a:key ==? '  '
 
 	if !has_key(s:cached_dicts, a:key) || g:leaderGuide_run_map_on_popup
 		"first run
@@ -33,7 +38,7 @@ function! leaderGuide#start_by_prefix(vis, key)
 		call s:start_parser(a:key, s:cached_dicts[a:key])
 	endif
 	
-	if has_key(s:desc_lookup, a:key)
+	if has_key(s:desc_lookup, a:key) || has_key(s:desc_lookup , 'top')
 		let rundict = s:create_target_dict(a:key)
 	else
 		let rundict = s:cached_dicts[a:key]
@@ -61,9 +66,7 @@ function! s:start_parser(key, dict)
 	let lines = split(readmap, "\n")
 
 	for line in lines
-	    let sp = split(line, ' ', 1)
-		let k = sp[2] != '' ? sp[2] : sp[3]
-	    let mapd = maparg(k, sp[0], 0, 1)
+	    let mapd = maparg(split(line[3:])[0], line[0], 0, 1)
 		if mapd.lhs =~ '<Plug>.*'
 		    continue
         endif
@@ -134,7 +137,12 @@ function! s:string_to_keys(input)
 endfunction
 
 function! s:create_target_dict(key)
-	if has_key(s:desc_lookup, a:key)
+	if has_key(s:desc_lookup, 'top')
+	    let toplevel = deepcopy({s:desc_lookup['top']})
+		let tardict = s:toplevel ? toplevel : toplevel[a:key]
+		let mapdict = s:cached_dicts[a:key]
+		call s:merge(tardict, mapdict)
+    elseif has_key(s:desc_lookup, a:key)
 		let tardict = deepcopy({s:desc_lookup[a:key]})
 		let mapdict = s:cached_dicts[a:key]
 		call s:merge(tardict, mapdict)
@@ -235,7 +243,7 @@ function! s:start_buffer(lmap)
 	execute s:winnr.'wincmd w'
 	call winrestview(s:winv)
 	if type(fsel) ==? type({})
-		call s:start_buffer(fsel)
+        call s:start_buffer(fsel)
 	else
 		redraw
 		if s:vis

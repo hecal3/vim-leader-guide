@@ -13,7 +13,7 @@ This Plugin is not stable yet. The configuration and commands might change in th
 The plugin configuration is based on vim's dictionarys.
 
 ```vim
-" Define Top Level Dictionary
+" Define prefix dictionary
 let g:lmap =  {}
 
 " Second level dictionarys:
@@ -138,7 +138,25 @@ autocmd BufEnter __Tagbar__  noremap <buffer> <leader> :LeaderGuide '<buffer>'<C
 ```
 
 
-To open a guide with all mappings use `:LeaderGuide '  '`.
+To open a guide with all mappings use `:LeaderGuide '  '`. Note the two whitespaces.
+
+To name items on this level, the dictionaries for `leader`, `localleader`, from the examples above, as well as other dictionaries one might have defined, can be combined into a single top-level dictionary:
+
+```vim
+let g:topdict = {}
+let g:topdict[' '] = g:lmap
+let g:topdict[' ']['name'] = '<leader>'
+let g:topdict[','] = g:llmap
+let g:topdict[',']['name'] = '<localleader>'
+
+call leaderGuide#register_prefix_descriptions("", "g:topd")
+
+" Remove the old prefixes
+"call leaderGuide#register_prefix_descriptions(",", "g:llmap")
+"call leaderGuide#register_prefix_descriptions("<Space>", "g:lmap")
+```
+
+This configuration will provide access to the `leader` and `localleader` spaces when calling with `:LeaderGuide '  '`
 
 
 ## Special keys and Mappings
