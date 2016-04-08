@@ -60,32 +60,29 @@ function! s:start_parser(key, dict)
 	let lines = split(readmap, "\n")
 
 	for line in lines
-		let maps = s:split_mapline(line)
-		if maps[1] =~ '<Plug>.*'
+	    let sp = split(line, ' ', 1)
+		let k = sp[2] != '' ? sp[2] : sp[3]
+	    let map = maparg(k, sp[0], 0, 1)
+		if map.lhs =~ '<Plug>.*'
 		    continue
         endif
-		let display = maps[3]
-		let maps[1] = substitute(maps[1], a:key, "", "")
-		let maps[1] = substitute(maps[1], "<Space>", " ", "g")
-		let maps[1] = substitute(maps[1], "<Tab>", "<C-I>", "g")
-		let maps[3] = substitute(maps[3], "<Space>", "<lt>Space>", "g")
-		let maps[3] = substitute(maps[3], "^ *", "", "")
-		let display = substitute(display, "^[:| ]*", "", "")
+		let display = map.rhs
+        let map.lhs = substitute(map.lhs, a:key, "", "")
+		let map.lhs = substitute(map.lhs, "<Space>", " ", "g")
+		let map.lhs = substitute(map.lhs, "<Tab>", "<C-I>", "g")
+		let map.rhs = substitute(map.rhs, "<Space>", "<lt>Space>", "g")
+		let map.rhs = substitute(map.rhs, "<SID>", "<SNR>".map['sid']."_", "g")
+		"let display = substitute(display, "^[:| ]*", "", "")
+		let display = substitute(display, "<cr>$", "", "")
 		let display = substitute(display, "<CR>$", "", "")
-		if maps[1] != '' && display !~ 'LeaderGuide.*'
-			if (s:vis && match(maps[0], "[vx ]") >= 0) ||
-						\ (!s:vis && match(maps[0], "[vx]") == -1)
-			call s:add_map_to_dict(s:string_to_keys(maps[1]), maps[3],
-						\display, 0, a:dict, maps[0])
+		if map.lhs != '' && display !~ 'LeaderGuide.*'
+			if (s:vis && match(map.mode, "[vx ]") >= 0) ||
+						\ (!s:vis && match(map.mode, "[vx]") == -1)
+			call s:add_map_to_dict(s:string_to_keys(map.lhs), map.rhs,
+						\display, 0, a:dict, map.mode)
 			endif
 		endif
 	endfor
-endfunction
-
-function! s:split_mapline(line)
-	let mlist =
-	\matchlist(a:line,'\([xnvco]\{0,3}\) *\([^ ]*\) *\([@&\*]\{0,3}\)\(.*\)$')
-	return mlist[1:]
 endfunction
 
 function! s:add_map_to_dict(key, cmd, desc, level, dict, mode)
