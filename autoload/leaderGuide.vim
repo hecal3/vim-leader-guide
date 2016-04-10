@@ -2,15 +2,15 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 let s:displaynames = {'<C-I>': '<Tab>',
-					\ '<C-H>': '<BS>'}
+                    \ '<C-H>': '<BS>'}
 
 function! leaderGuide#register_prefix_descriptions(key, dictname)
     let key = a:key == '<Space>' ? ' ' : a:key
-	if !exists('s:desc_lookup')
-		call s:create_cache()
-	endif
-	if strlen(key) == 0
-	    let s:desc_lookup['top'] = a:dictname
+    if !exists('s:desc_lookup')
+        call s:create_cache()
+    endif
+    if strlen(key) == 0
+        let s:desc_lookup['top'] = a:dictname
 	    return
 	endif
 	if !has_key(s:desc_lookup, key)
@@ -29,7 +29,9 @@ function! leaderGuide#parseMappings()
 endfunction
 
 function! leaderGuide#start_by_prefix(vis, key)
-	let s:vis = a:vis
+	let s:vis = a:vis ? 'gv' : ''
+	let s:count = v:count != 0 ? v:count : ''
+	let s:reg = v:register != '"' ? '\"'.v:register : ''
 	let s:toplevel = a:key ==? '  '
 
 	if !has_key(s:cached_dicts, a:key) || g:leaderGuide_run_map_on_popup
@@ -48,7 +50,7 @@ function! leaderGuide#start_by_prefix(vis, key)
 endfunction
 
 function! leaderGuide#start(vis, dict)
-	let s:vis = a:vis
+	let s:vis = a:vis ? 'gv' : 0
 	call s:start_guide(a:dict)
 endfunction
 
@@ -108,7 +110,7 @@ function! s:escape_mappings(string)
 	let rstring = substitute(a:string, '\', '\\\\', 'g')
 	let rstring = substitute(rstring, '<\([^<>]*\)>', '\\<\1>', 'g')
 	let rstring = substitute(rstring, '"', '\\"', 'g')
-	let rstring = 'call feedkeys("'.rstring.'")'
+    let rstring = 'call feedkeys("'.rstring.'")'
 	return rstring
 endfunction
 
@@ -237,7 +239,7 @@ function! s:start_buffer(lmap)
     if inp != '' && inp!= "<lt>ESC>"
 		let fsel = get(a:lmap, inp)
 	else
-		let fsel = ['call feedkeys("\<ESC>")']
+		let fsel = ['\<ESC>']
 	endif
     call s:winclose()
 	execute s:winnr.'wincmd w'
@@ -246,11 +248,9 @@ function! s:start_buffer(lmap)
         call s:start_buffer(fsel)
 	else
 		redraw
-		if s:vis
-			normal! gv
-		endif
         try
             echo fsel[0]
+            call feedkeys(s:vis.s:reg.s:count)
             execute fsel[0]
         catch
             echom v:exception

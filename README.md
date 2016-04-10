@@ -67,8 +67,8 @@ Register the description dictionary for the prefix
 
 ```vim
 call leaderGuide#register_prefix_descriptions("<Space>", "g:lmap")
-nnoremap <silent> <leader> :LeaderGuide '<Space>'<CR>
-vnoremap <silent> <leader> :LeaderGuideVisual '<Space>'<CR>
+nnoremap <silent> <leader> :<c-u>LeaderGuide '<Space>'<CR>
+vnoremap <silent> <leader> :<c-u>LeaderGuideVisual '<Space>'<CR>
 ```
 
 The guide will be up to date at all times.
@@ -94,8 +94,8 @@ vnoremap <silent> <leader> :LeaderGuideVisualD g:lmap<CR>
 It is possible to call the guide for keys other than `leader`:
 
 ```vim
-nnoremap <localleader> :LeaderGuide  ','<CR>
-vnoremap <localleader> :LeaderGuideVisual  ','<CR>
+nnoremap <localleader> :<c-u>LeaderGuide  ','<CR>
+vnoremap <localleader> :<c-u>LeaderGuideVisual  ','<CR>
 " This variant won't habe any group names.
 
 " Group names can be defined by filetype. Add the following lines:
@@ -122,7 +122,7 @@ The key guide is an additional layer. It will only activate, when you do not com
 
 ## Display mappings without prefix:
 
-Additionally it is possible to display all buffer local mappings with `:LeaderGuide '<buffer>'`.
+Additionally it is possible to display all buffer local mappings with `:<c-u>LeaderGuide '<buffer>'`.
 
 This feature is useful to explore mappings defined by plugins in their respecive buffers. (fugitive, tagbar, vimfiler, Nerdtree, etc.)
 To make the usage of `LeaderGuide '<buffer>'` in those plugin buffers more convenient one can make use of autocommands.
@@ -130,10 +130,10 @@ To make the usage of `LeaderGuide '<buffer>'` in those plugin buffers more conve
 Examples:
 
 ```vim
-autocmd FileType gitcommit  noremap <buffer> <leader> :LeaderGuide '<buffer>'<CR>
+autocmd FileType gitcommit  noremap <buffer> <leader> :<c-u>LeaderGuide '<buffer>'<CR>
 " for fugitive
 
-autocmd BufEnter __Tagbar__  noremap <buffer> <leader> :LeaderGuide '<buffer>'<CR>
+autocmd BufEnter __Tagbar__  noremap <buffer> <leader> :<c-u>LeaderGuide '<buffer>'<CR>
 " for tagbar
 ```
 
