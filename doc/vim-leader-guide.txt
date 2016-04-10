@@ -8,6 +8,7 @@ Overview                                    |leader-guide-overview|
 Usage examples                              |leader-guide-examples|
 
 Commands                                    |leader-guide-commands|
+Functions                                   |leader-guide-functions|
 Configuration                               |leader-guide-configuration|
 
 CHANGELOG                                   |leader-guide-changelog|
@@ -56,6 +57,51 @@ COMMANDS                                                *leader-guide-commands*
                                                         *LeaderGuideVisualD*
 :LeaderGuideVisualD~
 
+
+
+=============================================================================
+FUNCTIONS                                              *leader-guide-functions*
+
+                                   *leaderGuide#register_prefix_descriptions()*
+leaderGuide#register_prefix_descriptions("{prefix}", "{dictname}")
+    Provide the guide with a description dictionary. This dictionary is used
+    to provide convenient names for mappings to display in the guide popup.
+    Additionally it is used to provide group names.
+
+    See also: |leader-guide-examples|
+
+    Types:
+        {prefix}:   String
+        {dictname}: String
+
+    Examples:
+>
+    " register dictionary for the <Space>-prefix
+    call leaderGuide#register_prefix_descriptions(' ', "g:space_prefix_dict")
+    " register dictionary for the ,-prefix
+    call leaderGuide#register_prefix_descriptions(',', "g:comma_prefix_dict")
+
+    " register a top-level dictionary:
+    let g:space_prefix_dict['name'] = '<leader>'
+    let g:space_prefix_dict[','] = '<localleader>'
+    let g:globalguide = {}
+    let g:globalguide[' '] = g:space_prefix_dict
+    let g:globalguide[','] = g:comma_prefix_dict
+    call leaderGuide#register_prefix_descriptions("", "g:globalguide")
+<
+    Note: To pass a top-level dictionary call the function with an empty
+    prefix string
+
+    Note: Please use either a single top-level dictionary, or one or more
+    prefix specific dictionarys. Don't mix a top-level with prefix specific
+    dictionarys.
+    Instead, as shown above, insert the prefix specific dictionarys into the
+    top-level one and pass only the latter to the guide.
+
+    Note: After passing a dictionary name to the guide do not unlet the actual
+    global dictionary. It is possible update the guide descriptions on the fly
+    by changing g:dict.
+        
 
 =============================================================================
 CONFIGURATION                                      *leader-guide-configuration*
@@ -121,4 +167,4 @@ CHANGELOG                                              *leader-guide-changelog*
                     - Started documentation
 
 =============================================================================
- vim:tw=78:ts=4:ft=help:norl:
+ vim:tw=78:ts=8:ft=help:norl:
