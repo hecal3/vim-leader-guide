@@ -5,7 +5,7 @@ let s:displaynames = {'<C-I>': '<Tab>',
                     \ '<C-H>': '<BS>'}
 
 function! leaderGuide#register_prefix_descriptions(key, dictname)
-    let key = a:key == '<Space>' ? ' ' : a:key
+    let key = a:key ==? '<Space>' ? ' ' : a:key
     if !exists('s:desc_lookup')
         call s:create_cache()
     endif
@@ -81,7 +81,7 @@ function! s:start_parser(key, dict)
 		"let display = substitute(display, "^[:| ]*", "", "")
 		let display = substitute(display, "<cr>$", "", "")
 		let display = substitute(display, "<CR>$", "", "")
-		if mapd.lhs != '' && display !~ 'LeaderGuide.*'
+		if mapd.lhs != '' && display !~# 'LeaderGuide.*'
 			if (s:vis && match(mapd.mode, "[vx ]") >= 0) ||
 						\ (!s:vis && match(mapd.mode, "[vx]") == -1)
 			call s:add_map_to_dict(s:string_to_keys(mapd.lhs), mapd.rhs,
@@ -175,7 +175,7 @@ endfunction
 
 function! s:calc_layout(dkmap)
 	" calculate max entry length
-	let length = values(map(filter(copy(a:dkmap), 'v:key != "name"'), 
+	let length = values(map(filter(copy(a:dkmap), 'v:key !=# "name"'), 
                 \ 'strdisplaywidth("[".v:key."]".'.
                 \ '(type(v:val) == type({}) ? v:val["name"] : v:val[1]))'))
 	let maxlength = max(length) + g:leaderGuide_hspace
@@ -200,7 +200,7 @@ function! s:create_string(dkmap, ncols, colwidth)
 	let output = []
 	let colnum = 1
 	let nrows = 1
-	for k in sort(filter(keys(a:dkmap), 'v:val != "name"'),'1')
+	for k in sort(filter(keys(a:dkmap), 'v:val !=# "name"'),'1')
 		let desc = type(a:dkmap[k]) == type({}) ? a:dkmap[k].name : a:dkmap[k][1]
         let displaystring = "[".s:show_displayname(k)."] ".desc
 
@@ -235,7 +235,7 @@ function! s:start_buffer(lmap)
 	setlocal nomodifiable nolist
     redraw
 	let inp = input("")
-    if inp != '' && inp!= "<lt>ESC>"
+    if inp !=# '' && inp!=? "<lt>ESC>"
 		let fsel = get(a:lmap, inp)
 	else
 		let fsel = ['call feedkeys("\<ESC>")']
@@ -261,9 +261,9 @@ function! s:winopen()
     if !exists('s:bufnr')
         let s:bufnr = -1
     endif
-    let pos = g:leaderGuide_position == 'topleft' ? 'topleft' : 'botright'
+    let pos = g:leaderGuide_position ==? 'topleft' ? 'topleft' : 'botright'
     if bufexists(s:bufnr)
-        let qfbuf = &buftype == 'quickfix'
+        let qfbuf = &buftype ==# 'quickfix'
         let splitcmd = g:leaderGuide_vertical ? ' 1vs' : ' 1sp'
         execute pos.splitcmd
         let bnum = bufnr('%')
