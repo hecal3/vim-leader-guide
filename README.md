@@ -205,10 +205,10 @@ let g:leaderGuide_vertical = 1
 let g:leaderGuide_position = 'botright'
 ```
 
-Minimum vertical space between columns:
+Minimum horizontal space between columns:
 
 ```vim
-let g:leaderGuide_vspace = 5
+let g:leaderGuide_hspace = 5
 ```
 
 Don't update the guide automatically: (Not recommended)

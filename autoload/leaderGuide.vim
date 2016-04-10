@@ -178,7 +178,7 @@ function! s:calc_layout(dkmap)
 	let length = values(map(filter(copy(a:dkmap), 'v:key != "name"'), 
                 \ 'strdisplaywidth("[".v:key."]".'.
                 \ '(type(v:val) == type({}) ? v:val["name"] : v:val[1]))'))
-	let maxlength = max(length) + g:leaderGuide_vspace
+	let maxlength = max(length) + g:leaderGuide_hspace
 	let cols = winwidth(0) / maxlength
 	let colwidth = winwidth(0) / cols
 	return [cols, colwidth, maxlength]

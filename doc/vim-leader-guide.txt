@@ -67,7 +67,7 @@ CONFIGURATION                                      *leader-guide-configuration*
     ----------------------------------------------------------~
      |g:leaderGuide_position|                         `botright`
      |g:leaderGuide_vertical|                                `0`
-     |g:leaderGuide_vspace|                                  `5`
+     |g:leaderGuide_hspace|                                  `5`
      |g:leaderGuide_run_map_on_popup|                        `5`
 
 *g:leaderGuide_position*
@@ -91,8 +91,8 @@ CONFIGURATION                                      *leader-guide-configuration*
     buffer-position
 
 
-*g:leaderGuide_vspace*
-    Sets the minimum vertical space between the displayed colomns.
+*g:leaderGuide_hspace*
+    Sets the minimum horizontal space between the displayed colomns.
 
     The actual column width is the length of the longest entry plus this
     value.
@@ -117,6 +117,7 @@ CONFIGURATION                                      *leader-guide-configuration*
 CHANGELOG                                              *leader-guide-changelog*
 
     2016-04-10:     - Support for {count}, and register passthrough
+                    - Rename g:leaderGuide_vspace -> g:leaderGuide_hspace
                     - Started documentation
 
 =============================================================================
