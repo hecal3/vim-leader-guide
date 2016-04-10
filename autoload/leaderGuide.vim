@@ -141,7 +141,7 @@ endfunction
 function! s:create_target_dict(key)
 	if has_key(s:desc_lookup, 'top')
 	    let toplevel = deepcopy({s:desc_lookup['top']})
-		let tardict = s:toplevel ? toplevel : toplevel[a:key]
+		let tardict = s:toplevel ? toplevel : get(toplevel, a:key, {})
 		let mapdict = s:cached_dicts[a:key]
 		call s:merge(tardict, mapdict)
     elseif has_key(s:desc_lookup, a:key)
@@ -214,7 +214,6 @@ function! s:create_string(dkmap, ncols, colwidth)
             call add(output, repeat(' ', a:colwidth - strdisplaywidth(displaystring)))
 		endif
         execute "cnoremap <nowait> <buffer> " . k . " " . s:escape_keys(k) ."<CR>"
-        "let cmd = "cnoremap <nowait> <buffer> " . k . " " . k ."<CR>"
 	endfor
 	cmap <nowait> <buffer> <Space> <Space><CR>
 	return [output, nrows]
@@ -239,7 +238,7 @@ function! s:start_buffer(lmap)
     if inp != '' && inp!= "<lt>ESC>"
 		let fsel = get(a:lmap, inp)
 	else
-		let fsel = ['\<ESC>']
+		let fsel = ['call feedkeys("\<ESC>")']
 	endif
     call s:winclose()
 	execute s:winnr.'wincmd w'
@@ -250,7 +249,7 @@ function! s:start_buffer(lmap)
 		redraw
         try
             echo fsel[0]
-            call feedkeys(s:vis.s:reg.s:count)
+            call feedkeys(s:vis.s:reg.s:count, "n")
             execute fsel[0]
         catch
             echom v:exception
