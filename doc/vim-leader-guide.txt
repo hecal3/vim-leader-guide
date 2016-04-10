@@ -1,0 +1,123 @@
+*vim-leader-guide.txt*      A vim key-guide.
+*leader-guide*
+
+=============================================================================
+CONTENTS                                                *leader-guide-contents*
+
+Overview                                    |leader-guide-overview|
+Usage examples                              |leader-guide-examples|
+
+Commands                                    |leader-guide-commands|
+Configuration                               |leader-guide-configuration|
+
+CHANGELOG                                   |leader-guide-changelog|
+
+
+=============================================================================
+OVERVIEW                                                *leader-guide-overview*
+
+|vim-leader-guide| is a plugin to explore keymaps.
+
+Features:
+  - Show keymaps assigned to a specific prefix, such as leader, localleader or
+    any other key.
+  - Show all global and buffer-local keymaps.
+  - Provide additional descriptions for mappings and groups of mappings
+
+
+=============================================================================
+USAGE EXAMPLES                                          *leader-guide-examples*
+
+
+=============================================================================
+COMMANDS                                                *leader-guide-commands*
+
+|vim-leader-guide| provides the following ex-commands:
+    LeaderGuide '(String)'                          |LeaderGuide|
+    LeaderGuideVisual '(String)'                    |LeaderGuideVisual|
+    LeaderGuideD '(String)'                         |LeaderGuideD|
+    LeaderGuideVisualD '(String)'                   |LeaderGuideVisualD|
+
+
+
+    Todo: write something up...
+                                                        *LeaderGuide*
+:LeaderGuide~
+
+
+                                                        *LeaderGuideVisual*
+:LeaderGuideVisual~
+
+
+                                                        *LeaderGuideD*
+:LeaderGuideD~
+
+
+                                                        *LeaderGuideVisualD*
+:LeaderGuideVisualD~
+
+
+=============================================================================
+CONFIGURATION                                      *leader-guide-configuration*
+
+|vim-leader-guide| uses the following configuration variables:
+
+    ----------------------------------------------------------~
+     VAR                                             DEFAULT ~
+    ----------------------------------------------------------~
+     |g:leaderGuide_position|                         `botright`
+     |g:leaderGuide_vertical|                                `0`
+     |g:leaderGuide_vspace|                                  `5`
+     |g:leaderGuide_run_map_on_popup|                        `5`
+
+*g:leaderGuide_position*
+    Set the direction from witch the guide-buffer should pop up.
+
+    Possible values:        `botright`, `topleft`
+    Default:                `botright`
+
+    Note: Use in conjunction with |g:leaderGuide_vertical| to set the
+    buffer-position
+
+
+*g:leaderGuide_vertical*
+    If set to a value other than 0, the guide buffer will pop up in vertical
+    split window.
+
+    Possible values:        {0,1}
+    Default:                0
+
+    Note: Use in conjunction with |g:leaderGuide_position| to set the
+    buffer-position
+
+
+*g:leaderGuide_vspace*
+    Sets the minimum vertical space between the displayed colomns.
+
+    The actual column width is the length of the longest entry plus this
+    value.
+
+    Possible values:        {Number}
+    Default:                5
+
+
+*g:leaderGuide_run_map_on_popup*
+    If set to 0, |vim-leader-guide| will not parse mappings when opening a
+    guide buffer. It will used cached values instead.
+
+    Note: It is not recommended to disable this option. Mappings change during
+    a vim-session, when changing the filetype or buffer for example.
+    Thus, when disabling this option the displayed mappings might get
+    outdated.
+
+    Possible values:        {0,1}
+    Default:                1
+
+============================================================================
+CHANGELOG                                              *leader-guide-changelog*
+
+    2016-04-10:     - Support for {count}, and register passthrough
+                    - Started documentation
+
+=============================================================================
+ vim:tw=78:ts=4:ft=help:norl:
