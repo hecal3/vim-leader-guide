@@ -139,7 +139,7 @@ function! s:escape_mappings(string)
     let rstring = substitute(a:string, '\', '\\\\', 'g')
     let rstring = substitute(rstring, '<\([^<>]*\)>', '\\<\1>', 'g')
     let rstring = substitute(rstring, '"', '\\"', 'g')
-    let rstring = 'call feedkeys("'.rstring.'")'
+    let rstring = 'call feedkeys("'.rstring.'", "t")'
     return rstring
 endfunction
 
@@ -278,7 +278,7 @@ function! s:start_buffer(lmap)
         redraw
         try
             echo fsel[0]
-            call feedkeys(s:vis.s:reg.s:count, "n")
+            call feedkeys(s:vis.s:reg.s:count, "t")
             execute fsel[0]
         catch
             echom v:exception
