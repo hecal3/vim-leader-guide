@@ -18,6 +18,8 @@ CHANGELOG                                   |leader-guide-changelog|
 OVERVIEW                                                *leader-guide-overview*
 
 |vim-leader-guide| is a plugin to explore keymaps.
+The name is a slight misnomer. The guide does work for all keys, as well as
+global mappings. Not just for <leader>.
 
 Features:
   - Show keymaps assigned to a specific prefix, such as leader, localleader or
@@ -29,6 +31,80 @@ Features:
 =============================================================================
 USAGE EXAMPLES                                          *leader-guide-examples*
 
+>
+    " Define prefix dictionary
+    let g:lmap =  {}
+
+    " Second level dictionarys:
+    let g:lmap.f = { 'name' : 'File Menu' }
+    let g:lmap.o = { 'name' : 'Open Stuff' }
+    " 'name' is a special field. It will define the name of the group.
+    " leader-f is the "File Menu" group.
+    " Unnamed groups will show an empty string
+
+    " Provide commands and descriptions for existing mappings
+    nmap <silent> <leader>fd :e $MYVIMRC<CR>
+    let g:lmap.f.d = ['e $MYVIMRC', 'Open vimrc']
+
+    nmap <silent> <leader>fs :so %<CR>
+    " let g:lmap.f.s = ['so %', 'Source file']
+
+    nmap <silent> <leader>oo  :copen<CR>
+    " let g:lmap.o.o = ['copen', 'Open quickfix']
+
+    nmap <silent> <leader>ol  :lopen<CR>
+    " let g:lmap.o.l = ['lopen', 'Open locationlist']
+
+    nmap <silent> <leader>fw :w<CR>
+    " let g:lmap.f.w = ['w', 'Write file']
+
+    " Create new menus not based on existing mappings:
+    let g:lmap.g = {
+                    \'name' : 'Git Menu',
+                    \'s' : ['Gstatus', 'Git Status'],
+                    \'p' : ['Gpull',   'Git Pull'],
+                    \'u' : ['Gpush',   'Git Push'],
+                    \'c' : ['Gcommit', 'Git Commit'],
+                    \'w' : ['Gwrite',  'Git Write'],
+                    \}
+
+
+    " If you use NERDCommenter:
+    let g:lmap.c = { 'name' : 'Comments' }
+    " Define some descriptions
+    let g:lmap.c.c = ['call feedkeys("\<Plug>NERDCommenterComment")','Comment']
+    let g:lmap.c[' '] = ['call feedkeys("\<Plug>NERDCommenterToggle")','Toggle']
+    " The Descriptions for other mappings defined by NerdCommenter, will default
+    " to their respective commands.
+
+
+    " set up dictionary for <localleader>
+    let g:llmap = {}
+    autocmd FileType tex let g:llmap.l = { 'name' : 'vimtex' }
+    call leaderGuide#register_prefix_descriptions(",", "g:llmap")
+    " to name the <localleader>-n group vimtex in tex files.
+
+
+    " combine the two dictionarys into a single top-level dictionary:
+    let g:topdict = {}
+    let g:topdict[' '] = g:lmap
+    let g:topdict[' ']['name'] = '<leader>'
+    let g:topdict[','] = g:llmap
+    let g:topdict[',']['name'] = '<localleader>'
+
+    " register it with the guide:
+    call leaderGuide#register_prefix_descriptions("", "g:topdict")
+
+    " define mappings:
+    nnoremap <silent> <leader> :<c-u>LeaderGuide '<Space>'<CR>
+    vnoremap <silent> <leader> :<c-u>LeaderGuideVisual '<Space>'<CR>
+    nnoremap <silent> <leader>. :<c-u>LeaderGuide '  '<CR>
+    vnoremap <silent> <leader>. :<c-u>LeaderGuideVisual '  '<CR>
+    nnoremap <localleader> :<c-u>LeaderGuide  ','<CR>
+    vnoremap <localleader> :<c-u>LeaderGuideVisual  ','<CR>
+    nnoremap <localleader>. :<c-u>LeaderGuide  '<buffer>'<CR>
+    vnoremap <localleader>. :<c-u>LeaderGuideVisual  '<buffer>'<CR>
+>
 
 =============================================================================
 COMMANDS                                                *leader-guide-commands*
@@ -36,27 +112,67 @@ COMMANDS                                                *leader-guide-commands*
 |vim-leader-guide| provides the following ex-commands:
     LeaderGuide '(String)'                          |LeaderGuide|
     LeaderGuideVisual '(String)'                    |LeaderGuideVisual|
-    LeaderGuideD '(String)'                         |LeaderGuideD|
-    LeaderGuideVisualD '(String)'                   |LeaderGuideVisualD|
+    LeaderGuideD {dict}                             |LeaderGuideD|
+    LeaderGuideVisualD {dict}                       |LeaderGuideVisualD|
 
 
 
-    Todo: write something up...
                                                         *LeaderGuide*
-:LeaderGuide~
+:LeaderGuide '{prefix}'
+
+    Opens the guide window for the given prefix.
+    This command, together with |LeaderGuideVisual| is the primary way of
+    interacting with the plugin.
+
+    Examples:
+>
+    nnoremap <leader> :LeaderGuide ' '<CR>
+    nnoremap <localleader> :LeaderGuide ','<CR>
+    nnoremap <leader>. :LeaderGuide '  '<CR>
+    nnoremap <localleader>. :LeaderGuide '<buffer>'<CR>
+
+    :LeaderGuide 'y'
+    :LeaderGuide '<C-W>'
+<
+    In addition to normal and special keys, this command accepts the following
+    reseved strings:
+        
+        - '<buffer>'            Lists all buffer-local mappings.
+        - '  '                  Lists all global mappings.
 
 
                                                         *LeaderGuideVisual*
-:LeaderGuideVisual~
+:LeaderGuideVisual '{prefix}'
 
+    Same as |LeaderGuide|. Opens the guide in visual mode.
+
+    Examples:
+>
+    vnoremap <leader> :LeaderGuide ' '<CR>
+    etc.
+<
 
                                                         *LeaderGuideD*
-:LeaderGuideD~
+:LeaderGuideD {dict}
 
+    Opens the guide window for a given dictionary directly.
+    This command will not parse for mappings.
+
+    This functionality can be used to build selection menus independent from
+    native vim mappings.
+
+    Examples:
+>
+    :LeaderGuideD g:mydict
+<
+
+    Note: To display keymaps use the |LeaderGuide| command, possible in
+    combination with |leaderGuide#register_prefix_descriptions()|.
 
                                                         *LeaderGuideVisualD*
-:LeaderGuideVisualD~
+:LeaderGuideVisualD {dict}
 
+    Same as |LeaderGuideD|, opening the menu in visual mode.
 
 
 =============================================================================
@@ -64,6 +180,7 @@ FUNCTIONS                                              *leader-guide-functions*
 
                                    *leaderGuide#register_prefix_descriptions()*
 leaderGuide#register_prefix_descriptions("{prefix}", "{dictname}")
+
     Provide the guide with a description dictionary. This dictionary is used
     to provide convenient names for mappings to display in the guide popup.
     Additionally it is used to provide group names.
