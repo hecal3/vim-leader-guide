@@ -111,10 +111,11 @@ CONFIGURATION                                      *leader-guide-configuration*
     ----------------------------------------------------------~
      VAR                                             DEFAULT ~
     ----------------------------------------------------------~
-     |g:leaderGuide_position|                         `botright`
-     |g:leaderGuide_vertical|                                `0`
-     |g:leaderGuide_hspace|                                  `5`
-     |g:leaderGuide_run_map_on_popup|                        `5`
+     |g:leaderGuide_position|                         botright
+     |g:leaderGuide_vertical|                                0
+     |g:leaderGuide_hspace|                                  5
+     |g:leaderGuide_run_map_on_popup|                        1
+     |g:leaderGuide_flatten|                                 1
 
 *g:leaderGuide_position*
     Set the direction from witch the guide-buffer should pop up.
@@ -159,8 +160,40 @@ CONFIGURATION                                      *leader-guide-configuration*
     Possible values:        {0,1}
     Default:                1
 
+*g:leaderGuide_flatten*
+    If set to 1, |vim-leader-guide| will try to flatten out the keymappings if
+    necessary.
+
+    Example:
+        vim-surround (|https://github.com/tpope/vim-surround|) defines
+        the following mappings by default: (among others)
+        ys  -> <Plug>Ysurround
+        yss -> <Plug>Yssurround
+
+        Upon pressing `ys`, the first mapping is triggered when following up
+        with a text object. The second one is triggered by following with
+        another `s`.
+
+        With the flatten option set, the guide (`:LeaderGuide` `'y'`) will
+        display:
+>
+        [s]  <Plug>Ysurround       [ss] <Plug>Yssurround
+<
+        when the normal behaviour would put the [ss] mapping as [s] into the
+        [s] subgroup.
+
+
+    Note: With this option set to 0 mappings of the above type are not
+    displayed correctly. Only the longest mappings will appear in the guide.
+
+    Possible values:        {0,1}
+    Default:                1
+
 ============================================================================
 CHANGELOG                                              *leader-guide-changelog*
+
+    2016-04-12:     - Add option to flatten map<->group conflicts.
+                      (|g:leaderGuide_flatten|)
 
     2016-04-10:     - Support for {count}, and register passthrough
                     - Rename g:leaderGuide_vspace -> g:leaderGuide_hspace

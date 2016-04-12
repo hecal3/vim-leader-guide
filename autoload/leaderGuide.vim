@@ -85,25 +85,54 @@ function! s:start_parser(key, dict)
 			if (s:vis && match(mapd.mode, "[vx ]") >= 0) ||
 						\ (!s:vis && match(mapd.mode, "[vx]") == -1)
 			call s:add_map_to_dict(s:string_to_keys(mapd.lhs), mapd.rhs,
-						\display, 0, a:dict, mapd.mode)
+						\display, 0, a:dict)
 			endif
 		endif
 	endfor
 endfunction
 
-function! s:add_map_to_dict(key, cmd, desc, level, dict, mode)
+function! s:add_map_to_dict(key, cmd, desc, level, dict)
 	if len(a:key) > a:level+1
 		if !has_key(a:dict, a:key[a:level])
 			let a:dict[a:key[a:level]] = { 'name' : '' }
+        " mapping defined already, flatten this map
+        elseif type(a:dict[a:key[a:level]]) == type([]) && g:leaderGuide_flatten
+            let cmd = s:escape_mappings(a:cmd)
+            if !has_key(a:dict, a:key[a:level+1:])
+                let a:dict[a:key[a:level+1:]] = [cmd, a:desc]
+            endif
 		endif
+		" next level
 		call s:add_map_to_dict(a:key, a:cmd, a:desc, a:level + 1,
-					\a:dict[a:key[a:level]], a:mode)
+					\a:dict[a:key[a:level]])
 	else
 		let cmd = s:escape_mappings(a:cmd)
 		if !has_key(a:dict, a:key[a:level])
 			let a:dict[a:key[a:level]] = [cmd, a:desc]
+		" spot is taken already, flatten existing submaps
+        elseif type(a:dict[a:key[a:level]]) == type({}) && g:leaderGuide_flatten
+            let childmap = s:flattenmap(a:dict[a:key[a:level]], a:key[a:level])
+            for it in keys(childmap)
+                let a:dict[it] = childmap[it]
+            endfor
+			let a:dict[a:key[a:level]] = [cmd, a:desc]
 		endif
 	endif
+endfunction
+
+function! s:flattenmap(dict, str)
+    let ret = {}
+    for kv in keys(a:dict)
+        if type(a:dict[kv]) == type([])
+            let toret = {}
+            let toret[a:str.kv] = a:dict[kv]
+            return toret
+        else
+            let strcall = a:str.kv
+            call extend(ret, s:flattenmap(a:dict[kv], a:str.kv))
+        endif
+    endfor
+    return ret
 endfunction
 
 function! s:escape_mappings(string)
