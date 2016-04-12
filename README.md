@@ -4,10 +4,10 @@ vim-leader-guide is a vim keymap-display loosely inspired by emacs's [guide-key]
 
 This Plugin is not stable yet. The configuration and commands might change in the future.
 
-![img1.png](https://raw.githubusercontent.com/hecal3/vim-leader-guide/master/img1.png)
+![img1.png](https://cloud.githubusercontent.com/assets/11238697/14471215/bbc54a40-00ed-11e6-9eb2-8b6fb247589f.png)
 
 
-![img3.png](https://raw.githubusercontent.com/hecal3/vim-leader-guide/master/img3.png)
+![img3.png](https://cloud.githubusercontent.com/assets/11238697/14471222/c1ded6b2-00ed-11e6-9a01-2aa20753d42e.png)
 
 ## Usage Examples
 The plugin configuration is based on vim's dictionarys.
