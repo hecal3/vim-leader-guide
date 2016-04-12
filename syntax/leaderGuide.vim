@@ -1,6 +1,6 @@
 
 if exists("b:current_syntax")
-  finish
+    finish
 endif
 syn match guideKey /\[[^\[\]]*\]/hs=s+1,he=e-1
 syn match guideDesc / [^\[\]]*[ |\n]/hs=s+1,me=e-1

@@ -7,19 +7,19 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 if !exists('g:leaderGuide_use_buffer')
-	let g:leaderGuide_use_buffer = 1
+    let g:leaderGuide_use_buffer = 1
 endif
 
 if !exists('g:leaderGuide_vertical')
-	let g:leaderGuide_vertical = 0
+    let g:leaderGuide_vertical = 0
 endif
 
 if !exists('g:leaderGuide_position')
-	let g:leaderGuide_position = 'botright'
+    let g:leaderGuide_position = 'botright'
 endif
 
 if !exists('g:leaderGuide_run_map_on_popup')
-	let g:leaderGuide_run_map_on_popup = 1
+    let g:leaderGuide_run_map_on_popup = 1
 endif
 
 if !exists("g:leaderGuide_hspace")
