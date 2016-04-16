@@ -74,6 +74,9 @@ Basic Configuration~
     dictionary variant above.
     This way it is possible to limit the dictionarys to group names.
 
+    Note: The <Plug> prefix can be hidden with:
+    g:|leaderGuide_hide_in_display|
+
 
 Menu Function~
 >
@@ -253,13 +256,14 @@ CONFIGURATION                                      *leader-guide-configuration*
     ----------------------------------------------------------~
      VAR                                             DEFAULT ~
     ----------------------------------------------------------~
-     |g:leaderGuide_position|                         botright
-     |g:leaderGuide_vertical|                                0
-     |g:leaderGuide_hspace|                                  5
-     |g:leaderGuide_run_map_on_popup|                        1
-     |g:leaderGuide_flatten|                                 1
+     g:|leaderGuide_position|                         botright
+     g:|leaderGuide_vertical|                                0
+     g:|leaderGuide_hspace|                                  5
+     g:|leaderGuide_run_map_on_popup|                        1
+     g:|leaderGuide_flatten|                                 1
+     g:|leaderGuide_hide_in_display|               ['\c<cr>$']
 
-*g:leaderGuide_position*
+g:*leaderGuide_position*
     Set the direction from witch the guide-buffer should pop up.
 
     Possible values:        `botright`, `topleft`
@@ -269,7 +273,7 @@ CONFIGURATION                                      *leader-guide-configuration*
     buffer-position
 
 
-*g:leaderGuide_vertical*
+g:*leaderGuide_vertical*
     If set to a value other than 0, the guide buffer will pop up in vertical
     split window.
 
@@ -280,7 +284,7 @@ CONFIGURATION                                      *leader-guide-configuration*
     buffer-position
 
 
-*g:leaderGuide_hspace*
+g:*leaderGuide_hspace*
     Sets the minimum horizontal space between the displayed colomns.
 
     The actual column width is the length of the longest entry plus this
@@ -290,7 +294,7 @@ CONFIGURATION                                      *leader-guide-configuration*
     Default:                5
 
 
-*g:leaderGuide_run_map_on_popup*
+g:*leaderGuide_run_map_on_popup*
     If set to 0, |vim-leader-guide| will not parse mappings when opening a
     guide buffer. It will used cached values instead.
 
@@ -302,7 +306,7 @@ CONFIGURATION                                      *leader-guide-configuration*
     Possible values:        {0,1}
     Default:                1
 
-*g:leaderGuide_flatten*
+g:*leaderGuide_flatten*
     If set to 1, |vim-leader-guide| will try to flatten out the keymappings if
     necessary.
 
@@ -331,11 +335,30 @@ CONFIGURATION                                      *leader-guide-configuration*
     Possible values:        {0,1}
     Default:                1
 
+g:*leaderGuide_hide_in_display*
+    A List of patterns to hide in the guide display.
+
+    Example:
+>
+    let g:leaderGuide_hide_in_display = ['^<Plug>', '\c<cr>$']
+<
+    The above setting will hide all trailing <CR> as well as all leading
+    <Plug> substrings in the guide buffer.
+
+    :so $MYVIMRC<CR> => :so $MYVIMRC
+    <Plug>Ysurround  => Ysurround
+
+    Possible values:        {list} of strings
+    Default:                ['\c<cr>$']
+
 ============================================================================
 CHANGELOG                                              *leader-guide-changelog*
 
+    2016-04-16:     - Add option to hide specific patterns in the displayname
+                      (g:|leaderGuide_hide_in_display|)
+
     2016-04-12:     - Add option to flatten map<->group conflicts.
-                      (|g:leaderGuide_flatten|)
+                      (g:|leaderGuide_flatten|)
 
     2016-04-10:     - Support for {count}, and register passthrough
                     - Rename g:leaderGuide_vspace -> g:leaderGuide_hspace
