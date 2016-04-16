@@ -31,6 +31,7 @@ Features:
 =============================================================================
 USAGE EXAMPLES                                          *leader-guide-examples*
 
+Basic Configuration~
 >
     " Define prefix dictionary
     let g:lmap =  {}
@@ -57,7 +58,25 @@ USAGE EXAMPLES                                          *leader-guide-examples*
 
     nmap <silent> <leader>fw :w<CR>
     " let g:lmap.f.w = ['w', 'Write file']
+<
+    Note: Depending on your use case extensive dictionary configuration might
+    not be necessary.
 
+    Instead of >
+    nmap <silent> <leader>fd :e $MYVIMRC<CR>
+    let g:lmap.f.d = ['e $MYVIMRC', 'Open vimrc']
+<
+    one could simply use: >
+    nnoremap <Plug>(open-vimrc) :e $MYVIMRC<CR>
+    nmap <leader>fd <Plug>(open-vimrc)
+<
+    This variant is a lot less intrusive and just as descriptive as the
+    dictionary variant above.
+    This way it is possible to limit the dictionarys to group names.
+
+
+Menu Function~
+>
     " Create new menus not based on existing mappings:
     let g:lmap.g = {
                     \'name' : 'Git Menu',
@@ -68,7 +87,9 @@ USAGE EXAMPLES                                          *leader-guide-examples*
                     \'w' : ['Gwrite',  'Git Write'],
                     \}
 
-
+<
+NerdCommenter~
+>
     " If you use NERDCommenter:
     let g:lmap.c = { 'name' : 'Comments' }
     " Define some descriptions
@@ -77,14 +98,18 @@ USAGE EXAMPLES                                          *leader-guide-examples*
     " The Descriptions for other mappings defined by NerdCommenter, will default
     " to their respective commands.
 
-
+<
+Plugin Specific Menus~
+>
     " set up dictionary for <localleader>
     let g:llmap = {}
     autocmd FileType tex let g:llmap.l = { 'name' : 'vimtex' }
     call leaderGuide#register_prefix_descriptions(",", "g:llmap")
     " to name the <localleader>-n group vimtex in tex files.
 
-
+<
+Final Setup~
+>
     " combine the two dictionarys into a single top-level dictionary:
     let g:topdict = {}
     let g:topdict[' '] = g:lmap

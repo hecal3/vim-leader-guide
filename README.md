@@ -10,6 +10,8 @@ This Plugin is not stable yet. The configuration and commands might change in th
 ![img3.png](https://cloud.githubusercontent.com/assets/11238697/14471222/c1ded6b2-00ed-11e6-9a01-2aa20753d42e.png)
 
 ## Usage Examples
+See also: The docs...
+
 The plugin configuration is based on vim's dictionarys.
 
 ```vim
@@ -58,11 +60,30 @@ let g:lmap.c[' '] = ['call feedkeys("\<Plug>NERDCommenterToggle")','Toggle']
 " to their respective commands.
 
 ```
+Note: Depending on your use case extensive dictionary configuration might
+not be necessary.
 
-There are two ways to call the plugin:
+Instead of
 
-Recommended:
-Register the description dictionary for the prefix
+```vim
+    nmap <silent> <leader>fd :e $MYVIMRC<CR>
+    let g:lmap.f.d = ['e $MYVIMRC', 'Open vimrc']
+```
+
+one could simply use:
+
+```vim
+    nnoremap <Plug>(open-vimrc) :e $MYVIMRC<CR>
+    nmap <leader>fd <Plug>(open-vimrc)
+```
+
+This variant is a lot less intrusive and just as descriptive as the
+dictionary variant above.
+This way it is possible to limit the dictionarys to group names.
+
+-----
+
+To make the guide pop up Register the description dictionary for the prefix first
 (assuming Space is your leader):
 
 ```vim
@@ -74,19 +95,6 @@ vnoremap <silent> <leader> :<c-u>LeaderGuideVisual '<Space>'<CR>
 The guide will be up to date at all times.
 Native vim mappings will always take 
 precedence over dictionary-only mappings (e.g. the git menu above)
-
----
-
-Not Recommended:
-Call by providing a dictionary directly.
-When the mappings change, the guide will not update itself
-
-```vim
-nnoremap <silent> <leader> :LeaderGuideD g:lmap<CR>
-vnoremap <silent> <leader> :LeaderGuideVisualD g:lmap<CR>
-"" Get all <Space> mappings into the dictionary:
-"call leaderGuide#populate_dictionary("<Space>", "g:lmap")
-```
 
 ---
 
