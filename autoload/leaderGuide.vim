@@ -89,10 +89,15 @@ function! s:start_parser(key, dict)
 endfunction
 
 function! s:format_displaystring(map)
-    let display = a:map
-    for str in g:leaderGuide_hide_in_display
-        let display = substitute(display, str, "", "")
+    let g:leaderGuide#displayname = a:map
+    "let Fun = g:leaderGuide_displayfunc
+    "let test = [g:leaderGuide_displayfunc]
+    for Fun in g:leaderGuide_displayfunc
+        call Fun()
     endfor
+    "call g:leaderGuide_displayfunc()
+    let display = g:leaderGuide#displayname
+    unlet g:leaderGuide#displayname
     return display
 endfunction
 

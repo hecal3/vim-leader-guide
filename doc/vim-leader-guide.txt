@@ -75,7 +75,7 @@ Basic Configuration~
     This way it is possible to limit the dictionarys to group names.
 
     Note: The <Plug> prefix can be hidden with:
-    g:|leaderGuide_hide_in_display|
+    g:|leaderGuide_displayfunc|
 
 
 Menu Function~
@@ -335,12 +335,20 @@ g:*leaderGuide_flatten*
     Possible values:        {0,1}
     Default:                1
 
-g:*leaderGuide_hide_in_display*
-    A List of patterns to hide in the guide display.
+g:*leaderGuide_displayfunc*
+    Sets a function to call on all for every displaystring in the guide
+    buffer.
+    
+    Inside of the function *g:leaderGuide#displayname* is available as the
+    current string to display. It can be manipulated by the function.
 
     Example:
 >
-    let g:leaderGuide_hide_in_display = ['^<Plug>', '\c<cr>$']
+    function! s:my_displayfunc()
+        let g:leaderGuide#displayname = substitute(g:leaderGuide#displayname, '\c<cr>$', '', '')
+        let g:leaderGuide#displayname = substitute(g:leaderGuide#displayname, '^<Plug>', '', '')
+    endfunction
+    let g:leaderGuide_displayfunc = [function("s:my_displayfunc")]
 <
     The above setting will hide all trailing <CR> as well as all leading
     <Plug> substrings in the guide buffer.
@@ -348,14 +356,18 @@ g:*leaderGuide_hide_in_display*
     :so $MYVIMRC<CR> => :so $MYVIMRC
     <Plug>Ysurround  => Ysurround
 
-    Possible values:        {list} of strings
-    Default:                ['\c<cr>$']
+    Possible values:        {list} of funcrefs
+    Default: >
+    function! s:leaderGuide_display()
+        let g:leaderGuide#displayname = substitute(g:leaderGuide#displayname, '\c<cr>$', '', '')
+    endfunction
+<
 
 ============================================================================
 CHANGELOG                                              *leader-guide-changelog*
 
     2016-04-16:     - Add option to hide specific patterns in the displayname
-                      (g:|leaderGuide_hide_in_display|)
+                      (g:|leaderGuide_displayfunc|)
 
     2016-04-12:     - Add option to flatten map<->group conflicts.
                       (g:|leaderGuide_flatten|)
