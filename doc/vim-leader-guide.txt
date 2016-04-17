@@ -1,8 +1,8 @@
 *vim-leader-guide.txt*      A vim key-guide.
 *leader-guide*
 
-=============================================================================
-CONTENTS                                                *leader-guide-contents*
+==============================================================================
+CONTENTS                                                 *leader-guide-contents*
 
 Overview                                    |leader-guide-overview|
 Usage examples                              |leader-guide-examples|
@@ -14,8 +14,8 @@ Configuration                               |leader-guide-configuration|
 CHANGELOG                                   |leader-guide-changelog|
 
 
-=============================================================================
-OVERVIEW                                                *leader-guide-overview*
+==============================================================================
+OVERVIEW                                                 *leader-guide-overview*
 
 |vim-leader-guide| is a plugin to explore keymaps.
 The name is a slight misnomer. The guide does work for all keys, as well as
@@ -28,8 +28,8 @@ Features:
   - Provide additional descriptions for mappings and groups of mappings
 
 
-=============================================================================
-USAGE EXAMPLES                                          *leader-guide-examples*
+==============================================================================
+USAGE EXAMPLES                                           *leader-guide-examples*
 
 Basic Configuration~
 >
@@ -75,7 +75,7 @@ Basic Configuration~
     This way it is possible to limit the dictionarys to group names.
 
     Note: The <Plug> prefix can be hidden with:
-    g:|leaderGuide_displayfunc|
+    |g:leaderGuide_displayfunc|
 
 
 Menu Function~
@@ -134,8 +134,8 @@ Final Setup~
     vnoremap <localleader>. :<c-u>LeaderGuideVisual  '<buffer>'<CR>
 >
 
-=============================================================================
-COMMANDS                                                *leader-guide-commands*
+==============================================================================
+COMMANDS                                                 *leader-guide-commands*
 
 |vim-leader-guide| provides the following ex-commands:
     LeaderGuide '(String)'                          |LeaderGuide|
@@ -145,7 +145,7 @@ COMMANDS                                                *leader-guide-commands*
 
 
 
-                                                        *LeaderGuide*
+                                                                 *LeaderGuide*
 :LeaderGuide '{prefix}'
 
     Opens the guide window for the given prefix.
@@ -169,7 +169,7 @@ COMMANDS                                                *leader-guide-commands*
         - '  '                  Lists all global mappings.
 
 
-                                                        *LeaderGuideVisual*
+                                                           *LeaderGuideVisual*
 :LeaderGuideVisual '{prefix}'
 
     Same as |LeaderGuide|. Opens the guide in visual mode.
@@ -180,7 +180,7 @@ COMMANDS                                                *leader-guide-commands*
     etc.
 <
 
-                                                        *LeaderGuideD*
+                                                                *LeaderGuideD*
 :LeaderGuideD {dict}
 
     Opens the guide window for a given dictionary directly.
@@ -197,16 +197,16 @@ COMMANDS                                                *leader-guide-commands*
     Note: To display keymaps use the |LeaderGuide| command, possible in
     combination with |leaderGuide#register_prefix_descriptions()|.
 
-                                                        *LeaderGuideVisualD*
+                                                          *LeaderGuideVisualD*
 :LeaderGuideVisualD {dict}
 
     Same as |LeaderGuideD|, opening the menu in visual mode.
 
 
-=============================================================================
-FUNCTIONS                                              *leader-guide-functions*
+==============================================================================
+FUNCTIONS                                               *leader-guide-functions*
 
-                                   *leaderGuide#register_prefix_descriptions()*
+                                  *leaderGuide#register_prefix_descriptions()*
 leaderGuide#register_prefix_descriptions("{prefix}", "{dictname}")
 
     Provide the guide with a description dictionary. This dictionary is used
@@ -248,22 +248,23 @@ leaderGuide#register_prefix_descriptions("{prefix}", "{dictname}")
     by changing g:dict.
         
 
-=============================================================================
-CONFIGURATION                                      *leader-guide-configuration*
+==============================================================================
+CONFIGURATION                                       *leader-guide-configuration*
 
 |vim-leader-guide| uses the following configuration variables:
 
     ----------------------------------------------------------~
      VAR                                             DEFAULT ~
     ----------------------------------------------------------~
-     g:|leaderGuide_position|                         botright
-     g:|leaderGuide_vertical|                                0
-     g:|leaderGuide_hspace|                                  5
-     g:|leaderGuide_run_map_on_popup|                        1
-     g:|leaderGuide_flatten|                                 1
-     g:|leaderGuide_hide_in_display|               ['\c<cr>$']
+     |g:leaderGuide_position|                         botright
+     |g:leaderGuide_vertical|                                0
+     |g:leaderGuide_hspace|                                  5
+     |g:leaderGuide_run_map_on_popup|                        1
+     |g:leaderGuide_flatten|                                 1
+     |g:leaderGuide_hide_in_display|           see description
 
-g:*leaderGuide_position*
+                                                      *g:leaderGuide_position*
+g:leaderGuide_position~
     Set the direction from witch the guide-buffer should pop up.
 
     Possible values:        `botright`, `topleft`
@@ -273,7 +274,8 @@ g:*leaderGuide_position*
     buffer-position
 
 
-g:*leaderGuide_vertical*
+                                                      *g:leaderGuide_vertical*
+g:leaderGuide_vertical~
     If set to a value other than 0, the guide buffer will pop up in vertical
     split window.
 
@@ -284,7 +286,8 @@ g:*leaderGuide_vertical*
     buffer-position
 
 
-g:*leaderGuide_hspace*
+                                                        *g:leaderGuide_hspace*
+g:leaderGuide_hspace~
     Sets the minimum horizontal space between the displayed colomns.
 
     The actual column width is the length of the longest entry plus this
@@ -294,7 +297,8 @@ g:*leaderGuide_hspace*
     Default:                5
 
 
-g:*leaderGuide_run_map_on_popup*
+                                              *g:leaderGuide_run_map_on_popup*
+g:leaderGuide_run_map_on_popup~
     If set to 0, |vim-leader-guide| will not parse mappings when opening a
     guide buffer. It will used cached values instead.
 
@@ -306,7 +310,8 @@ g:*leaderGuide_run_map_on_popup*
     Possible values:        {0,1}
     Default:                1
 
-g:*leaderGuide_flatten*
+                                                       *g:leaderGuide_flatten*
+g:leaderGuide_flatten~
     If set to 1, |vim-leader-guide| will try to flatten out the keymappings if
     necessary.
 
@@ -335,22 +340,26 @@ g:*leaderGuide_flatten*
     Possible values:        {0,1}
     Default:                1
 
-g:*leaderGuide_displayfunc*
+                                                   *g:leaderGuide_displayfunc*
+g:leaderGuide_displayfunc~
     Sets a function to call on all for every displaystring in the guide
     buffer.
     
-    Inside of the function *g:leaderGuide#displayname* is available as the
-    current string to display. It can be manipulated by the function.
+    Inside of the function |g:leaderGuide#displayname| is available as the
+    string to display for the current mapping. It can be manipulated by
+    the function.
 
     Example:
 >
     function! s:my_displayfunc()
-        let g:leaderGuide#displayname = substitute(g:leaderGuide#displayname, '\c<cr>$', '', '')
-        let g:leaderGuide#displayname = substitute(g:leaderGuide#displayname, '^<Plug>', '', '')
+        let g:leaderGuide#displayname =
+        \ substitute(g:leaderGuide#displayname, '\c<cr>$', '', '')
+        let g:leaderGuide#displayname = 
+        \ substitute(g:leaderGuide#displayname, '^<Plug>', '', '')
     endfunction
     let g:leaderGuide_displayfunc = [function("s:my_displayfunc")]
 <
-    The above setting will hide all trailing <CR> as well as all leading
+    The above settings will hide all trailing <CR> as well as all leading
     <Plug> substrings in the guide buffer.
 
     :so $MYVIMRC<CR> => :so $MYVIMRC
@@ -359,14 +368,24 @@ g:*leaderGuide_displayfunc*
     Possible values:        {list} of funcrefs
     Default: >
     function! s:leaderGuide_display()
-        let g:leaderGuide#displayname = substitute(g:leaderGuide#displayname, '\c<cr>$', '', '')
+        let g:leaderGuide#displayname =
+        \ substitute(g:leaderGuide#displayname, '\c<cr>$', '', '')
     endfunction
 <
 
-============================================================================
-CHANGELOG                                              *leader-guide-changelog*
+                                                   *g:leaderGuide#displayname*
+g:leaderGuide#displayname~
+    This variable is set to the displayname (The string that will show up in
+    the guide buffer) of a mapping. Only available in of display functions.
+    See |g:leaderGuide_displayfunc|.
 
-    2016-04-16:     - Add option to hide specific patterns in the displayname
+    Do not set this variable manually outside of a display function. It will
+    be overwritten anyway.
+
+==============================================================================
+CHANGELOG                                               *leader-guide-changelog*
+
+    2016-04-16:     - Add option to run functions on the displayname.
                       (g:|leaderGuide_displayfunc|)
 
     2016-04-12:     - Add option to flatten map<->group conflicts.
@@ -376,5 +395,5 @@ CHANGELOG                                              *leader-guide-changelog*
                     - Rename g:leaderGuide_vspace -> g:leaderGuide_hspace
                     - Started documentation
 
-=============================================================================
+==============================================================================
  vim:tw=78:ts=8:ft=help:norl:

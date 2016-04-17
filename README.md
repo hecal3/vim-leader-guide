@@ -81,6 +81,9 @@ This variant is a lot less intrusive and just as descriptive as the
 dictionary variant above.
 This way it is possible to limit the dictionarys to group names.
 
+It is also possible to hide the `<Plug>`-prefix.
+Consult the docs under **g:leaderGuide_displayfunc**
+
 -----
 
 To make the guide pop up Register the description dictionary for the prefix first
@@ -194,7 +197,7 @@ let g:lmap[','] = ['call feedkeys("\<Plug>(easymotion-prefix)")', 'EasyMotion Pr
 
 ## Other settings
 
-Popup position:
+Popup position and orientation:
 
 ```vim
 " Bottom (default)
@@ -228,7 +231,9 @@ let g:leaderGuide_run_map_on_popup = 0
 The update is almost instantaneous and will only run when the guide
 actually pops up. Apart from that the automatic update has no performance impact.
 
+For the full set of configuration options see the documentation.
+
 ## TODO and Ideas
 
-- Documentation
 - Support for vim's buildin mappings?
+    - Parser for `<C-W>`-mappings?
