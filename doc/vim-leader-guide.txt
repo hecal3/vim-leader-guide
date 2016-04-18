@@ -68,8 +68,12 @@ Basic Configuration~
     let g:lmap.f.d = ['e $MYVIMRC', 'Open vimrc']
 <
     one could simply use: >
-    nnoremap <Plug>(open-vimrc) :e $MYVIMRC<CR>
-    nmap <leader>fd <Plug>(open-vimrc)
+    nnoremap <Plug>open-vimrc :e $MYVIMRC<CR>
+    nmap <leader>fd <Plug>open-vimrc
+<
+    or >
+    nnoremap <SID>open-vimrc :e $MYVIMRC<CR>
+    nmap <leader>fd <SID>open-vimrc
 <
     This variant is a lot less intrusive and just as descriptive as the
     dictionary variant above.

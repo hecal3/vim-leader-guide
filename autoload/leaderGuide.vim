@@ -58,7 +58,7 @@ function! s:start_parser(key, dict) " {{{
 
     for line in lines
         let mapd = maparg(split(line[3:])[0], line[0], 0, 1)
-        if mapd.lhs =~ '<Plug>.*'
+        if mapd.lhs =~ '<Plug>.*' || mapd.lhs =~ '<SNR>.*'
             continue
         endif
         let display = s:format_displaystring(mapd.rhs)
