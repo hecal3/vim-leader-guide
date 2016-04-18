@@ -177,7 +177,8 @@ function! s:string_to_keys(input) " {{{
         return split(a:input, '\zs')
 endfunction " }}}
 function! s:escape_keys(inp) " {{{
-    return substitute(a:inp, "<", "<lt>", "")
+    let ret = substitute(a:inp, "<", "<lt>", "")
+    return substitute(ret, "|", "<Bar>", "")
 endfunction " }}}
 function! s:show_displayname(inp) " {{{
     if has_key(s:displaynames, toupper(a:inp))
@@ -219,7 +220,7 @@ function! s:create_string(dkmap, ncols, colwidth) " {{{
             let colnum += 1
             call add(output, repeat(' ', a:colwidth - strdisplaywidth(displaystring)))
         endif
-        execute "cnoremap <nowait> <buffer> " . k . " " . s:escape_keys(k) ."<CR>"
+        execute "cnoremap <nowait> <buffer> ".substitute(k, "|", "<Bar>", ""). " " . s:escape_keys(k) ."<CR>"
     endfor
     cmap <nowait> <buffer> <Space> <Space><CR>
     return [output, nrows]
