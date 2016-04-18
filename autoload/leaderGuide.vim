@@ -31,7 +31,7 @@ endfunction
 function! leaderGuide#start_by_prefix(vis, key)
     let s:vis = a:vis ? 'gv' : ''
     let s:count = v:count != 0 ? v:count : ''
-    let s:reg = v:register != '"' ? '\"'.v:register : ''
+    let s:reg = v:register != '"' ? '"'.v:register : ''
     let s:toplevel = a:key ==? '  '
 
     if !has_key(s:cached_dicts, a:key) || g:leaderGuide_run_map_on_popup
@@ -149,7 +149,7 @@ function! s:escape_mappings(string)
     let rstring = substitute(a:string, '\', '\\\\', 'g')
     let rstring = substitute(rstring, '<\([^<>]*\)>', '\\<\1>', 'g')
     let rstring = substitute(rstring, '"', '\\"', 'g')
-    let rstring = 'call feedkeys("'.rstring.'", "t")'
+    let rstring = 'call feedkeys("'.rstring.'", "mt")'
     return rstring
 endfunction
 
@@ -280,15 +280,13 @@ function! s:start_buffer(lmap)
         let fsel = ['call feedkeys("\<ESC>")']
     endif
     call s:winclose()
-    execute s:winnr.'wincmd w'
-    call winrestview(s:winv)
     if type(fsel) ==? type({})
         call s:start_buffer(fsel)
     else
+        call feedkeys(s:vis.s:reg.s:count, 'ti')
         redraw
         try
-            echo fsel[0]
-            call feedkeys(s:vis.s:reg.s:count, "t")
+            "echo fsel[0]
             execute fsel[0]
         catch
             echom v:exception
@@ -328,6 +326,8 @@ function! s:winclose()
         close
         exe s:winres
         let s:gwin = -1
+        execute s:winnr.'wincmd w'
+        call winrestview(s:winv)
     endif
 endfunction
 

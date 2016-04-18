@@ -8,6 +8,7 @@ Overview                                    |leader-guide-overview|
 Usage examples                              |leader-guide-examples|
 
 Commands                                    |leader-guide-commands|
+Mappings                                    |leader-guide-mappings|
 Functions                                   |leader-guide-functions|
 Configuration                               |leader-guide-configuration|
 
@@ -126,12 +127,10 @@ Final Setup~
     " define mappings:
     nnoremap <silent> <leader> :<c-u>LeaderGuide '<Space>'<CR>
     vnoremap <silent> <leader> :<c-u>LeaderGuideVisual '<Space>'<CR>
-    nnoremap <silent> <leader>. :<c-u>LeaderGuide '  '<CR>
-    vnoremap <silent> <leader>. :<c-u>LeaderGuideVisual '  '<CR>
+    map <leader>. <Plug>leaderguide-global
     nnoremap <localleader> :<c-u>LeaderGuide  ','<CR>
     vnoremap <localleader> :<c-u>LeaderGuideVisual  ','<CR>
-    nnoremap <localleader>. :<c-u>LeaderGuide  '<buffer>'<CR>
-    vnoremap <localleader>. :<c-u>LeaderGuideVisual  '<buffer>'<CR>
+    map <localleader>. <Plug>leaderguide-buffer
 >
 
 ==============================================================================
@@ -154,19 +153,13 @@ COMMANDS                                                 *leader-guide-commands*
 
     Examples:
 >
-    nnoremap <leader> :LeaderGuide ' '<CR>
-    nnoremap <localleader> :LeaderGuide ','<CR>
-    nnoremap <leader>. :LeaderGuide '  '<CR>
-    nnoremap <localleader>. :LeaderGuide '<buffer>'<CR>
+    nnoremap <leader> :<C-U>LeaderGuide ' '<CR>
+    nnoremap <localleader> :<C-U>LeaderGuide ','<CR>
 
     :LeaderGuide 'y'
     :LeaderGuide '<C-W>'
 <
-    In addition to normal and special keys, this command accepts the following
-    reseved strings:
-        
-        - '<buffer>'            Lists all buffer-local mappings.
-        - '  '                  Lists all global mappings.
+    Note: Please start commands in mappings with a <C-U> as shown above.
 
 
                                                            *LeaderGuideVisual*
@@ -176,9 +169,10 @@ COMMANDS                                                 *leader-guide-commands*
 
     Examples:
 >
-    vnoremap <leader> :LeaderGuide ' '<CR>
+    vnoremap <leader> :<C-U>LeaderGuideVisual ' '<CR>
     etc.
 <
+    Note: Please start commands in mappings with a <C-U> as shown above.
 
                                                                 *LeaderGuideD*
 :LeaderGuideD {dict}
@@ -202,6 +196,27 @@ COMMANDS                                                 *leader-guide-commands*
 
     Same as |LeaderGuideD|, opening the menu in visual mode.
 
+
+==============================================================================
+MAPPINGS                                                 *leader-guide-mappings*
+
+                                                    *<Plug>leaderguide-global*
+<Plug>leaderguide-global
+    Opens a guide popup with all global mappings.
+
+    Example: >
+    map <leader>. <Plug>leaderguide-global
+<
+
+                                                    *<Plug>leaderguide-buffer*
+<Plug>leaderguide-buffer
+    Opens a guide popup with all buffer local mappings.
+    This feature is useful, to explore mappings defined by plugins in their
+    respective buffers. (eg. fugitive, tagbar, vimfiler and others)
+
+    Example: >
+    map <localleader>. <Plug>leaderguide-buffer
+<
 
 ==============================================================================
 FUNCTIONS                                               *leader-guide-functions*
@@ -384,6 +399,15 @@ g:leaderGuide#displayname~
 
 ==============================================================================
 CHANGELOG                                               *leader-guide-changelog*
+
+    2016-04-18:     - Use <Plug>-mappings to open global and buffer-local
+                      displays. (See |leader-guide-mappings|)
+
+                      Compatibility Note:
+                      1. Instead of :LeaderGuide "<buffer>" use
+                         <Plug>leaderguide-buffer
+                      2. Instead of :LeaderGuide "  " use
+                         <Plug>leaderguide-global
 
     2016-04-16:     - Add option to run functions on the displayname.
                       (g:|leaderGuide_displayfunc|)

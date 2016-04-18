@@ -133,27 +133,23 @@ The key guide is an additional layer. It will only activate, when you do not com
 
 ## Display mappings without prefix:
 
-Additionally it is possible to display all buffer local mappings with `:<c-u>LeaderGuide '<buffer>'`.
+Additionally it is possible to display all buffer local mappings with `<Plug>leaderguide-buffer`.
 
 This feature is useful to explore mappings defined by plugins in their respecive buffers. (fugitive, tagbar, vimfiler, Nerdtree, etc.)
-To make the usage of `LeaderGuide '<buffer>'` in those plugin buffers more convenient one can make use of autocommands.
+To make the usage of `<Plug>leaderguide-buffer'` in those plugin buffers more convenient one can make use of autocommands.
 
 Examples:
 
 ```vim
-autocmd FileType gitcommit  noremap <buffer> <leader> :<c-u>LeaderGuide '<buffer>'<CR>
+autocmd FileType gitcommit  noremap <buffer> <leader> <Plug>leaderguide-buffer
 " for fugitive
 
-autocmd BufEnter __Tagbar__  noremap <buffer> <leader> :<c-u>LeaderGuide '<buffer>'<CR>
+autocmd BufEnter __Tagbar__  noremap <buffer> <leader> <Plug>leaderguide-buffer
 " for tagbar
 ```
 
 
-To open a guide showing not only the buffer-local but all mappings use
-```vim
-:LeaderGuide '  '
-```
-Note the two whitespaces.
+To open a guide showing not only the buffer-local but all mappings use `<Plug>leaderguide-global`
 
 To name items on this level, the dictionaries for `leader`, `localleader`, from the examples above, as well as other dictionaries one might have defined, can be combined into a single top-level dictionary:
 
@@ -171,10 +167,7 @@ call leaderGuide#register_prefix_descriptions("", "g:topd")
 "call leaderGuide#register_prefix_descriptions("<Space>", "g:lmap")
 ```
 
-This configuration will provide access to the `leader` and `localleader` spaces when calling with
-```vim
-:LeaderGuide '  '
-```
+This configuration will provide access to the `leader` and `localleader` spaces when calling with `<Plug>leaderguide-global`
 
 
 ## Special keys and Mappings

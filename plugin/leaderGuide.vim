@@ -43,5 +43,10 @@ command -range -nargs=1 LeaderGuideVisualD call leaderGuide#start('1', <args>)
 command -nargs=1 LeaderGuide call leaderGuide#start_by_prefix('0', <args>)
 command -range -nargs=1 LeaderGuideVisual call leaderGuide#start_by_prefix('1', <args>)
 
+nnoremap <Plug>leaderguide-buffer :<C-U>call leaderGuide#start_by_prefix('0', '<buffer>')<CR>
+vnoremap <Plug>leaderguide-buffer :<C-U>call leaderGuide#start_by_prefix('1', '<buffer>')<CR>
+nnoremap <Plug>leaderguide-global :<C-U>call leaderGuide#start_by_prefix('0', '  ')<CR>
+vnoremap <Plug>leaderguide-global :<C-U>call leaderGuide#start_by_prefix('1', '  ')<CR>
+
 let &cpo = s:save_cpo
 unlet s:save_cpo
