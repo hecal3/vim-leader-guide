@@ -1,10 +1,7 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-let s:displaynames = {'<C-I>': '<Tab>',
-                    \ '<C-H>': '<BS>'}
-
-function! leaderGuide#register_prefix_descriptions(key, dictname)
+function! leaderGuide#register_prefix_descriptions(key, dictname) " {{{
     let key = a:key ==? '<Space>' ? ' ' : a:key
     if !exists('s:desc_lookup')
         call s:create_cache()
@@ -16,50 +13,42 @@ function! leaderGuide#register_prefix_descriptions(key, dictname)
     if !has_key(s:desc_lookup, key)
         let s:desc_lookup[key] = a:dictname
     endif
-endfunction
+endfunction "}}}
+function! s:create_cache() " {{{
+    let s:desc_lookup = {}
+    let s:cached_dicts = {}
+endfunction " }}}
+function! s:merge(dict_t, dict_o) " {{{
+    let target = a:dict_t
+    let other = a:dict_o
+    for k in keys(target)
+        if type(target[k]) == type({}) && has_key(other, k)
+            if type(other[k]) == type({})
+                if has_key(target[k], 'name')
+                    let other[k].name = target[k].name
+                endif
+                call s:merge(target[k], other[k])
+            elseif type(other[k]) == type([])
+                let target[k.'m'] = target[k]
+                let target[k] = other[k]
+            endif
+        endif
+    endfor
+    call extend(target, other, "keep")
+endfunction " }}}
 
-function! leaderGuide#populate_dictionary(key, dictname)
+
+function! leaderGuide#populate_dictionary(key, dictname) " {{{
     call s:start_parser(a:key, s:cached_dicts[a:key])
-endfunction
-
-function! leaderGuide#parseMappings()
+endfunction " }}}
+function! leaderGuide#parseMappings() " {{{
     for [k, v] in items(s:cached_dicts)
         call s:start_parser(k, v)
     endfor
-endfunction
+endfunction " }}}
 
-function! leaderGuide#start_by_prefix(vis, key)
-    let s:vis = a:vis ? 'gv' : ''
-    let s:count = v:count != 0 ? v:count : ''
-    let s:reg = v:register != '"' ? '"'.v:register : ''
-    let s:toplevel = a:key ==? '  '
 
-    if !has_key(s:cached_dicts, a:key) || g:leaderGuide_run_map_on_popup
-        "first run
-        let s:cached_dicts[a:key] = {}
-        call s:start_parser(a:key, s:cached_dicts[a:key])
-    endif
-    
-    if has_key(s:desc_lookup, a:key) || has_key(s:desc_lookup , 'top')
-        let rundict = s:create_target_dict(a:key)
-    else
-        let rundict = s:cached_dicts[a:key]
-    endif
-    
-    call s:start_guide(rundict)
-endfunction
-
-function! leaderGuide#start(vis, dict)
-    let s:vis = a:vis ? 'gv' : 0
-    call s:start_guide(a:dict)
-endfunction
-
-function! s:create_cache()
-    let s:desc_lookup = {}
-    let s:cached_dicts = {}
-endfunction
-
-function! s:start_parser(key, dict)
+function! s:start_parser(key, dict) " {{{
     let key = a:key ==? ' ' ? "<Space>" : a:key
     let readmap = ""
     redir => readmap
@@ -86,22 +75,10 @@ function! s:start_parser(key, dict)
             endif
         endif
     endfor
-endfunction
+endfunction " }}}
 
-function! s:format_displaystring(map)
-    let g:leaderGuide#displayname = a:map
-    "let Fun = g:leaderGuide_displayfunc
-    "let test = [g:leaderGuide_displayfunc]
-    for Fun in g:leaderGuide_displayfunc
-        call Fun()
-    endfor
-    "call g:leaderGuide_displayfunc()
-    let display = g:leaderGuide#displayname
-    unlet g:leaderGuide#displayname
-    return display
-endfunction
 
-function! s:add_map_to_dict(key, cmd, desc, level, dict)
+function! s:add_map_to_dict(key, cmd, desc, level, dict) " {{{
     if len(a:key) > a:level+1
         if !has_key(a:dict, a:key[a:level])
             let a:dict[a:key[a:level]] = { 'name' : '' }
@@ -128,9 +105,32 @@ function! s:add_map_to_dict(key, cmd, desc, level, dict)
             let a:dict[a:key[a:level]] = [cmd, a:desc]
         endif
     endif
-endfunction
-
-function! s:flattenmap(dict, str)
+endfunction " }}}
+function! s:format_displaystring(map) " {{{
+    let g:leaderGuide#displayname = a:map
+    for Fun in g:leaderGuide_displayfunc
+        call Fun()
+    endfor
+    let display = g:leaderGuide#displayname
+    unlet g:leaderGuide#displayname
+    return display
+endfunction " }}}
+function! s:create_target_dict(key) " {{{
+    if has_key(s:desc_lookup, 'top')
+        let toplevel = deepcopy({s:desc_lookup['top']})
+        let tardict = s:toplevel ? toplevel : get(toplevel, a:key, {})
+        let mapdict = s:cached_dicts[a:key]
+        call s:merge(tardict, mapdict)
+    elseif has_key(s:desc_lookup, a:key)
+        let tardict = deepcopy({s:desc_lookup[a:key]})
+        let mapdict = s:cached_dicts[a:key]
+        call s:merge(tardict, mapdict)
+    else
+        let tardict = s:cached_dicts[a:key]
+    endif
+    return tardict
+endfunction " }}}
+function! s:flattenmap(dict, str) " {{{
     let ret = {}
     for kv in keys(a:dict)
         if type(a:dict[kv]) == type([])
@@ -143,17 +143,17 @@ function! s:flattenmap(dict, str)
         endif
     endfor
     return ret
-endfunction
+endfunction " }}}
 
-function! s:escape_mappings(string)
+
+function! s:escape_mappings(string) " {{{
     let rstring = substitute(a:string, '\', '\\\\', 'g')
     let rstring = substitute(rstring, '<\([^<>]*\)>', '\\<\1>', 'g')
     let rstring = substitute(rstring, '"', '\\"', 'g')
     let rstring = 'call feedkeys("'.rstring.'", "mt")'
     return rstring
-endfunction
-
-function! s:string_to_keys(input)
+endfunction " }}}
+function! s:string_to_keys(input) " {{{
     " Avoid special case: <>
     if match(a:input, '<.\+>') != -1
         let retlist = []
@@ -175,44 +175,24 @@ function! s:string_to_keys(input)
         return retlist
     else
         return split(a:input, '\zs')
-endfunction
-
-function! s:create_target_dict(key)
-    if has_key(s:desc_lookup, 'top')
-        let toplevel = deepcopy({s:desc_lookup['top']})
-        let tardict = s:toplevel ? toplevel : get(toplevel, a:key, {})
-        let mapdict = s:cached_dicts[a:key]
-        call s:merge(tardict, mapdict)
-    elseif has_key(s:desc_lookup, a:key)
-        let tardict = deepcopy({s:desc_lookup[a:key]})
-        let mapdict = s:cached_dicts[a:key]
-        call s:merge(tardict, mapdict)
+endfunction " }}}
+function! s:escape_keys(inp) " {{{
+    return substitute(a:inp, "<", "<lt>", "")
+endfunction " }}}
+function! s:show_displayname(inp) " {{{
+    if has_key(s:displaynames, toupper(a:inp))
+        return s:displaynames[toupper(a:inp)]
     else
-        let tardict = s:cached_dicts[a:key]
-    endif
-    return tardict
-endfunction
+        return a:inp
+    end
+endfunction " }}}
+" displaynames {{{1 "
+let s:displaynames = {'<C-I>': '<Tab>',
+                    \ '<C-H>': '<BS>'}
+" 1}}} "
 
-function! s:merge(dict_t, dict_o)
-    let target = a:dict_t
-    let other = a:dict_o
-    for k in keys(target)
-        if type(target[k]) == type({}) && has_key(other, k)
-            if type(other[k]) == type({})
-                if has_key(target[k], 'name')
-                    let other[k].name = target[k].name
-                endif
-                call s:merge(target[k], other[k])
-            elseif type(other[k]) == type([])
-                let target[k.'m'] = target[k]
-                let target[k] = other[k]
-            endif
-        endif
-    endfor
-    call extend(target, other, "keep")
-endfunction
 
-function! s:calc_layout(dkmap)
+function! s:calc_layout(dkmap) " {{{
     " calculate max entry length
     let length = values(map(filter(copy(a:dkmap), 'v:key !=# "name"'), 
                 \ 'strdisplaywidth("[".v:key."]".'.
@@ -221,21 +201,8 @@ function! s:calc_layout(dkmap)
     let cols = winwidth(0) / maxlength
     let colwidth = winwidth(0) / cols
     return [cols, colwidth, maxlength]
-endfunction
-
-function! s:escape_keys(inp)
-    return substitute(a:inp, "<", "<lt>", "")
-endfunction
-
-function! s:show_displayname(inp)
-    if has_key(s:displaynames, toupper(a:inp))
-        return s:displaynames[toupper(a:inp)]
-    else
-        return a:inp
-    end
-endfunction
-
-function! s:create_string(dkmap, ncols, colwidth)
+endfunction " }}}
+function! s:create_string(dkmap, ncols, colwidth) " {{{
     let output = []
     let colnum = 1
     let nrows = 1
@@ -256,9 +223,47 @@ function! s:create_string(dkmap, ncols, colwidth)
     endfor
     cmap <nowait> <buffer> <Space> <Space><CR>
     return [output, nrows]
-endfunction
+endfunction " }}}
 
-function! s:start_buffer(lmap)
+
+function! s:winopen() " {{{
+    if !exists('s:bufnr')
+        let s:bufnr = -1
+    endif
+    let pos = g:leaderGuide_position ==? 'topleft' ? 'topleft' : 'botright'
+    if bufexists(s:bufnr)
+        let qfbuf = &buftype ==# 'quickfix'
+        let splitcmd = g:leaderGuide_vertical ? ' 1vs' : ' 1sp'
+        execute pos.splitcmd
+        let bnum = bufnr('%')
+        execute    'buffer '.s:bufnr
+        cmapclear <buffer>
+        if qfbuf
+            execute bnum.'bwipeout!'
+        endif
+    else
+        let splitcmd = g:leaderGuide_vertical ? ' 1vnew' : ' 1new'
+        execute pos.splitcmd
+        let s:bufnr = bufnr('%')
+        nnoremap <buffer> <silent> <ESC> call s:winclose()<CR>
+        autocmd WinLeave <buffer> call s:winclose()
+    endif
+    let s:gwin = winnr()
+    setlocal filetype=leaderGuide nonumber nowrap
+    setlocal nobuflisted buftype=nofile bufhidden=unload noswapfile
+endfunction " }}}
+function! s:winclose() " {{{
+    if s:gwin == winnr()
+        close
+        exe s:winres
+        let s:gwin = -1
+        execute s:winnr.'wincmd w'
+        call winrestview(s:winv)
+    endif
+endfunction " }}}
+
+
+function! s:start_buffer(lmap) " {{{
     call s:winopen()
     let [ncols, colwidth, maxlen] = s:calc_layout(a:lmap)
     let [string, nrows] = s:create_string(a:lmap, ncols, colwidth)
@@ -292,46 +297,8 @@ function! s:start_buffer(lmap)
             echom v:exception
         endtry
     endif
-endfunction
-
-function! s:winopen()
-    if !exists('s:bufnr')
-        let s:bufnr = -1
-    endif
-    let pos = g:leaderGuide_position ==? 'topleft' ? 'topleft' : 'botright'
-    if bufexists(s:bufnr)
-        let qfbuf = &buftype ==# 'quickfix'
-        let splitcmd = g:leaderGuide_vertical ? ' 1vs' : ' 1sp'
-        execute pos.splitcmd
-        let bnum = bufnr('%')
-        execute    'buffer '.s:bufnr
-        cmapclear <buffer>
-        if qfbuf
-            execute bnum.'bwipeout!'
-        endif
-    else
-        let splitcmd = g:leaderGuide_vertical ? ' 1vnew' : ' 1new'
-        execute pos.splitcmd
-        let s:bufnr = bufnr('%')
-        nnoremap <buffer> <silent> <ESC> call s:winclose()<CR>
-        autocmd WinLeave <buffer> call s:winclose()
-    endif
-    let s:gwin = winnr()
-    setlocal filetype=leaderGuide nonumber nowrap
-    setlocal nobuflisted buftype=nofile bufhidden=unload noswapfile
-endfunction
-
-function! s:winclose()
-    if s:gwin == winnr()
-        close
-        exe s:winres
-        let s:gwin = -1
-        execute s:winnr.'wincmd w'
-        call winrestview(s:winv)
-    endif
-endfunction
-
-function! s:start_guide(mappings)
+endfunction " }}}
+function! s:start_guide(mappings) " {{{
     let s:winv = winsaveview()
     let s:winnr = winnr()
     let s:winres = winrestcmd()
@@ -341,9 +308,8 @@ function! s:start_guide(mappings)
     else
         call s:start_cmdwin(a:mappings)
     endif
-endfunction
-
-function! s:start_cmdwin(lmap)
+endfunction " }}}
+function! s:start_cmdwin(lmap) " {{{
     let [ncols, colwidth, maxlen] = s:calc_layout(a:lmap)
     let [string, nrows] = s:create_string(a:lmap, ncols, colwidth)
     let inp = input('Insert Key: '."\n".join(string,'')."\n")
@@ -352,7 +318,32 @@ function! s:start_cmdwin(lmap)
     silent! call s:unmap_keys(keys(a:lmap))
     redraw
     execute fsel
-endfunction
+endfunction " }}}
+
+function! leaderGuide#start_by_prefix(vis, key) " {{{
+    let s:vis = a:vis ? 'gv' : ''
+    let s:count = v:count != 0 ? v:count : ''
+    let s:reg = v:register != '"' ? '"'.v:register : ''
+    let s:toplevel = a:key ==? '  '
+
+    if !has_key(s:cached_dicts, a:key) || g:leaderGuide_run_map_on_popup
+        "first run
+        let s:cached_dicts[a:key] = {}
+        call s:start_parser(a:key, s:cached_dicts[a:key])
+    endif
+    
+    if has_key(s:desc_lookup, a:key) || has_key(s:desc_lookup , 'top')
+        let rundict = s:create_target_dict(a:key)
+    else
+        let rundict = s:cached_dicts[a:key]
+    endif
+    
+    call s:start_guide(rundict)
+endfunction " }}}
+function! leaderGuide#start(vis, dict) " {{{
+    let s:vis = a:vis ? 'gv' : 0
+    call s:start_guide(a:dict)
+endfunction " }}}
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
