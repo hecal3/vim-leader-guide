@@ -207,13 +207,14 @@ function! s:create_string(dkmap, ncols, colwidth) " {{{
     let output = []
     let colnum = 1
     let nrows = 1
+    call add(output, ' ')
     for k in sort(filter(keys(a:dkmap), 'v:val !=# "name"'),'1')
         let desc = type(a:dkmap[k]) == type({}) ? a:dkmap[k].name : a:dkmap[k][1]
         let displaystring = "[".s:show_displayname(k)."] ".desc
 
         call add(output, displaystring)
         if colnum ==? a:ncols || g:leaderGuide_vertical
-            call add(output, "\n")
+            call add(output, "\n ")
             let nrows += 1
             let colnum = 1
         else
@@ -276,7 +277,7 @@ function! s:start_buffer(lmap) " {{{
         execute 'res '.nrows
     endif
 
-    execute "normal! i ".join(string,'')
+    silent $put=join(string, '')
     setlocal nomodifiable nolist
     redraw
     let inp = input("")
@@ -338,7 +339,7 @@ function! leaderGuide#start_by_prefix(vis, key) " {{{
     else
         let rundict = s:cached_dicts[a:key]
     endif
-    
+
     call s:start_guide(rundict)
 endfunction " }}}
 function! leaderGuide#start(vis, dict) " {{{
