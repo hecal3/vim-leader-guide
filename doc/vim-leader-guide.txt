@@ -5,12 +5,13 @@
 CONTENTS                                                 *leader-guide-contents*
 
 Overview                                    |leader-guide-overview|
+  Configuration                               |leader-guide-configuration|
 Usage examples                              |leader-guide-examples|
 
 Commands                                    |leader-guide-commands|
 Mappings                                    |leader-guide-mappings|
 Functions                                   |leader-guide-functions|
-Configuration                               |leader-guide-configuration|
+Global variables                            |leader-guide-globals|
 
 CHANGELOG                                   |leader-guide-changelog|
 
@@ -22,12 +23,38 @@ OVERVIEW                                                 *leader-guide-overview*
 The name is a slight misnomer. The guide does work for all keys, as well as
 global mappings. Not just for <leader>.
 
-Features:
+Features:~
   - Show keymaps assigned to a specific prefix, such as leader, localleader or
     any other key.
-  - Show all global and buffer-local keymaps.
+  - Show all global and buffer-local keymaps. (For plugin buffers)
   - Provide additional descriptions for mappings and groups of mappings
 
+
+------------------------------------------------------------------------------
+Configuration                                       *leader-guide-configuration*
+
+Most of the configuration is optional. It is perfectly possible to call
+the guide without any configuration, using the commands and mappings explained
+in |leader-guide-commands| and |leader-guide-mappings|.
+
+To provide the guide with group names and/or descriptive texts to show,
+configuration is necessary.
+
+Group names~
+To define group names, use configuration dictionaries as shown in the next
+section.
+
+Descriptions~
+To replace the right-hand-side of mappings with descriptive texts use one of
+the following methods:
+    1. <Plug> or <SID> mappings (see |leader-guide-<Plug>-mappings| and
+        |g:leaderGuide_displayfunc|)
+    2. Lookup tables (see |g:leaderGuide_displayfunc|)
+    3. Configuration dictionaries (see |leader-guide-examples| right below)
+
+Configuration dictionaries are the most flexible, but also most intrusive
+variant.
+When possible I would recommend to use <Plug> or <SID> mappings.
 
 ==============================================================================
 USAGE EXAMPLES                                           *leader-guide-examples*
@@ -60,29 +87,6 @@ Basic Configuration~
     nmap <silent> <leader>fw :w<CR>
     " let g:lmap.f.w = ['w', 'Write file']
 <
-    Note: Depending on your use case extensive dictionary configuration might
-    not be necessary.
-
-    Instead of >
-    nmap <silent> <leader>fd :e $MYVIMRC<CR>
-    let g:lmap.f.d = ['e $MYVIMRC', 'Open vimrc']
-<
-    one could simply use: >
-    nnoremap <Plug>open-vimrc :e $MYVIMRC<CR>
-    nmap <leader>fd <Plug>open-vimrc
-<
-    or >
-    nnoremap <SID>open-vimrc :e $MYVIMRC<CR>
-    nmap <leader>fd <SID>open-vimrc
-<
-    This variant is a lot less intrusive and just as descriptive as the
-    dictionary variant above.
-    This way it is possible to limit the dictionarys to group names.
-
-    Note: The <Plug> prefix can be hidden with:
-    |g:leaderGuide_displayfunc|
-
-
 Menu Function~
 >
     " Create new menus not based on existing mappings:
@@ -135,6 +139,31 @@ Final Setup~
     nnoremap <localleader> :<c-u>LeaderGuide  ','<CR>
     vnoremap <localleader> :<c-u>LeaderGuideVisual  ','<CR>
     map <localleader>. <Plug>leaderguide-buffer
+<
+
+                                                *leader-guide-<Plug>-mappings*
+<Plug>-mappings~
+    Note: Depending on your use case extensive dictionary configuration might
+    not be necessary.
+
+    Instead of >
+    nmap <silent> <leader>fd :e $MYVIMRC<CR>
+    let g:lmap.f.d = ['e $MYVIMRC', 'Open vimrc']
+<
+    one could simply use: >
+    nnoremap <Plug>open-vimrc :e $MYVIMRC<CR>
+    nmap <leader>fd <Plug>open-vimrc
+<
+    or >
+    nnoremap <SID>open-vimrc :e $MYVIMRC<CR>
+    nmap <leader>fd <SID>open-vimrc
+<
+    This variant is a lot less intrusive and just as descriptive as the
+    dictionary variant above.
+    This way it is possible to limit the dictionaries to group names.
+
+    Note: The <Plug> prefix can be hidden with:
+    |g:leaderGuide_displayfunc|
 >
 
 ==============================================================================
@@ -268,7 +297,7 @@ leaderGuide#register_prefix_descriptions("{prefix}", "{dictname}")
         
 
 ==============================================================================
-CONFIGURATION                                       *leader-guide-configuration*
+GLOBAL VARIABLES                                          *leader-guide-globals*
 
 |vim-leader-guide| uses the following configuration variables:
 
@@ -383,6 +412,28 @@ g:leaderGuide_displayfunc~
 
     :so $MYVIMRC<CR> => :so $MYVIMRC
     <Plug>Ysurround  => Ysurround
+
+    Example 2: >
+
+    let s:value_lookup = {
+                        \ '<Plug>Ysurround': 'dnuorrusY',
+                        \ ':so $MYVIMRC<CR>': 'open my vimrc',
+                        \ '<Plug>(easymotion-prefix)': 'easymotion',
+                        \ }
+
+    function! s:leaderGuide_display()
+        let g:leaderGuide#displayname =
+                \get(s:value_lookup, g:leaderGuide#displayname,
+                \g:leaderGuide#displayname)
+    endfunction
+    let g:leaderGuide_displayfunc = [function("s:my_displayfunc")]
+<
+    Instead of the default keymaps, the lookup value will be displayed.
+
+    :so $MYVIMRC<CR>          => open my vimrc
+    <Plug>Ysurround           => dnuorrusY
+    <Plug>(easymotion-prefix) => easymotion
+
 
     Possible values:        {list} of funcrefs
     Default: >

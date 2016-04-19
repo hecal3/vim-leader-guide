@@ -9,10 +9,18 @@ This Plugin is not stable yet. The configuration and commands might change in th
 
 ![img3.png](https://cloud.githubusercontent.com/assets/11238697/14471222/c1ded6b2-00ed-11e6-9a01-2aa20753d42e.png)
 
-## Usage Examples
-See also: The docs...
+## Features
+    - Show all global mappings
+    - Show all buffer-local mappings (for plugins, etc.)
+    - Show all mappings following a prefix (<leader>, <localleader>, etc.)
+    - Dynamic update on every call
+    - Define group names and arbitrary descriptions.
 
-The plugin configuration is based on vim's dictionarys.
+## Usage Examples
+For a more detailed description of available commands and functions, as well
+as some configuration recommendations see the documentation.
+
+The plugin configuration is based on vim's dictionaries.
 
 ```vim
 " Define prefix dictionary
@@ -79,9 +87,11 @@ one could simply use:
 
 This variant is a lot less intrusive and just as descriptive as the
 dictionary variant above.
-This way it is possible to limit the dictionarys to group names.
+This way it is possible use dictionaries for group names only,
+and let native vim-mappings handle the rest.
 
-It is also possible to hide the `<Plug>`-prefix.
+It is also possible to hide the `<Plug>`-prefix and run other arbitrary functions like a custom search/replace or a simple value lookup on the displayname.
+
 Consult the docs under **g:leaderGuide_displayfunc**
 
 -----
@@ -230,3 +240,5 @@ For the full set of configuration options see the documentation.
 
 - Support for vim's buildin mappings?
     - Parser for `<C-W>`-mappings?
+
+<!--vim:set et sw=4 ts=4 tw=78:-->
