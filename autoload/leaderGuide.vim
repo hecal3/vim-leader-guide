@@ -28,9 +28,12 @@ function! s:merge(dict_t, dict_o) " {{{
                     let other[k].name = target[k].name
                 endif
                 call s:merge(target[k], other[k])
-            elseif type(other[k]) == type([])
+            elseif type(other[k]) == type([]) && g:leaderGuide_flatten == 0
                 let target[k.'m'] = target[k]
                 let target[k] = other[k]
+                if has_key(other, k."m") && type(other[k."m"]) == type({})
+                    call s:merge(target[k."m"], other[k."m"])
+                endif
             endif
         endif
     endfor
@@ -80,18 +83,30 @@ endfunction " }}}
 
 function! s:add_map_to_dict(key, cmd, desc, level, dict) " {{{
     if len(a:key) > a:level+1
-        if !has_key(a:dict, a:key[a:level])
-            let a:dict[a:key[a:level]] = { 'name' : '' }
+        let curkey = a:key[a:level]
+        let nlevel = a:level+1
+        if !has_key(a:dict, curkey)
+            let a:dict[curkey] = { 'name' : '' }
         " mapping defined already, flatten this map
-        elseif type(a:dict[a:key[a:level]]) == type([]) && g:leaderGuide_flatten
+        elseif type(a:dict[curkey]) == type([]) && g:leaderGuide_flatten
             let cmd = s:escape_mappings(a:cmd)
-            if !has_key(a:dict, a:key[a:level+1:])
-                let a:dict[a:key[a:level+1:]] = [cmd, a:desc]
+            let curkey = join(a:key[a:level+0:], '')
+            let nlevel = a:level
+            if !has_key(a:dict, curkey)
+                let a:dict[curkey] = [cmd, a:desc]
+            endif
+        elseif type(a:dict[curkey]) == type([]) && g:leaderGuide_flatten == 0
+            let cmd = s:escape_mappings(a:cmd)
+            let curkey = curkey."m"
+            if !has_key(a:dict, curkey)
+                let a:dict[curkey] = {'name' : ''}
             endif
         endif
         " next level
-        call s:add_map_to_dict(a:key, a:cmd, a:desc, a:level + 1,
-                    \a:dict[a:key[a:level]])
+        if type(a:dict[curkey]) == type({})
+            call s:add_map_to_dict(a:key, a:cmd, a:desc, nlevel,
+                        \a:dict[curkey])
+        endif
     else
         let cmd = s:escape_mappings(a:cmd)
         if !has_key(a:dict, a:key[a:level])
