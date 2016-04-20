@@ -293,7 +293,6 @@ function! s:start_buffer(lmap) " {{{
         call feedkeys(s:vis.s:reg.s:count, 'ti')
         redraw
         try
-            "echo fsel[0]
             execute fsel[0]
         catch
             echom v:exception
@@ -340,7 +339,7 @@ function! leaderGuide#start_by_prefix(vis, key) " {{{
         let rundict = s:cached_dicts[a:key]
     endif
 
-    call s:start_guide(rundict)
+    silent call s:start_guide(rundict)
 endfunction " }}}
 function! leaderGuide#start(vis, dict) " {{{
     let s:vis = a:vis ? 'gv' : 0
