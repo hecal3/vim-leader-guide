@@ -18,6 +18,21 @@ function! s:create_cache() " {{{
     let s:desc_lookup = {}
     let s:cached_dicts = {}
 endfunction " }}}
+function! s:create_target_dict(key) " {{{
+    if has_key(s:desc_lookup, 'top')
+        let toplevel = deepcopy({s:desc_lookup['top']})
+        let tardict = s:toplevel ? toplevel : get(toplevel, a:key, {})
+        let mapdict = s:cached_dicts[a:key]
+        call s:merge(tardict, mapdict)
+    elseif has_key(s:desc_lookup, a:key)
+        let tardict = deepcopy({s:desc_lookup[a:key]})
+        let mapdict = s:cached_dicts[a:key]
+        call s:merge(tardict, mapdict)
+    else
+        let tardict = s:cached_dicts[a:key]
+    endif
+    return tardict
+endfunction " }}}
 function! s:merge(dict_t, dict_o) " {{{
     let target = a:dict_t
     let other = a:dict_o
@@ -28,8 +43,10 @@ function! s:merge(dict_t, dict_o) " {{{
                     let other[k].name = target[k].name
                 endif
                 call s:merge(target[k], other[k])
-            elseif type(other[k]) == type([]) && g:leaderGuide_flatten == 0
-                let target[k.'m'] = target[k]
+            elseif type(other[k]) == type([])
+                if g:leaderGuide_flatten == 0 || type(target[k]) == type({})
+                    let target[k.'m'] = target[k]
+                endif
                 let target[k] = other[k]
                 if has_key(other, k."m") && type(other[k."m"]) == type({})
                     call s:merge(target[k."m"], other[k."m"])
@@ -39,7 +56,6 @@ function! s:merge(dict_t, dict_o) " {{{
     endfor
     call extend(target, other, "keep")
 endfunction " }}}
-
 
 function! leaderGuide#populate_dictionary(key, dictname) " {{{
     call s:start_parser(a:key, s:cached_dicts[a:key])
@@ -79,7 +95,6 @@ function! s:start_parser(key, dict) " {{{
         endif
     endfor
 endfunction " }}}
-
 
 function! s:add_map_to_dict(key, cmd, desc, level, dict) " {{{
     if len(a:key) > a:level+1
@@ -129,21 +144,6 @@ function! s:format_displaystring(map) " {{{
     let display = g:leaderGuide#displayname
     unlet g:leaderGuide#displayname
     return display
-endfunction " }}}
-function! s:create_target_dict(key) " {{{
-    if has_key(s:desc_lookup, 'top')
-        let toplevel = deepcopy({s:desc_lookup['top']})
-        let tardict = s:toplevel ? toplevel : get(toplevel, a:key, {})
-        let mapdict = s:cached_dicts[a:key]
-        call s:merge(tardict, mapdict)
-    elseif has_key(s:desc_lookup, a:key)
-        let tardict = deepcopy({s:desc_lookup[a:key]})
-        let mapdict = s:cached_dicts[a:key]
-        call s:merge(tardict, mapdict)
-    else
-        let tardict = s:cached_dicts[a:key]
-    endif
-    return tardict
 endfunction " }}}
 function! s:flattenmap(dict, str) " {{{
     let ret = {}
