@@ -455,6 +455,8 @@ g:leaderGuide#displayname~
 ==============================================================================
 CHANGELOG                                               *leader-guide-changelog*
 
+    2016-04-21:     - Remove cmd-mode
+
     2016-04-18:     - Use <Plug>-mappings to open global and buffer-local
                       displays. (See |leader-guide-mappings|)
 

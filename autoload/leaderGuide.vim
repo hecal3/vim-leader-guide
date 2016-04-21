@@ -222,7 +222,7 @@ function! s:create_string(dkmap, ncols, colwidth) " {{{
     let output = []
     let colnum = 1
     let nrows = 1
-    call add(output, ' ')
+    call add(output, repeat(' ', 1))
     let smap = sort(filter(keys(a:dkmap), 'v:val !=# "name"'),'1')
     for k in smap
         let desc = type(a:dkmap[k]) == type({}) ? a:dkmap[k].name : a:dkmap[k][1]
@@ -233,7 +233,8 @@ function! s:create_string(dkmap, ncols, colwidth) " {{{
             if (colnum ==? a:ncols || g:leaderGuide_vertical)
                 let nrows += 1
                 let colnum = 1
-                call add(output, "\n ")
+                call add(output, "\n")
+                call add(output, repeat(' ', 1))
             else
                 let colnum += 1
                 call add(output, repeat(' ', a:colwidth - strdisplaywidth(displaystring)))
@@ -246,6 +247,43 @@ function! s:create_string(dkmap, ncols, colwidth) " {{{
 endfunction " }}}
 
 
+function! s:start_buffer(lmap) " {{{
+    let s:winv = winsaveview()
+    let s:winnr = winnr()
+    let s:winres = winrestcmd()
+    call s:winopen()
+    let [ncols, colwidth, maxlen] = s:calc_layout(a:lmap)
+    let [string, nrows] = s:create_string(a:lmap, ncols, colwidth)
+
+    setlocal modifiable
+    if g:leaderGuide_vertical
+        execute 'vert res '.maxlen
+    else
+        execute 'res '.nrows
+    endif
+
+    silent $put=join(string, '')
+    setlocal nomodifiable nolist
+    redraw
+    let inp = input("")
+    if inp !=# '' && inp!=? "<lt>ESC>"
+        let fsel = get(a:lmap, inp)
+    else
+        let fsel = ['call feedkeys("\<ESC>")']
+    endif
+    call s:winclose()
+    if type(fsel) ==? type({})
+        call s:start_buffer(fsel)
+    else
+        call feedkeys(s:vis.s:reg.s:count, 'ti')
+        redraw
+        try
+            execute fsel[0]
+        catch
+            echom v:exception
+        endtry
+    endif
+endfunction " }}}
 function! s:winopen() " {{{
     if !exists('s:bufnr')
         let s:bufnr = -1
@@ -283,62 +321,6 @@ function! s:winclose() " {{{
 endfunction " }}}
 
 
-function! s:start_buffer(lmap) " {{{
-    call s:winopen()
-    let [ncols, colwidth, maxlen] = s:calc_layout(a:lmap)
-    let [string, nrows] = s:create_string(a:lmap, ncols, colwidth)
-
-    setlocal modifiable
-    if g:leaderGuide_vertical
-        execute 'vert res '.maxlen
-    else
-        execute 'res '.nrows
-    endif
-
-    silent $put=join(string, '')
-    setlocal nomodifiable nolist
-    redraw
-    let inp = input("")
-    if inp !=# '' && inp!=? "<lt>ESC>"
-        let fsel = get(a:lmap, inp)
-    else
-        let fsel = ['call feedkeys("\<ESC>")']
-    endif
-    call s:winclose()
-    if type(fsel) ==? type({})
-        call s:start_buffer(fsel)
-    else
-        call feedkeys(s:vis.s:reg.s:count, 'ti')
-        redraw
-        try
-            execute fsel[0]
-        catch
-            echom v:exception
-        endtry
-    endif
-endfunction " }}}
-function! s:start_guide(mappings) " {{{
-    let s:winv = winsaveview()
-    let s:winnr = winnr()
-    let s:winres = winrestcmd()
-
-    if g:leaderGuide_use_buffer
-        call s:start_buffer(a:mappings)
-    else
-        call s:start_cmdwin(a:mappings)
-    endif
-endfunction " }}}
-function! s:start_cmdwin(lmap) " {{{
-    let [ncols, colwidth, maxlen] = s:calc_layout(a:lmap)
-    let [string, nrows] = s:create_string(a:lmap, ncols, colwidth)
-    let inp = input('Insert Key: '."\n".join(string,'')."\n")
-    let fsel = inp != '' ? get(a:lmap, inp)[0] : ''
-
-    silent! call s:unmap_keys(keys(a:lmap))
-    redraw
-    execute fsel
-endfunction " }}}
-
 function! leaderGuide#start_by_prefix(vis, key) " {{{
     let s:vis = a:vis ? 'gv' : ''
     let s:count = v:count != 0 ? v:count : ''
@@ -357,11 +339,11 @@ function! leaderGuide#start_by_prefix(vis, key) " {{{
         let rundict = s:cached_dicts[a:key]
     endif
 
-    silent call s:start_guide(rundict)
+    silent call s:start_buffer(rundict)
 endfunction " }}}
 function! leaderGuide#start(vis, dict) " {{{
     let s:vis = a:vis ? 'gv' : 0
-    call s:start_guide(a:dict)
+    call s:start_buffer(a:dict)
 endfunction " }}}
 
 let &cpo = s:save_cpo

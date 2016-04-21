@@ -6,10 +6,6 @@ let loaded_leaderGuide_vim = 1
 let s:save_cpo = &cpo
 set cpo&vim
 
-if !exists('g:leaderGuide_use_buffer')
-    let g:leaderGuide_use_buffer = 1
-endif
-
 if !exists('g:leaderguide_vertical')
     let g:leaderGuide_vertical = 0
 endif
