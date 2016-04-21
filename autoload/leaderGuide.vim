@@ -223,18 +223,21 @@ function! s:create_string(dkmap, ncols, colwidth) " {{{
     let colnum = 1
     let nrows = 1
     call add(output, ' ')
-    for k in sort(filter(keys(a:dkmap), 'v:val !=# "name"'),'1')
+    let smap = sort(filter(keys(a:dkmap), 'v:val !=# "name"'),'1')
+    for k in smap
         let desc = type(a:dkmap[k]) == type({}) ? a:dkmap[k].name : a:dkmap[k][1]
         let displaystring = "[".s:show_displayname(k)."] ".desc
 
         call add(output, displaystring)
-        if colnum ==? a:ncols || g:leaderGuide_vertical
-            call add(output, "\n ")
-            let nrows += 1
-            let colnum = 1
-        else
-            let colnum += 1
-            call add(output, repeat(' ', a:colwidth - strdisplaywidth(displaystring)))
+        if colnum*nrows < len(smap)
+            if (colnum ==? a:ncols || g:leaderGuide_vertical)
+                let nrows += 1
+                let colnum = 1
+                call add(output, "\n ")
+            else
+                let colnum += 1
+                call add(output, repeat(' ', a:colwidth - strdisplaywidth(displaystring)))
+            endif
         endif
         execute "cnoremap <nowait> <buffer> ".substitute(k, "|", "<Bar>", ""). " " . s:escape_keys(k) ."<CR>"
     endfor
