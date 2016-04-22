@@ -278,9 +278,9 @@ function! s:start_buffer(lmap) " {{{
         call feedkeys(s:vis.s:reg.s:count, 'ti')
         redraw
         try
-            execute fsel[0]
+            unsilent execute fsel[0]
         catch
-            echom v:exception
+            unsilent echom v:exception
         endtry
     endif
 endfunction " }}}
