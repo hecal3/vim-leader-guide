@@ -6,8 +6,12 @@ let loaded_leaderGuide_vim = 1
 let s:save_cpo = &cpo
 set cpo&vim
 
-if !exists('g:leaderguide_vertical')
+if !exists('g:leaderGuide_vertical')
     let g:leaderGuide_vertical = 0
+endif
+
+if !exists('g:leaderGuide_sort_horizontal')
+    let g:leaderGuide_sort_horizontal = 0
 endif
 
 if !exists('g:leaderGuide_position')

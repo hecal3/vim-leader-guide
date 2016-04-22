@@ -26,7 +26,7 @@ The plugin configuration is based on vim's dictionaries.
 " Define prefix dictionary
 let g:lmap =  {}
 
-" Second level dictionarys:
+" Second level dictionaries:
 let g:lmap.f = { 'name' : 'File Menu' }
 let g:lmap.o = { 'name' : 'Open Stuff' }
 " 'name' is a special field. It will define the name of the group.

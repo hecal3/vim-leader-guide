@@ -64,7 +64,7 @@ Basic Configuration~
     " Define prefix dictionary
     let g:lmap =  {}
 
-    " Second level dictionarys:
+    " Second level dictionaries:
     let g:lmap.f = { 'name' : 'File Menu' }
     let g:lmap.o = { 'name' : 'Open Stuff' }
     " 'name' is a special field. It will define the name of the group.
@@ -122,7 +122,7 @@ Plugin Specific Menus~
 <
 Final Setup~
 >
-    " combine the two dictionarys into a single top-level dictionary:
+    " combine the two dictionaries into a single top-level dictionary:
     let g:topdict = {}
     let g:topdict[' '] = g:lmap
     let g:topdict[' ']['name'] = '<leader>'
@@ -286,9 +286,9 @@ leaderGuide#register_prefix_descriptions("{prefix}", "{dictname}")
     prefix string
 
     Note: Please use either a single top-level dictionary, or one or more
-    prefix specific dictionarys. Don't mix a top-level with prefix specific
-    dictionarys.
-    Instead, as shown above, insert the prefix specific dictionarys into the
+    prefix specific dictionaries. Don't mix a top-level with prefix specific
+    dictionaries.
+    Instead, as shown above, insert the prefix specific dictionaries into the
     top-level one and pass only the latter to the guide.
 
     Note: After passing a dictionary name to the guide do not unlet the actual
@@ -345,6 +345,14 @@ g:leaderGuide_hspace~
     Default:                5
 
 
+                                               *g:leaderGuide_sort_horizontal*
+g:leaderGuide_sort_horizontal~
+    If set to a value other than 0, the entries will be sorted horizontal.
+
+    Possible values:        {0,1}
+    Default:                0
+
+
                                               *g:leaderGuide_run_map_on_popup*
 g:leaderGuide_run_map_on_popup~
     If set to 0, |vim-leader-guide| will not parse mappings when opening a
@@ -357,6 +365,7 @@ g:leaderGuide_run_map_on_popup~
 
     Possible values:        {0,1}
     Default:                1
+
 
                                                        *g:leaderGuide_flatten*
 g:leaderGuide_flatten~
@@ -387,6 +396,7 @@ g:leaderGuide_flatten~
 
     Possible values:        {0,1}
     Default:                1
+
 
                                                    *g:leaderGuide_displayfunc*
 g:leaderGuide_displayfunc~
@@ -446,14 +456,21 @@ g:leaderGuide_displayfunc~
                                                    *g:leaderGuide#displayname*
 g:leaderGuide#displayname~
     This variable is set to the displayname (The string that will show up in
-    the guide buffer) of a mapping. Only available in of display functions.
+    the guide buffer) of a mapping. Only available in display functions.
     See |g:leaderGuide_displayfunc|.
 
     Do not set this variable manually outside of a display function. It will
     be overwritten anyway.
 
+
 ==============================================================================
 CHANGELOG                                               *leader-guide-changelog*
+
+    2016-04-22:     - Sort entries vertical by default.
+                      (See |g:leaderGuide_sort_horizontal|)
+
+                      Note: To get the old behaviour back:
+                      let g:leaderGuide_sort_horizontal = 1
 
     2016-04-21:     - Remove cmd-mode
 
@@ -467,10 +484,10 @@ CHANGELOG                                               *leader-guide-changelog*
                          <Plug>leaderguide-global
 
     2016-04-16:     - Add option to run functions on the displayname.
-                      (g:|leaderGuide_displayfunc|)
+                      (See |g:leaderGuide_displayfunc|)
 
     2016-04-12:     - Add option to flatten map<->group conflicts.
-                      (g:|leaderGuide_flatten|)
+                      (See |g:leaderGuide_flatten|)
 
     2016-04-10:     - Support for {count}, and register passthrough
                     - Rename g:leaderGuide_vspace -> g:leaderGuide_hspace
