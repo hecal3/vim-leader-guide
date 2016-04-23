@@ -209,41 +209,83 @@ let s:displaynames = {'<C-I>': '<Tab>',
 
 
 function! s:calc_layout(dkmap) " {{{
-    " calculate max entry length
-    let length = values(map(filter(copy(a:dkmap), 'v:key !=# "name"'), 
+    let ret = {}
+    let smap = filter(copy(a:dkmap), 'v:key !=# "name"')
+    let ret.n_items = len(smap)
+    let length = values(map(smap, 
                 \ 'strdisplaywidth("[".v:key."]".'.
                 \ '(type(v:val) == type({}) ? v:val["name"] : v:val[1]))'))
     let maxlength = max(length) + g:leaderGuide_hspace
-    let cols = winwidth(0) / maxlength
-    let colwidth = winwidth(0) / cols
-    return [cols, colwidth, maxlength]
+    if g:leaderGuide_vertical
+        let ret.n_rows = winheight(0) - 2
+        let ret.n_cols = ret.n_items / ret.n_rows + (ret.n_items != ret.n_rows)
+        let ret.col_width = maxlength
+        let ret.win_dim = ret.n_cols * ret.col_width
+    else
+        let ret.n_cols = winwidth(0) / maxlength
+        let ret.col_width = winwidth(0) / ret.n_cols
+        let ret.n_rows = ret.n_items / ret.n_cols + (fmod(ret.n_items,ret.n_cols) > 0 ? 1 : 0)
+        let ret.win_dim = ret.n_rows
+        "echom string(ret)
+    endif
+    return ret
 endfunction " }}}
-function! s:create_string(dkmap, ncols, colwidth) " {{{
-    let output = []
-    let colnum = 1
-    let nrows = 1
-    call add(output, repeat(' ', 1))
+function! s:create_string(dkmap,layout) " {{{
+    let l = a:layout
+    let l.capacity = l.n_rows * l.n_cols
+    let overcap = l.capacity - l.n_items
+    let overh = l.n_cols - overcap
+    let n_rows =  l.n_rows - 1
+
+    let rows = []
+    let row = 0
+    let col = 0
     let smap = sort(filter(keys(a:dkmap), 'v:val !=# "name"'),'1')
     for k in smap
         let desc = type(a:dkmap[k]) == type({}) ? a:dkmap[k].name : a:dkmap[k][1]
         let displaystring = "[".s:show_displayname(k)."] ".desc
+        let crow = get(rows, row, [])
+        if empty(crow)
+            call add(rows, crow)
+        endif
+        call add(crow, displaystring)
+        call add(crow, repeat(' ', l.col_width - strdisplaywidth(displaystring)))
 
-        call add(output, displaystring)
-        if colnum*nrows < len(smap)
-            if (colnum ==? a:ncols || g:leaderGuide_vertical)
-                let nrows += 1
-                let colnum = 1
-                call add(output, "\n")
-                call add(output, repeat(' ', 1))
+        if !g:leaderGuide_sort_horizontal
+            if row >= n_rows - 1
+                if overh > 0 && row < n_rows
+                    let overh -= 1
+                    let row += 1
+                else
+                    let row = 0
+                    let col += 1
+                endif
             else
-                let colnum += 1
-                call add(output, repeat(' ', a:colwidth - strdisplaywidth(displaystring)))
+                let row += 1
+            endif
+        else
+            if col == l.n_cols - 1
+                let row +=1
+                let col = 0
+            else
+                let col += 1
             endif
         endif
-        execute "cnoremap <nowait> <buffer> ".substitute(k, "|", "<Bar>", ""). " " . s:escape_keys(k) ."<CR>"
+        silent execute "cnoremap <nowait> <buffer> ".substitute(k, "|", "<Bar>", ""). " " . s:escape_keys(k) ."<CR>"
     endfor
-    cmap <nowait> <buffer> <Space> <Space><CR>
-    return [output, nrows]
+    let r = []
+    let mlen = 0
+    for ro in rows
+        let line = join(ro, '')
+        call add(r, line)
+        if strdisplaywidth(line) > mlen
+            let mlen = strdisplaywidth(line)
+        endif
+    endfor
+    call insert(r, '')
+    let output = join(r, "\n ")
+    cnoremap <nowait> <buffer> <Space> <Space><CR>
+    return output
 endfunction " }}}
 
 
@@ -252,17 +294,17 @@ function! s:start_buffer(lmap) " {{{
     let s:winnr = winnr()
     let s:winres = winrestcmd()
     call s:winopen()
-    let [ncols, colwidth, maxlen] = s:calc_layout(a:lmap)
-    let [string, nrows] = s:create_string(a:lmap, ncols, colwidth)
+    let layout = s:calc_layout(a:lmap)
+    let string = s:create_string(a:lmap, layout)
 
     setlocal modifiable
     if g:leaderGuide_vertical
-        execute 'vert res '.maxlen
+        execute 'vert res '.layout.win_dim
     else
-        execute 'res '.nrows
+        execute 'res '.layout.win_dim
     endif
 
-    silent $put=join(string, '')
+    silent $put=string
     setlocal nomodifiable nolist
     redraw
     let inp = input("")
@@ -339,7 +381,7 @@ function! leaderGuide#start_by_prefix(vis, key) " {{{
         let rundict = s:cached_dicts[a:key]
     endif
 
-    silent call s:start_buffer(rundict)
+    call s:start_buffer(rundict)
 endfunction " }}}
 function! leaderGuide#start(vis, dict) " {{{
     let s:vis = a:vis ? 'gv' : 0
