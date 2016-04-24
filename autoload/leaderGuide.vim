@@ -60,7 +60,7 @@ endfunction " }}}
 function! leaderGuide#populate_dictionary(key, dictname) " {{{
     call s:start_parser(a:key, s:cached_dicts[a:key])
 endfunction " }}}
-function! leaderGuide#parseMappings() " {{{
+function! leaderGuide#parse_mappings() " {{{
     for [k, v] in items(s:cached_dicts)
         call s:start_parser(k, v)
     endfor
