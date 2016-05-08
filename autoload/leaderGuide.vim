@@ -74,6 +74,7 @@ function! s:start_parser(key, dict) " {{{
     silent execute 'map '.key
     redir END
     let lines = split(readmap, "\n")
+    let visual = s:vis == "gv" ? 1 : 0
 
     for line in lines
         let mapd = maparg(split(line[3:])[0], line[0], 0, 1)
@@ -87,8 +88,12 @@ function! s:start_parser(key, dict) " {{{
         let mapd.rhs = substitute(mapd.rhs, "<Space>", "<lt>Space>", "g")
         let mapd.rhs = substitute(mapd.rhs, "<SID>", "<SNR>".mapd['sid']."_", "g")
         if mapd.lhs != '' && display !~# 'LeaderGuide.*'
-            if (s:vis && match(mapd.mode, "[vx ]") >= 0) ||
-                        \ (!s:vis && match(mapd.mode, "[vx]") == -1)
+            if mapd.lhs == "j="
+                echom string(mapd)
+                echom s:vis
+                echom visual
+            endif
+            if (visual && match(mapd.mode, "[vx ]") >= 0) || (!visual && match(mapd.mode, "[vx]") == -1)
             call s:add_map_to_dict(s:string_to_keys(mapd.lhs), mapd.rhs,
                         \display, 0, a:dict)
             endif
