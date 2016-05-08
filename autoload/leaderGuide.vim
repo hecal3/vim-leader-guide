@@ -88,12 +88,8 @@ function! s:start_parser(key, dict) " {{{
         let mapd.rhs = substitute(mapd.rhs, "<Space>", "<lt>Space>", "g")
         let mapd.rhs = substitute(mapd.rhs, "<SID>", "<SNR>".mapd['sid']."_", "g")
         if mapd.lhs != '' && display !~# 'LeaderGuide.*'
-            if mapd.lhs == "j="
-                echom string(mapd)
-                echom s:vis
-                echom visual
-            endif
-            if (visual && match(mapd.mode, "[vx ]") >= 0) || (!visual && match(mapd.mode, "[vx]") == -1)
+            if (visual && match(mapd.mode, "[vx ]") >= 0) ||
+                        \ (!visual && match(mapd.mode, "[vx]") == -1)
             call s:add_map_to_dict(s:string_to_keys(mapd.lhs), mapd.rhs,
                         \display, 0, a:dict)
             endif
