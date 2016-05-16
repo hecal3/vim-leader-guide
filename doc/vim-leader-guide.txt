@@ -281,10 +281,9 @@ leaderGuide#register_prefix_descriptions("{prefix}", "{dictname}")
 
     " register a top-level dictionary:
     let g:space_prefix_dict['name'] = '<leader>'
-    let g:space_prefix_dict[','] = '<localleader>'
     let g:globalguide = {}
     let g:globalguide[' '] = g:space_prefix_dict
-    let g:globalguide[','] = g:comma_prefix_dict
+    let g:globalguide[',']['name'] = '<localleader>'
     call leaderGuide#register_prefix_descriptions("", "g:globalguide")
 <
     Note: To pass a top-level dictionary call the function with an empty
