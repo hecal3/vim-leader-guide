@@ -153,7 +153,7 @@ function! s:flattenmap(dict, str) " {{{
             let toret = {}
             let toret[a:str.kv] = a:dict[kv]
             return toret
-        else
+        elseif type(a:dict[kv]) == type({})
             let strcall = a:str.kv
             call extend(ret, s:flattenmap(a:dict[kv], a:str.kv))
         endif
