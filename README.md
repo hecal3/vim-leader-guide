@@ -19,8 +19,10 @@ This Plugin is not stable yet. The configuration and commands might change in th
 
 ## Installation
 
-* [Plug](https://github.com/junegunn/vim-plug)
-  * `Plug 'ctjhoa/spacevim'`
+- [Plug](https://github.com/junegunn/vim-plug)
+  - `Plug 'hecal3/vim-leader-guide'`
+
+For manual installation copy this repository somewhere and add its path to the vim runtimepath.
 
 ## Usage Examples
 For a more detailed description of available commands and functions, as well
