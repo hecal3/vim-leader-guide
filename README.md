@@ -17,6 +17,13 @@ This Plugin is not stable yet. The configuration and commands might change in th
     - Define group names and arbitrary descriptions.
     - No default mappings, no autocomands. Does nothing on it's own.
 
+## Installation
+
+- [Plug](https://github.com/junegunn/vim-plug)
+  - `Plug 'hecal3/vim-leader-guide'`
+
+For manual installation copy this repository somewhere and add its path to the vim runtimepath.
+
 ## Usage Examples
 For a more detailed description of available commands and functions, as well
 as some configuration recommendations see the documentation.
