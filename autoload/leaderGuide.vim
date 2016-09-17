@@ -81,37 +81,37 @@ function! s:start_parser(key, dict) " {{{
         if mapd.lhs =~ '<Plug>.*' || mapd.lhs =~ '<SNR>.*'
             continue
         endif
-        let display = s:format_displaystring(mapd.rhs)
+        let mapd.display = s:format_displaystring(mapd.rhs)
         let mapd.lhs = substitute(mapd.lhs, key, "", "")
         let mapd.lhs = substitute(mapd.lhs, "<Space>", " ", "g")
         let mapd.lhs = substitute(mapd.lhs, "<Tab>", "<C-I>", "g")
         let mapd.rhs = substitute(mapd.rhs, "<SID>", "<SNR>".mapd['sid']."_", "g")
-        if mapd.lhs != '' && display !~# 'LeaderGuide.*'
+        if mapd.lhs != '' && mapd.display !~# 'LeaderGuide.*'
             if (visual && match(mapd.mode, "[vx ]") >= 0) ||
                         \ (!visual && match(mapd.mode, "[vx]") == -1)
-            call s:add_map_to_dict(s:string_to_keys(mapd.lhs), mapd.rhs,
-                        \display, 0, a:dict)
+            let mapd.lhs = s:string_to_keys(mapd.lhs)
+            call s:add_map_to_dict(mapd, 0, a:dict)
             endif
         endif
     endfor
 endfunction " }}}
 
-function! s:add_map_to_dict(key, cmd, desc, level, dict) " {{{
-    if len(a:key) > a:level+1
-        let curkey = a:key[a:level]
+function! s:add_map_to_dict(map, level, dict) " {{{
+    if len(a:map.lhs) > a:level+1
+        let curkey = a:map.lhs[a:level]
         let nlevel = a:level+1
         if !has_key(a:dict, curkey)
             let a:dict[curkey] = { 'name' : g:leaderGuide_default_group_name }
         " mapping defined already, flatten this map
         elseif type(a:dict[curkey]) == type([]) && g:leaderGuide_flatten
-            let cmd = s:escape_mappings(a:cmd)
-            let curkey = join(a:key[a:level+0:], '')
+            let cmd = s:escape_mappings(a:map)
+            let curkey = join(a:map.lhs[a:level+0:], '')
             let nlevel = a:level
             if !has_key(a:dict, curkey)
-                let a:dict[curkey] = [cmd, a:desc]
+                let a:dict[curkey] = [cmd, a:map.display]
             endif
         elseif type(a:dict[curkey]) == type([]) && g:leaderGuide_flatten == 0
-            let cmd = s:escape_mappings(a:cmd)
+            let cmd = s:escape_mappings(a:map)
             let curkey = curkey."m"
             if !has_key(a:dict, curkey)
                 let a:dict[curkey] = { 'name' : g:leaderGuide_default_group_name }
@@ -119,20 +119,19 @@ function! s:add_map_to_dict(key, cmd, desc, level, dict) " {{{
         endif
         " next level
         if type(a:dict[curkey]) == type({})
-            call s:add_map_to_dict(a:key, a:cmd, a:desc, nlevel,
-                        \a:dict[curkey])
+            call s:add_map_to_dict(a:map, nlevel, a:dict[curkey])
         endif
     else
-        let cmd = s:escape_mappings(a:cmd)
-        if !has_key(a:dict, a:key[a:level])
-            let a:dict[a:key[a:level]] = [cmd, a:desc]
+        let cmd = s:escape_mappings(a:map)
+        if !has_key(a:dict, a:map.lhs[a:level])
+            let a:dict[a:map.lhs[a:level]] = [cmd, a:map.display]
         " spot is taken already, flatten existing submaps
-        elseif type(a:dict[a:key[a:level]]) == type({}) && g:leaderGuide_flatten
-            let childmap = s:flattenmap(a:dict[a:key[a:level]], a:key[a:level])
+        elseif type(a:dict[a:map.lhs[a:level]]) == type({}) && g:leaderGuide_flatten
+            let childmap = s:flattenmap(a:dict[a:map.lhs[a:level]], a:map.lhs[a:level])
             for it in keys(childmap)
                 let a:dict[it] = childmap[it]
             endfor
-            let a:dict[a:key[a:level]] = [cmd, a:desc]
+            let a:dict[a:map.lhs[a:level]] = [cmd, a:map.display]
         endif
     endif
 endfunction " }}}
@@ -161,11 +160,12 @@ function! s:flattenmap(dict, str) " {{{
 endfunction " }}}
 
 
-function! s:escape_mappings(string) " {{{
-    let rstring = substitute(a:string, '\', '\\\\', 'g')
+function! s:escape_mappings(mapping) " {{{
+    let feedkeyargs = a:mapping.noremap ? "nt" : "mt"
+    let rstring = substitute(a:mapping.rhs, '\', '\\\\', 'g')
     let rstring = substitute(rstring, '<\([^<>]*\)>', '\\<\1>', 'g')
     let rstring = substitute(rstring, '"', '\\"', 'g')
-    let rstring = 'call feedkeys("'.rstring.'", "mt")'
+    let rstring = 'call feedkeys("'.rstring.'", "'.feedkeyargs.'")'
     return rstring
 endfunction " }}}
 function! s:string_to_keys(input) " {{{
