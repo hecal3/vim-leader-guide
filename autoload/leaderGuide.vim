@@ -85,7 +85,6 @@ function! s:start_parser(key, dict) " {{{
         let mapd.lhs = substitute(mapd.lhs, key, "", "")
         let mapd.lhs = substitute(mapd.lhs, "<Space>", " ", "g")
         let mapd.lhs = substitute(mapd.lhs, "<Tab>", "<C-I>", "g")
-        let mapd.rhs = substitute(mapd.rhs, "<Space>", "<lt>Space>", "g")
         let mapd.rhs = substitute(mapd.rhs, "<SID>", "<SNR>".mapd['sid']."_", "g")
         if mapd.lhs != '' && display !~# 'LeaderGuide.*'
             if (visual && match(mapd.mode, "[vx ]") >= 0) ||
