@@ -321,6 +321,7 @@ GLOBAL VARIABLES                                          *leader-guide-globals*
      |g:leaderGuide_vertical|                                0
      |g:leaderGuide_hspace|                                  5
      |g:leaderGuide_sort_horizontal|                         0
+     |g:leaderGuide_default_group_name|                       
      |g:leaderGuide_run_map_on_popup|                        1
      |g:leaderGuide_flatten|                                 1
      |g:leaderGuide_hide_in_display|           see description
@@ -365,6 +366,20 @@ g:leaderGuide_sort_horizontal~
 
     Possible values:        {0,1}
     Default:                0
+
+
+                                              *g:leaderGuide_default_group_name*
+g:leaderGuide_default_group_name~
+    Allows to set a default group name. This name is shown as group
+    description when the configuration dictionary has no corrosponding entry.
+
+    Example:
+>
+    let g:leaderGuide_default_group_name = "+group"
+<
+
+    Possible values:        {String}
+    Default:                "" (Empty String)
 
 
                                               *g:leaderGuide_run_map_on_popup*
@@ -414,6 +429,7 @@ g:leaderGuide_flatten~
 
     Possible values:        {0,1}
     Default:                1
+
 
 
                                                    *g:leaderGuide_displayfunc*
@@ -483,6 +499,9 @@ g:leaderGuide#displayname~
 
 ==============================================================================
 CHANGELOG                                               *leader-guide-changelog*
+
+    2016-09-18:     - Add option to set a default group name.
+                      (See |g:leaderGuide_default_group_name|)
 
     2016-04-22:     - Sort entries vertical by default.
                       (See |g:leaderGuide_sort_horizontal|)

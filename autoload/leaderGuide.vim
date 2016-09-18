@@ -101,7 +101,7 @@ function! s:add_map_to_dict(key, cmd, desc, level, dict) " {{{
         let curkey = a:key[a:level]
         let nlevel = a:level+1
         if !has_key(a:dict, curkey)
-            let a:dict[curkey] = { 'name' : '' }
+            let a:dict[curkey] = { 'name' : g:leaderGuide_default_group_name }
         " mapping defined already, flatten this map
         elseif type(a:dict[curkey]) == type([]) && g:leaderGuide_flatten
             let cmd = s:escape_mappings(a:cmd)
@@ -114,7 +114,7 @@ function! s:add_map_to_dict(key, cmd, desc, level, dict) " {{{
             let cmd = s:escape_mappings(a:cmd)
             let curkey = curkey."m"
             if !has_key(a:dict, curkey)
-                let a:dict[curkey] = {'name' : ''}
+                let a:dict[curkey] = { 'name' : g:leaderGuide_default_group_name }
             endif
         endif
         " next level

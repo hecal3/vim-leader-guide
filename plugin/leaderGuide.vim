@@ -30,6 +30,10 @@ if !exists("g:leaderGuide_flatten")
     let g:leaderGuide_flatten = 1
 endif
 
+if !exists("g:leaderGuide_default_group_name")
+    let g:leaderGuide_default_group_name = ""
+endif
+
 if !exists("g:leaderGuide_displayfunc")
     function! s:leaderGuide_display()
         let g:leaderGuide#displayname = substitute(g:leaderGuide#displayname, '\c<cr>$', '', '')
