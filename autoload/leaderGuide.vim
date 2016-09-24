@@ -305,7 +305,7 @@ function! s:start_buffer(lmap) " {{{
     endif
 
     silent $put=string
-    setlocal nomodifiable nolist
+    setlocal nomodifiable
     redraw
     let inp = input("")
     if inp !=# '' && inp!=? "<lt>ESC>"
@@ -349,8 +349,12 @@ function! s:winopen() " {{{
         autocmd WinLeave <buffer> call s:winclose()
     endif
     let s:gwin = winnr()
-    setlocal filetype=leaderGuide nonumber nowrap
+    setlocal filetype=leaderGuide
+    setlocal nonumber norelativenumber nolist nomodeline nowrap
     setlocal nobuflisted buftype=nofile bufhidden=unload noswapfile
+    setlocal nocursorline nocursorcolumn colorcolumn=
+    setlocal winfixwidth winfixheight
+    setlocal statusline=\ Leader\ Guide
 endfunction " }}}
 function! s:winclose() " {{{
     if s:gwin == winnr()
