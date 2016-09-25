@@ -1,9 +1,9 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! leaderGuide#has_configuration()
+function! leaderGuide#has_configuration() "{{{
     return exists('s:desc_lookup')
-endfunction
+endfunction "}}}
 function! leaderGuide#register_prefix_descriptions(key, dictname) " {{{
     let key = a:key ==? '<Space>' ? ' ' : a:key
     if !exists('s:desc_lookup')
@@ -370,10 +370,24 @@ function! s:winclose() " {{{
 endfunction " }}}
 
 
+function! s:get_register() "{{{
+    if match(&clipboard, 'unnamedplus') >= 0
+        let clip = '+'
+    elseif match(&clipboard, 'unnamed') >= 0
+        let clip = '*'
+    else
+        let clip = '"'
+    endif
+    " In nvim v:register is always " on the first call
+    if has('nvim') && !exists('s:reg')
+        let clip = '"'
+    endif
+    return clip
+endfunction "}}}
 function! leaderGuide#start_by_prefix(vis, key) " {{{
     let s:vis = a:vis ? 'gv' : ''
     let s:count = v:count != 0 ? v:count : ''
-    let s:reg = v:register != '"' ? '"'.v:register : ''
+    let s:reg = v:register != s:get_register() ? '"'.v:register : ''
     let s:toplevel = a:key ==? '  '
 
     if !has_key(s:cached_dicts, a:key) || g:leaderGuide_run_map_on_popup
