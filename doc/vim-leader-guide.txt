@@ -299,6 +299,12 @@ leaderGuide#register_prefix_descriptions("{prefix}", "{dictname}")
     global dictionary. It is possible update the guide descriptions on the fly
     by changing g:dict.
 
+    Default:
+>
+    let g:leaderGuide_map = {}
+    call leaderGuide#register_prefix_descriptions('', 'g:leaderGuide_map')
+<
+
 
                                                 *leaderGuide#parse_mappings()*
 leaderGuide#parse_mappings()

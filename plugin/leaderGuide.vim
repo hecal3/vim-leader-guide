@@ -41,6 +41,11 @@ if !exists("g:leaderGuide_displayfunc")
     let g:leaderGuide_displayfunc = [function("s:leaderGuide_display")]
 endif
 
+if !leaderGuide#has_configuration()
+    let g:leaderGuide_map = {}
+    call leaderGuide#register_prefix_descriptions('', 'g:leaderGuide_map')
+endif
+
 command -nargs=1 LeaderGuideD call leaderGuide#start('0', <args>)
 command -range -nargs=1 LeaderGuideVisualD call leaderGuide#start('1', <args>)
 

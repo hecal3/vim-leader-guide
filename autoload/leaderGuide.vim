@@ -1,6 +1,9 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+function! leaderGuide#has_configuration()
+    return exists('s:desc_lookup')
+endfunction
 function! leaderGuide#register_prefix_descriptions(key, dictname) " {{{
     let key = a:key ==? '<Space>' ? ' ' : a:key
     if !exists('s:desc_lookup')

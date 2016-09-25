@@ -187,6 +187,15 @@ call leaderGuide#register_prefix_descriptions("", "g:topd")
 
 This configuration will provide access to the `leader` and `localleader` spaces when calling with `<Plug>leaderguide-global`
 
+Note: If the user does no configuration on their own the following default is set:
+
+```vim
+let g:leaderGuide_map = {}
+call leaderGuide#register_prefix_descriptions('', 'g:leaderGuide_map')
+```
+
+It's possible to simply reuse this dictionary and enter own configuration.
+
 
 ## Special keys and Mappings
 
