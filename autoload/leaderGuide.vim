@@ -378,17 +378,18 @@ function! s:get_register() "{{{
     else
         let clip = '"'
     endif
-    " In nvim v:register is always " on the first call
-    if has('nvim') && !exists('s:reg')
-        let clip = '"'
-    endif
     return clip
 endfunction "}}}
 function! leaderGuide#start_by_prefix(vis, key) " {{{
     let s:vis = a:vis ? 'gv' : ''
     let s:count = v:count != 0 ? v:count : ''
-    let s:reg = v:register != s:get_register() ? '"'.v:register : ''
     let s:toplevel = a:key ==? '  '
+
+    if has('nvim') && !exists('s:reg')
+        let s:reg = ''
+    else
+        let s:reg = v:register != s:get_register() ? '"'.v:register : ''
+    endif
 
     if !has_key(s:cached_dicts, a:key) || g:leaderGuide_run_map_on_popup
         "first run
