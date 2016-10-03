@@ -3,13 +3,13 @@ if exists("b:current_syntax")
 endif
 let b:current_syntax = "leaderguide"
 
-syn region guideKey start="\["hs=e+1 end="\]\s"he=s-1
+syn region LeaderGuideKeys start="\["hs=e+1 end="\]\s"he=s-1
             \ contained
-syn region guideBrackets start="\s*\[" end="\]\s\+"
-            \ contains=guideKey keepend
-syn region guideDesc start="^" end="$"
-            \ contains=guideBrackets
+syn region LeaderGuideBrackets start="\(^\|\s\+\)\[" end="\]\s\+"
+            \ contains=LeaderGuideKeys keepend
+syn region LeaderGuideDesc start="^" end="$"
+            \ contains=LeaderGuideBrackets
 
-hi def link guideDesc Identifier
-hi def link guideKey Type
-hi def link guideBrackets Delimiter
+hi def link LeaderGuideDesc Identifier
+hi def link LeaderGuideKeys Type
+hi def link LeaderGuideBrackets Delimiter
