@@ -34,6 +34,14 @@ if !exists("g:leaderGuide_default_group_name")
     let g:leaderGuide_default_group_name = ""
 endif
 
+if !exists("g:leaderGuide_max_size")
+    let g:leaderGuide_max_size = 0
+endif
+
+if !exists("g:leaderGuide_submode_mappings")
+    let g:leaderGuide_submode_mappings = {'<C-C>': "win_close"}
+endif
+
 if !exists("g:leaderGuide_displayfunc")
     function! s:leaderGuide_display()
         let g:leaderGuide#displayname = substitute(g:leaderGuide#displayname, '\c<cr>$', '', '')
