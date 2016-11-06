@@ -211,9 +211,9 @@ let s:displaynames = {'<C-I>': '<Tab>',
 " 1}}} "
 
 
-function! s:calc_layout(dkmap) " {{{
+function! s:calc_layout() " {{{
     let ret = {}
-    let smap = filter(copy(a:dkmap), 'v:key !=# "name"')
+    let smap = filter(copy(s:lmap), 'v:key !=# "name"')
     let ret.n_items = len(smap)
     let length = values(map(smap, 
                 \ 'strdisplaywidth("[".v:key."]".'.
@@ -233,7 +233,7 @@ function! s:calc_layout(dkmap) " {{{
     endif
     return ret
 endfunction " }}}
-function! s:create_string(dkmap,layout) " {{{
+function! s:create_string(layout) " {{{
     let l = a:layout
     let l.capacity = l.n_rows * l.n_cols
     let overcap = l.capacity - l.n_items
@@ -243,9 +243,9 @@ function! s:create_string(dkmap,layout) " {{{
     let rows = []
     let row = 0
     let col = 0
-    let smap = sort(filter(keys(a:dkmap), 'v:val !=# "name"'),'1')
+    let smap = sort(filter(keys(s:lmap), 'v:val !=# "name"'),'1')
     for k in smap
-        let desc = type(a:dkmap[k]) == type({}) ? a:dkmap[k].name : a:dkmap[k][1]
+        let desc = type(s:lmap[k]) == type({}) ? s:lmap[k].name : s:lmap[k][1]
         let displaystring = "[".s:show_displayname(k)."] ".desc
         let crow = get(rows, row, [])
         if empty(crow)
@@ -287,18 +287,22 @@ function! s:create_string(dkmap,layout) " {{{
     endfor
     call insert(r, '')
     let output = join(r, "\n ")
-    cnoremap <nowait> <buffer> <Space> <Space><CR>
+    call s:special_mappings()
     return output
 endfunction " }}}
 
 
-function! s:start_buffer(lmap) " {{{
+function! s:start_buffer() " {{{
     let s:winv = winsaveview()
     let s:winnr = winnr()
     let s:winres = winrestcmd()
     call s:winopen()
-    let layout = s:calc_layout(a:lmap)
-    let string = s:create_string(a:lmap, layout)
+    let layout = s:calc_layout()
+    let string = s:create_string(layout)
+
+    if g:leaderGuide_max_size
+        let layout.win_dim = min([g:leaderGuide_max_size, layout.win_dim])
+    endif
 
     setlocal modifiable
     if g:leaderGuide_vertical
@@ -306,27 +310,36 @@ function! s:start_buffer(lmap) " {{{
     else
         execute 'res '.layout.win_dim
     endif
-
-    silent $put=string
+    silent 1put!=string
+    normal! ggdd
     setlocal nomodifiable
-    redraw
-    let inp = input("")
-    if inp !=# '' && inp!=? "<lt>ESC>"
-        let fsel = get(a:lmap, inp)
-    else
-        let fsel = ['call feedkeys("\<ESC>")']
-    endif
+    call s:wait_for_input()
+endfunction " }}}
+function! s:handle_input(input) " {{{
     call s:winclose()
-    if type(fsel) ==? type({})
-        call s:start_buffer(fsel)
+    if type(a:input) ==? type({})
+        let s:lmap = a:input
+        call s:start_buffer()
     else
         call feedkeys(s:vis.s:reg.s:count, 'ti')
         redraw
         try
-            unsilent execute fsel[0]
+            unsilent execute a:input[0]
         catch
             unsilent echom v:exception
         endtry
+    endif
+endfunction " }}}
+function! s:wait_for_input() " {{{
+    redraw
+    let inp = input("")
+    if inp ==? ''
+        call s:winclose()
+    elseif match(inp, "^<LGCMD>") == 0
+        call s:handle_special_cmd(inp)
+    else
+        let fsel = get(s:lmap, inp)
+        call s:handle_input(fsel)
     endif
 endfunction " }}}
 function! s:winopen() " {{{
@@ -348,7 +361,6 @@ function! s:winopen() " {{{
         let splitcmd = g:leaderGuide_vertical ? ' 1vnew' : ' 1new'
         execute pos.splitcmd
         let s:bufnr = bufnr('%')
-        nnoremap <buffer> <silent> <ESC> call s:winclose()<CR>
         autocmd WinLeave <buffer> call s:winclose()
     endif
     let s:gwin = winnr()
@@ -360,6 +372,7 @@ function! s:winopen() " {{{
     setlocal statusline=\ Leader\ Guide
 endfunction " }}}
 function! s:winclose() " {{{
+    execute s:gwin.'wincmd w'
     if s:gwin == winnr()
         close
         exe s:winres
@@ -369,6 +382,29 @@ function! s:winclose() " {{{
     endif
 endfunction " }}}
 
+function! s:special_mappings() " {{{
+    cnoremap <nowait> <buffer> <Space> <Space><CR>
+    for key in items(g:leaderGuide_special_mappings)
+        execute 'cnoremap <nowait> <buffer> '.key[0].' <LGCMD>'.key[1].'<CR>'
+    endfor
+endfunction " }}}
+function! s:handle_special_cmd(cmd) " {{{
+    if a:cmd ==? '<LGCMD>page_down'
+        call s:page_down()
+    elseif a:cmd ==? '<LGCMD>page_up'
+        call s:page_up()
+    endif
+endfunction " }}}
+function! s:page_down() " {{{
+    call feedkeys("\<c-c>", "n")
+    call feedkeys("\<c-f>", "x")
+    call s:wait_for_input()
+endfunction " }}}
+function! s:page_up() " {{{
+    call feedkeys("\<c-c>", "n")
+    call feedkeys("\<c-b>", "x")
+    call s:wait_for_input()
+endfunction " }}}
 
 function! s:get_register() "{{{
     if match(&clipboard, 'unnamedplus') >= 0
@@ -402,12 +438,14 @@ function! leaderGuide#start_by_prefix(vis, key) " {{{
     else
         let rundict = s:cached_dicts[a:key]
     endif
+    let s:lmap = rundict
 
-    call s:start_buffer(rundict)
+    call s:start_buffer()
 endfunction " }}}
 function! leaderGuide#start(vis, dict) " {{{
     let s:vis = a:vis ? 'gv' : 0
-    call s:start_buffer(a:dict)
+    let s:lmap = a:dict
+    call s:start_buffer()
 endfunction " }}}
 
 let &cpo = s:save_cpo

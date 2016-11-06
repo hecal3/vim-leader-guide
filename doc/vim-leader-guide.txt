@@ -119,8 +119,14 @@ Plugin Specific Menus~
     autocmd FileType tex let g:llmap.l = { 'name' : 'vimtex' }
     call leaderGuide#register_prefix_descriptions(",", "g:llmap")
     " to name the <localleader>-n group vimtex in tex files.
-
 <
+
+Paging Function~
+>
+    let g:leaderGuide_max_size = 5
+    let g:leaderGuide_special_mappings = { '<C-F>': 'page_down', '<C-B>': 'page_up'}
+
+
 Final Setup~
 >
     " combine the two dictionaries into a single top-level dictionary:
@@ -503,8 +509,51 @@ g:leaderGuide#displayname~
     be overwritten anyway.
 
 
+                                                      *g:leaderGuide_max_size*
+g:leaderGuide_max_size~
+    Sets the maximum height/width of the guide window.
+    Set to 0 for unlimited size.
+
+    Note: Use in conjunction with the paging function.
+          See |g:leaderGuide_special_mappings|.
+
+    Possible values:        {Integer}
+    Default:                0
+
+
+                                              *g:leaderGuide_special_mappings*
+g:leaderGuide_special_mappings~
+    This variable takes a dictionary in which the user can define addon
+    specific mappings, to call functions within the guide window.
+
+    Currently this is only used for paging, when there are too many mappings
+    to show within the size limit. (|g:leaderGuide_max_size|)
+
+    Currently the following functions are available:
+        - page_down
+        - page_up
+
+    Paging example: >
+
+        let g:leaderGuide_special_mappings = 
+          \ { '<C-F>': 'page_down', '<C-B>': 'page_up'}
+<
+    Page down with <C-F>, page up with <C-B>.
+
+    Note: The mappings set at this point can not be used as regular mappings
+    within the guide.
+
+    Possible value:         {Dictionary}
+    Default:                {}
+
+
+
 ==============================================================================
 CHANGELOG                                               *leader-guide-changelog*
+
+    2016-11-06:     - Add paging function.
+                      (See |g:leaderGuide_max_size| and
+                      |g:leaderGuide_special_mappings|)
 
     2016-09-18:     - Add option to set a default group name.
                       (See |g:leaderGuide_default_group_name|)
