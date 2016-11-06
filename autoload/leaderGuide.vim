@@ -365,7 +365,6 @@ function! s:winopen() " {{{
         autocmd WinLeave <buffer> call s:winclose()
     endif
     let s:gwin = winnr()
-    autocmd WinEnter <buffer> * call s:special()
     setlocal filetype=leaderGuide
     setlocal nonumber norelativenumber nolist nomodeline nowrap
     setlocal nobuflisted buftype=nofile bufhidden=unload noswapfile
@@ -406,7 +405,7 @@ endfunction " }}}
 function! s:submode_mappings() " {{{
     let submodestring = ""
     let maplist = []
-    for key in items(g:leaderGuide_special_mappings)
+    for key in items(g:leaderGuide_submode_mappings)
         let map = maparg(key[0], "c", 0, 1)
         if !empty(map)
             call add(maplist, map)
