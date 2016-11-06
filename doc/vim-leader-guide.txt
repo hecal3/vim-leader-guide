@@ -124,7 +124,7 @@ Plugin Specific Menus~
 Paging Function~
 >
     let g:leaderGuide_max_size = 5
-    let g:leaderGuide_special_mappings = { '<C-F>': 'page_down', '<C-B>': 'page_up'}
+    let g:leaderGuide_submode_mappings = { '<C-F>': 'page_down', '<C-B>': 'page_up'}
 
 
 Final Setup~
@@ -515,13 +515,13 @@ g:leaderGuide_max_size~
     Set to 0 for unlimited size.
 
     Note: Use in conjunction with the paging function.
-          See |g:leaderGuide_special_mappings|.
+          See |g:leaderGuide_submode_mappings|.
 
     Possible values:        {Integer}
     Default:                0
 
 
-                                              *g:leaderGuide_special_mappings*
+                                              *g:leaderGuide_submode_mappings*
 g:leaderGuide_submode_mappings~
     This variable takes a dictionary in which the user can define addon
     specific mappings, to call functions within the guide window.
@@ -556,7 +556,7 @@ CHANGELOG                                               *leader-guide-changelog*
 
     2016-11-06:     - Add paging function.
                       (See |g:leaderGuide_max_size| and
-                      |g:leaderGuide_special_mappings|)
+                      |g:leaderGuide_submode_mappings|)
 
     2016-09-18:     - Add option to set a default group name.
                       (See |g:leaderGuide_default_group_name|)
