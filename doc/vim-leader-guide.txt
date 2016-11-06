@@ -15,7 +15,6 @@ Global variables                            |leader-guide-globals|
 
 CHANGELOG                                   |leader-guide-changelog|
 
-
 ==============================================================================
 OVERVIEW                                                 *leader-guide-overview*
 
@@ -336,7 +335,10 @@ GLOBAL VARIABLES                                          *leader-guide-globals*
      |g:leaderGuide_default_group_name|                       
      |g:leaderGuide_run_map_on_popup|                        1
      |g:leaderGuide_flatten|                                 1
-     |g:leaderGuide_hide_in_display|           see description
+     |g:leaderGuide_displayfunc|               see description
+     |g:leaderGuide_max_size|                                0
+     |g:leaderGuide_submode_mappings|          see description
+
 
                                                       *g:leaderGuide_position*
 g:leaderGuide_position~
@@ -537,7 +539,7 @@ g:leaderGuide_submode_mappings~
 
     Paging example: >
 
-        let g:leaderGuide_special_mappings = 
+        let g:leaderGuide_submode_mappings = 
           \ { '<C-C>: 'win_close', '<C-F>': 'page_down', '<C-B>': 'page_up'}
 <
     Page down with <C-C><C-F>, page up with <C-C><C-B>.
@@ -546,7 +548,7 @@ g:leaderGuide_submode_mappings~
 
     Possible value:         {Dictionary}
     Default: >
-        let g:leaderGuide_special_mappings = {'<C-C>': "win_close"}
+        let g:leaderGuide_submode_mappings = {'<C-C>': "win_close"}
 <
 
 
