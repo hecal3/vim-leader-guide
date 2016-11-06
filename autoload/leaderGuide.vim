@@ -287,7 +287,8 @@ function! s:create_string(layout) " {{{
     endfor
     call insert(r, '')
     let output = join(r, "\n ")
-    call s:special_mappings()
+    cnoremap <nowait> <buffer> <Space> <Space><CR>
+    cnoremap <nowait> <buffer> <silent> <c-c> <LGCMD>submode<CR>
     return output
 endfunction " }}}
 
@@ -335,8 +336,8 @@ function! s:wait_for_input() " {{{
     let inp = input("")
     if inp ==? ''
         call s:winclose()
-    elseif match(inp, "^<LGCMD>") == 0
-        call s:handle_special_cmd(inp)
+    elseif match(inp, "^<LGCMD>submode") == 0
+        call s:submode_mappings()
     else
         let fsel = get(s:lmap, inp)
         call s:handle_input(fsel)
@@ -364,6 +365,7 @@ function! s:winopen() " {{{
         autocmd WinLeave <buffer> call s:winclose()
     endif
     let s:gwin = winnr()
+    autocmd WinEnter <buffer> * call s:special()
     setlocal filetype=leaderGuide
     setlocal nonumber norelativenumber nolist nomodeline nowrap
     setlocal nobuflisted buftype=nofile bufhidden=unload noswapfile
@@ -381,20 +383,6 @@ function! s:winclose() " {{{
         call winrestview(s:winv)
     endif
 endfunction " }}}
-
-function! s:special_mappings() " {{{
-    cnoremap <nowait> <buffer> <Space> <Space><CR>
-    for key in items(g:leaderGuide_special_mappings)
-        execute 'cnoremap <nowait> <buffer> '.key[0].' <LGCMD>'.key[1].'<CR>'
-    endfor
-endfunction " }}}
-function! s:handle_special_cmd(cmd) " {{{
-    if a:cmd ==? '<LGCMD>page_down'
-        call s:page_down()
-    elseif a:cmd ==? '<LGCMD>page_up'
-        call s:page_up()
-    endif
-endfunction " }}}
 function! s:page_down() " {{{
     call feedkeys("\<c-c>", "n")
     call feedkeys("\<c-f>", "x")
@@ -404,6 +392,41 @@ function! s:page_up() " {{{
     call feedkeys("\<c-c>", "n")
     call feedkeys("\<c-b>", "x")
     call s:wait_for_input()
+endfunction " }}}
+
+function! s:handle_submode_mapping(cmd) " {{{
+    if a:cmd ==? '<LGCMD>page_down'
+        call s:page_down()
+    elseif a:cmd ==? '<LGCMD>page_up'
+        call s:page_up()
+    elseif a:cmd ==? '<LGCMD>win_close'
+        call s:winclose()
+    endif
+endfunction " }}}
+function! s:submode_mappings() " {{{
+    let submodestring = ""
+    let maplist = []
+    for key in items(g:leaderGuide_special_mappings)
+        let map = maparg(key[0], "c", 0, 1)
+        if !empty(map)
+            call add(maplist, map)
+        endif
+        execute 'cnoremap <nowait> <silent> <buffer> '.key[0].' <LGCMD>'.key[1].'<CR>'
+        let submodestring = submodestring.' '.key[0].': '.key[1].','
+    endfor
+    let inp = input(strpart(submodestring, 0, strlen(submodestring)-1))
+    for map in maplist
+        call s:mapmaparg(map)
+    endfor
+    silent call s:handle_submode_mapping(inp)
+endfunction " }}}
+function! s:mapmaparg(maparg) " {{{
+    let noremap = a:maparg.noremap ? 'noremap' : 'map'
+    let buffer = a:maparg.buffer ? '<buffer> ' : ''
+    let silent = a:maparg.silent ? '<silent> ' : ''
+    let nowait = a:maparg.nowait ? '<nowait> ' : ''
+    let st = a:maparg.mode.''.noremap.' '.nowait.silent.buffer.''.a:maparg.lhs.' '.a:maparg.rhs
+    execute st
 endfunction " }}}
 
 function! s:get_register() "{{{

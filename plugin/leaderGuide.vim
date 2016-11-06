@@ -39,7 +39,7 @@ if !exists("g:leaderGuide_max_size")
 endif
 
 if !exists("g:leaderGuide_special_mappings")
-    let g:leaderGuide_special_mappings = {}
+    let g:leaderGuide_special_mappings = {'<C-C>': "win_close"}
 endif
 
 if !exists("g:leaderGuide_displayfunc")

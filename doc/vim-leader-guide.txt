@@ -522,9 +522,10 @@ g:leaderGuide_max_size~
 
 
                                               *g:leaderGuide_special_mappings*
-g:leaderGuide_special_mappings~
+g:leaderGuide_submode_mappings~
     This variable takes a dictionary in which the user can define addon
     specific mappings, to call functions within the guide window.
+    To access this mappings preface them with <C-C>
 
     Currently this is only used for paging, when there are too many mappings
     to show within the size limit. (|g:leaderGuide_max_size|)
@@ -532,19 +533,21 @@ g:leaderGuide_special_mappings~
     Currently the following functions are available:
         - page_down
         - page_up
+        - win_close
 
     Paging example: >
 
         let g:leaderGuide_special_mappings = 
-          \ { '<C-F>': 'page_down', '<C-B>': 'page_up'}
+          \ { '<C-C>: 'win_close', '<C-F>': 'page_down', '<C-B>': 'page_up'}
 <
-    Page down with <C-F>, page up with <C-B>.
+    Page down with <C-C><C-F>, page up with <C-C><C-B>.
 
-    Note: The mappings set at this point can not be used as regular mappings
-    within the guide.
+    Note: It is not possible to use <C-C> as a regular mapping.
 
     Possible value:         {Dictionary}
-    Default:                {}
+    Default: >
+        let g:leaderGuide_special_mappings = {'<C-C>': "win_close"}
+<
 
 
 
