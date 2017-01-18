@@ -307,9 +307,9 @@ function! s:start_buffer() " {{{
 
     setlocal modifiable
     if g:leaderGuide_vertical
-        execute 'vert res '.layout.win_dim
+        noautocmd execute 'vert res '.layout.win_dim
     else
-        execute 'res '.layout.win_dim
+        noautocmd execute 'res '.layout.win_dim
     endif
     silent 1put!=string
     normal! ggdd
@@ -351,16 +351,16 @@ function! s:winopen() " {{{
     if bufexists(s:bufnr)
         let qfbuf = &buftype ==# 'quickfix'
         let splitcmd = g:leaderGuide_vertical ? ' 1vs' : ' 1sp'
-        execute pos.splitcmd
+        noautocmd execute pos.splitcmd
         let bnum = bufnr('%')
-        execute    'buffer '.s:bufnr
+        noautocmd execute 'buffer '.s:bufnr
         cmapclear <buffer>
         if qfbuf
-            execute bnum.'bwipeout!'
+            noautocmd execute bnum.'bwipeout!'
         endif
     else
         let splitcmd = g:leaderGuide_vertical ? ' 1vnew' : ' 1new'
-        execute pos.splitcmd
+        noautocmd execute pos.splitcmd
         let s:bufnr = bufnr('%')
         autocmd WinLeave <buffer> call s:winclose()
     endif
@@ -373,12 +373,12 @@ function! s:winopen() " {{{
     setlocal statusline=\ Leader\ Guide
 endfunction " }}}
 function! s:winclose() " {{{
-    execute s:gwin.'wincmd w'
+    noautocmd execute s:gwin.'wincmd w'
     if s:gwin == winnr()
         close
         exe s:winres
         let s:gwin = -1
-        execute s:winnr.'wincmd w'
+        noautocmd execute s:winnr.'wincmd w'
         call winrestview(s:winv)
     endif
 endfunction " }}}
