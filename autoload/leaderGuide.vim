@@ -366,7 +366,7 @@ function! s:winopen() " {{{
     endif
     let s:gwin = winnr()
     setlocal filetype=leaderGuide
-    setlocal nonumber norelativenumber nolist nomodeline nowrap
+    setlocal nonumber norelativenumber nolist nomodeline nowrap nopaste
     setlocal nobuflisted buftype=nofile bufhidden=unload noswapfile
     setlocal nocursorline nocursorcolumn colorcolumn=
     setlocal winfixwidth winfixheight
