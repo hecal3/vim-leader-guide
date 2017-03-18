@@ -312,7 +312,7 @@ function! s:start_buffer() " {{{
         noautocmd execute 'res '.layout.win_dim
     endif
     silent 1put!=string
-    normal! ggdd
+    normal! gg"_dd
     setlocal nomodifiable
     call s:wait_for_input()
 endfunction " }}}
