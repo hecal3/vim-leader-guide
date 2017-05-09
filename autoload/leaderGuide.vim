@@ -294,28 +294,35 @@ endfunction " }}}
 
 
 function! s:start_buffer() " {{{
-    let s:winv = winsaveview()
-    let s:winnr = winnr()
-    let s:winres = winrestcmd()
-    call s:winopen()
-    let layout = s:calc_layout()
-    let string = s:create_string(layout)
-
-    if g:leaderGuide_max_size
-        let layout.win_dim = min([g:leaderGuide_max_size, layout.win_dim])
-    endif
-
-    setlocal modifiable
-    if g:leaderGuide_vertical
-        noautocmd execute 'vert res '.layout.win_dim
-    else
-        noautocmd execute 'res '.layout.win_dim
-    endif
-    silent 1put!=string
-    normal! gg"_dd
-    setlocal nomodifiable
+    call s:init_window()
     call s:wait_for_input()
 endfunction " }}}
+function! s:init_window() "{{{
+    if g:leaderGuide_toggle_show
+        let s:winv = winsaveview()
+        let s:winnr = winnr()
+        let s:winres = winrestcmd()
+        call s:winopen()
+    endif
+
+    let layout = s:calc_layout()
+    let string = s:create_string(layout)
+    if g:leaderGuide_toggle_show
+        if g:leaderGuide_max_size
+            let layout.win_dim = min([g:leaderGuide_max_size, layout.win_dim])
+        endif
+
+        setlocal modifiable
+        if g:leaderGuide_vertical
+            noautocmd execute 'vert res '.layout.win_dim
+        else
+            noautocmd execute 'res '.layout.win_dim
+        endif
+        silent 1put!=string
+        normal! gg"_dd
+        setlocal nomodifiable
+    endif
+endfunction"}}}
 function! s:handle_input(input) " {{{
     call s:winclose()
     if type(a:input) ==? type({})
@@ -373,6 +380,9 @@ function! s:winopen() " {{{
     setlocal statusline=\ Leader\ Guide
 endfunction " }}}
 function! s:winclose() " {{{
+    if g:leaderGuide_toggle_show == 0
+        return
+    endif
     noautocmd execute s:gwin.'wincmd w'
     if s:gwin == winnr()
         close
@@ -469,6 +479,9 @@ function! leaderGuide#start(vis, dict) " {{{
     let s:lmap = a:dict
     call s:start_buffer()
 endfunction " }}}
+function! leaderGuide#toggle() "{{{
+    let g:leaderGuide_toggle_show = !g:leaderGuide_toggle_show
+endfunction"}}}
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
