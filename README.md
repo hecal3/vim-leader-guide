@@ -42,25 +42,25 @@ let g:lmap.o = { 'name' : 'Open Stuff' }
 " Unnamed groups will show a default string
 
 " Provide commands and descriptions for existing mappings
-	nmap <silent> <leader>fd :e $MYVIMRC<CR>
-	let g:lmap.f.d = ['e $MYVIMRC', 'Open vimrc']
+    nmap <silent> <leader>fd :e $MYVIMRC<CR>
+    let g:lmap.f.d = ['e $MYVIMRC', 'Open vimrc']
 
-	nmap <silent> <leader>fs :so %<CR>
-	" let g:lmap.f.s = ['so %', 'Source file']
+    nmap <silent> <leader>fs :so %<CR>
+    " let g:lmap.f.s = ['so %', 'Source file']
 
-	nmap <silent> <leader>oo  :copen<CR>
-	" let g:lmap.o.o = ['copen', 'Open quickfix']
+    nmap <silent> <leader>oo  :copen<CR>
+    " let g:lmap.o.o = ['copen', 'Open quickfix']
 
-	nmap <silent> <leader>ol  :lopen<CR>
-	" let g:lmap.o.l = ['lopen', 'Open locationlist']
+    nmap <silent> <leader>ol  :lopen<CR>
+    " let g:lmap.o.l = ['lopen', 'Open locationlist']
 
-	nmap <silent> <leader>fw :w<CR>
-	" let g:lmap.f.w = ['w', 'Write file']
+    nmap <silent> <leader>fw :w<CR>
+    " let g:lmap.f.w = ['w', 'Write file']
 
 " Create new menus not based on existing mappings:
 let g:lmap.g = {
-				\'name' : 'Git Menu',
-				\'s' : ['Gstatus', 'Git Status'],
+                \'name' : 'Git Menu',
+                \'s' : ['Gstatus', 'Git Status'],
                 \'p' : ['Gpull',   'Git Pull'],
                 \'u' : ['Gpush',   'Git Push'],
                 \'c' : ['Gcommit', 'Git Commit'],
@@ -114,7 +114,7 @@ vnoremap <silent> <leader> :<c-u>LeaderGuideVisual '<Space>'<CR>
 ```
 
 The guide will be up to date at all times.
-Native vim mappings will always take 
+Native vim mappings will always take
 precedence over dictionary-only mappings (e.g. the git menu above)
 
 ---
@@ -203,7 +203,7 @@ It's possible to simply reuse this dictionary and enter own configuration.
 " Special key mapping.
 " Use <C-I> to map the Tab key
 let g:lmap.g = {
-				\'<C-I>' : ['Gstatus', 'Git Status'],
+                \'<C-I>' : ['Gstatus', 'Git Status'],
                 \'<BS>'  : ['Gpull',   'Git Pull'],
                 \'<C-P>' : ['Gpush',   'Git Push'],
                 \'/'     : ['Gcommit', 'Git Commit'],
