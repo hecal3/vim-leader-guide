@@ -215,7 +215,7 @@ function! s:calc_layout() " {{{
     let ret = {}
     let smap = filter(copy(s:lmap), 'v:key !=# "name"')
     let ret.n_items = len(smap)
-    let length = values(map(smap, 
+    let length = values(map(smap,
                 \ 'strdisplaywidth("[".v:key."]".'.
                 \ '(type(v:val) == type({}) ? v:val["name"] : v:val[1]))'))
     let maxlength = max(length) + g:leaderGuide_hspace
@@ -322,7 +322,7 @@ function! s:handle_input(input) " {{{
         let s:lmap = a:input
         call s:start_buffer()
     else
-        call feedkeys(s:vis.s:reg.s:count, 'ti')
+        call feedkeys("", 'ti')
         redraw
         try
             unsilent execute a:input[0]
@@ -454,7 +454,7 @@ function! leaderGuide#start_by_prefix(vis, key) " {{{
         let s:cached_dicts[a:key] = {}
         call s:start_parser(a:key, s:cached_dicts[a:key])
     endif
-    
+
     if has_key(s:desc_lookup, a:key) || has_key(s:desc_lookup , 'top')
         let rundict = s:create_target_dict(a:key)
     else
