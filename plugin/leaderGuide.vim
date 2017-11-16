@@ -150,20 +150,22 @@ let g:lmap.t = {'name': 'Windows/Tabs/Splits'}
 let g:lmap.t.v = [':vsplit', 'Split Vertical']
 let g:lmap.t.h = [':split', 'Split Horizontal']
 
-" file control
+" file control {{{
 let g:lmap.f = {'name': 'File'}
-let g:lmap.f.w = [':w', 'Write current buffer']
-let g:lmap.f.g = ['call feedkeys("gf")', 'Goto file under cursor']
-let g:lmap.f.r = ['call feedkeys(":r ")', 'Insert file at cursor ...']
-let g:lmap.f.v = ['source $MYVIMRC', 'source vimrc']
-let g:lmap.f.c = ['checkt', 'Reload buffers from disk']
-let g:lmap.f.q = ['q', 'Quit current buffer']
 let g:lmap.f.Q = ['qall!', 'Quit all']
+let g:lmap.f.RC = ['call feedkeys(":tabe $MYVIMRC\<CR>:vsplit\<cr>:e $shortcuts\<cr>")', 'Open vimrc and leaderGuide file']
+let g:lmap.f.c = ['checkt', 'Reload buffers from disk']
 let g:lmap.f.e = ['call feedkeys(":e ")', 'Edit file ...']
+let g:lmap.f.g = ['call feedkeys("gf")', 'Goto file under cursor']
+let g:lmap.f.q = ['q', 'Quit current buffer']
+let g:lmap.f.r = ['call feedkeys(":r ")', 'Insert file at cursor ...']
 let g:lmap.f.rc = ['tabe $MYVIMRC', 'Open vimrc in split']
 let g:lmap.f.s = ['tabe $shortcuts', 'Open leader-guide file']
-let g:lmap.f.RC = ['call feedkeys(":tabe $MYVIMRC\<CR>:vsplit\<cr>:e $shortcuts\<cr>")', 'Open vimrc and leaderGuide file']
-" let g:lmap.f.R = ['call feedkeys(":vsplit\<cr>:terminal\<cr>rr\<cr>")', 'Ranger (vsplit)']
+let g:lmap.f.v = ['source $MYVIMRC', 'source vimrc']
+let g:lmap.f.w = [':w', 'Write current buffer']
+let g:lmap.f.wq = [':wq', 'Write and quit']
+
+" }}}
 
 " shell commands
 let g:lmap.z = {'name': 'Shell Commands'}
