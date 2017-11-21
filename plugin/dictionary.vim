@@ -26,10 +26,9 @@ let g:guide.b = {
   \'U': ['bdelete!', 'delete current buffer w/o write'],
   \'s': ['split scratch', 'open scratch buffer in split'],
   \'S': ['tabe scratch', 'open scratch buffer in tab'],
+  \'a': ['ball', 'open one window for each buffer'],
+  \'A': ['sball', 'open one split for each buffer'],
 \} " }}}
-" left to implement:
-" ball
-" sball
 
 " editing {{{
 let g:guide.i = {
