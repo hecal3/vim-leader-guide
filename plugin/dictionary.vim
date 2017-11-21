@@ -1,13 +1,35 @@
 let g:guide = {}
 let g:vguide = {}
 
+function! CmdMenu_feedkeys_input(prompt, command)
+  let finput = input(a:prompt)
+  call feedkeys(':' . a:command . ' ' . finput . "\<cr>")
+endfunction
+
+let g:guide.h = ['call CmdMenu_feedkeys_input("help for: ", ":h ")', 'help ...']
+
 " buffer management {{{
+function! CmdMenu_buffer_list_and_open(command)
+  ls
+  let finput = input("buffer no: ")
+  call feedkeys("\<cr>")
+  execute(finput . a:command)
+endfunction
+
 let g:guide.b = {
   \'name': 'BUFFER',
   \'l': [':ls', 'list open buffers'],
-  \'b': ['call feedkeys(":b")', 'open buffer ...'],
-  \'c': ['checkt', 'Reload buffers from disk'],
+  \'b': ['call CmdMenu_buffer_list_and_open("b")', 'open buffer ...'],
+  \'B': ['call CmdMenu_buffer_list_and_open("sbuffer")', 'open buffer ... in split'],
+  \'c': ['checkt', 'reload buffers from disk'],
+  \'u': ['bdelete', 'delete current buffer'],
+  \'U': ['bdelete!', 'delete current buffer w/o write'],
+  \'s': ['split scratch', 'open scratch buffer in split'],
+  \'S': ['tabe scratch', 'open scratch buffer in tab'],
 \} " }}}
+" left to implement:
+" ball
+" sball
 
 " editing {{{
 let g:guide.i = {
@@ -80,28 +102,29 @@ let g:guide.t = {
   \'name': 'TABS AND SPLITS',
   \'v': [':vsplit', 'Split Vertical'],
   \'h': [':split', 'Split Horizontal'],
+  \'n': [':tabNext', 'Next Tab'],
+  \'N': [':tabprevious', 'Previous Tab'],
+  \'l': [':tabs', 'List tab pages and windows'],
+  \'g': [':tabfirst', 'Goto first tab'],
+  \'G': [':tablast', 'Goto last tab'],
 \} " }}}
 
 " file control {{{
 let g:guide.f = {
   \'name': 'FILE',
+  \'q': ['q', 'Quit current buffer'],
   \'Q': ['qall!', 'Quit all'],
+  \'!': ['q!', 'Quit buffer w/o save'],
   \'c': ['checkt', 'Reload buffers from disk'],
   \'e': ['call feedkeys(":e ")', 'Edit file ...'],
   \'g': ['call feedkeys("gf")', 'Goto file under cursor'],
   \'G': ['call feedkeys("<ctrl-G>")', 'Where am I?'],
-  \'q': ['q', 'Quit current buffer'],
   \'r': ['call feedkeys(":r ")', 'Insert file at cursor ...'],
-  \'rc': ['tabe $MYVIMRC', 'Open vimrc in split'],
+  \'t': ['tabe $MYVIMRC', 'Open vimrc in tab'],
   \'v': ['source $MYVIMRC', 'source vimrc'],
   \'w': [':w', 'Write current buffer'],
   \'W': [':wq', 'Write and quit'],
 \} " }}}
-
-let g:guide.f.v = ['source $MYVIMRC', 'source vimrc']
-let g:guide.f.w = [':w', 'Write current buffer']
-let g:guide.f.W = [':wq', 'Write and quit']
-" }}}
 
 " shell commands {{{
 let g:guide.z = {
@@ -151,11 +174,13 @@ let g:guide.m = {
   let g:guide.p = {'name': 'Plugins'}
 
   " DevDocs {{{
-  let g:guide.p.d = {
-    \'name': 'DevDocs',
-    \'c': [':DevDocsUnderCursor', 'Search Dev Docs at cursor'],
-    \'s': [':DevDocs %', 'Search'],
-  \} " }}}
+  if !empty(glob(g:PLUGIN_PATH . "/devdocs.vim"))
+    let g:guide.p.d = {
+      \'name': 'DevDocs',
+      \'c': [':DevDocsUnderCursor', 'Search Dev Docs at cursor'],
+      \'s': [':DevDocs %', 'Search'],
+    \}
+  endif " }}}
 
   " CtrlP {{{
   let g:guide.p.p = {
