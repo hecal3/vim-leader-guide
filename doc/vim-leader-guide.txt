@@ -318,7 +318,51 @@ leaderGuide#parse_mappings()
     Note: Only call this function if |g:leaderGuide_run_map_on_popup| is unset
     and the current mappings have changed (switched to a buffer with other
     mappings, new filetype, manual change, etc.)
+
+
+
+                                                *leaderGuide#add_trigger()*
+leaderGuide#add_trigger("{name}", {funcref})
+    Adds the specified function as a trigger to be called a a specific
+    point during execution.
+
+    Currently available triggers:
+        - before_open: called before the guide-buffer opens.
+
+
+    Inside of the function |g:leaderGuide#context| is available. It contains
+    a context dictionary with the following information
         
+     'type' : fix: "trigger"
+     'name' : Current trigger name (eg. 'before_open')
+     'display': Current guide dictionary (can be modified)
+     'level': Current call level (starting at on at first key-press)
+     'register': Currently selected register
+     'visual': visual mode (y/n)
+     'count': Range given
+     'winv': return value of winsaveview()
+     'winnr': Current window number
+
+    The display-dictionary 'display' can still be modified at this point.
+
+    Example:
+    Removes the menu or mapping 'g' from level 1 (Just the output, the
+    underlying mappings will still work)
+>
+    function! s:leaderGuide_before_open()
+        
+        " echom string(g:leaderGuide#context)
+        let context = g:leaderGuide#context
+
+        let guide_dictionary = get(g:leaderGuide#context, 'display')
+        let level = get(g:leaderGuide#context, 'level')
+        if level == 1 && has_key(guide_dictionary, 'g')
+            call remove(guide_dictionary, 'g')
+        endif
+    endfunction
+    call leaderGuide#add_trigger('before_open', function("s:leaderGuide_before_open"))
+<
+
 
 ==============================================================================
 GLOBAL VARIABLES                                          *leader-guide-globals*
@@ -555,6 +599,9 @@ g:leaderGuide_submode_mappings~
 
 ==============================================================================
 CHANGELOG                                               *leader-guide-changelog*
+
+    2018-10-06:     - Add before_open trigger.
+                      (See |leaderGuide#add_trigger()|)
 
     2016-11-06:     - Add paging function.
                       (See |g:leaderGuide_max_size| and
