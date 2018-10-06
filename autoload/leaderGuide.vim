@@ -360,8 +360,8 @@ function! s:handle_input(input) " {{{
         let s:lmap = a:input
         call s:start_buffer()
     else
+        call feedkeys(s:vis.s:reg.s:count, 'ti')
         if type(a:input) !=? type([])
-            call feedkeys(s:vis.s:reg.s:count, 'ti')
             let last = strpart(s:last_inp[-1], strchars(s:last_inp[-1]) - 1)
             if s:last_inp[0] !=? last
                 execute s:escape_mappings({'rhs': join(s:last_inp, ""), 'noremap': 0})
