@@ -1,6 +1,17 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+function! leaderGuide#add_trigger(name, fun) " {{{
+    if !exists('s:triggers')
+        let s:triggers = {}
+    endif
+
+    if type(a:fun) ==? type(function("tr"))
+        let s:triggers[a:name] = a:fun
+    elseif has_key(s:triggers, a:name)
+        unlet! s:triggers[a:name]
+    endif
+endfunction " }}}
 function! leaderGuide#has_configuration() "{{{
     return exists('s:desc_lookup')
 endfunction "}}}
@@ -293,10 +304,36 @@ function! s:create_string(layout) " {{{
 endfunction " }}}
 
 
+function! s:trigger_before_open() " {{{
+    let trigger_name = 'before_open'
+    if !exists("s:triggers") || !has_key(s:triggers, trigger_name)
+        return
+    endif
+
+    let g:leaderGuide#context = {
+                \ 'type' : 'trigger',
+                \ 'name' : trigger_name,
+                \ 'display': s:lmap, 
+                \ 'level': s:current_level, 
+                \ 'register': s:reg,
+                \ 'visual': s:vis == '',
+                \ 'count': s:count,
+                \ 'winv': s:winv,
+                \ 'winnr': s:winnr,
+                \ 'winres': s:winres
+                \ }
+
+    let Fun = s:triggers[trigger_name]
+    call Fun()
+endfunction " }}}
+
 function! s:start_buffer() " {{{
     let s:winv = winsaveview()
     let s:winnr = winnr()
     let s:winres = winrestcmd()
+
+    call s:trigger_before_open()
+
     call s:winopen()
     let layout = s:calc_layout()
     let string = s:create_string(layout)
@@ -319,11 +356,16 @@ endfunction " }}}
 function! s:handle_input(input) " {{{
     call s:winclose()
     if type(a:input) ==? type({})
+        let s:current_level += 1
         let s:lmap = a:input
         call s:start_buffer()
     else
-        call feedkeys(s:vis.s:reg.s:count, 'ti')
         if type(a:input) !=? type([])
+            call feedkeys(s:vis.s:reg.s:count, 'ti')
+            let last = strpart(s:last_inp[-1], strchars(s:last_inp[-1]) - 1)
+            if s:last_inp[0] !=? last
+                execute s:escape_mappings({'rhs': join(s:last_inp, ""), 'noremap': 0})
+            endif
             return
         endif
         redraw
@@ -336,13 +378,15 @@ function! s:handle_input(input) " {{{
 endfunction " }}}
 function! s:wait_for_input() " {{{
     redraw
-    let inp = input("")
-    if inp ==? ''
+    "let inp = input("")
+    let curr_inp = input("")
+    if curr_inp ==? ''
         call s:winclose()
-    elseif match(inp, "^<LGCMD>submode") == 0
+    elseif match(curr_inp, "^<LGCMD>submode") == 0
         call s:submode_mappings()
     else
-        let fsel = get(s:lmap, inp)
+        call add(s:last_inp, curr_inp)
+        let fsel = get(s:lmap, curr_inp)
         call s:handle_input(fsel)
     endif
 endfunction " }}}
@@ -441,17 +485,24 @@ function! s:get_register() "{{{
     endif
     return clip
 endfunction "}}}
-function! leaderGuide#start_by_prefix(vis, key) " {{{
+function! s:init_on_call(vis) " {{{
     let s:vis = a:vis ? 'gv' : ''
     let s:count = v:count != 0 ? v:count : ''
-    let s:toplevel = a:key ==? '  '
+    let s:current_level = 1
+    let s:last_inp = []
 
     if has('nvim') && !exists('s:reg')
         let s:reg = ''
     else
         let s:reg = v:register != s:get_register() ? '"'.v:register : ''
     endif
+endfunction " }}}
+function! leaderGuide#start_by_prefix(vis, key) " {{{
 
+    call s:init_on_call(a:vis)
+    call add(s:last_inp, a:key)
+
+    let s:toplevel = a:key ==? '  '
     if !has_key(s:cached_dicts, a:key) || g:leaderGuide_run_map_on_popup
         "first run
         let s:cached_dicts[a:key] = {}
@@ -469,14 +520,8 @@ function! leaderGuide#start_by_prefix(vis, key) " {{{
 endfunction " }}}
 function! leaderGuide#start(vis, dict) " {{{
 
-    if has('nvim') && !exists('s:reg')
-        let s:reg = ''
-    else
-        let s:reg = v:register != s:get_register() ? '"'.v:register : ''
-    endif
+    call s:init_on_call(a:vis)
 
-    let s:count = v:count != 0 ? v:count : ''
-    let s:vis = a:vis ? 'gv' : 0
     let s:lmap = a:dict
     call s:start_buffer()
 endfunction " }}}
