@@ -274,7 +274,7 @@ function! s:create_string(layout) " {{{
                 let col += 1
             endif
         endif
-        silent execute "cnoremap <nowait> <buffer> ".substitute(k, "|", "<Bar>", ""). " " . s:escape_keys(k) ."<CR>"
+        "silent execute "cnoremap <nowait> <buffer> ".substitute(k, "|", "<Bar>", ""). " " . s:escape_keys(k) ."<CR>"
     endfor
     let r = []
     let mlen = 0
@@ -287,20 +287,26 @@ function! s:create_string(layout) " {{{
     endfor
     call insert(r, '')
     let output = join(r, "\n ")
-    cnoremap <nowait> <buffer> <Space> <Space><CR>
-    cnoremap <nowait> <buffer> <silent> <c-c> <LGCMD>submode<CR>
+    "cnoremap <nowait> <buffer> <Space> <Space><CR>
+    "cnoremap <nowait> <buffer> <silent> <c-c> <LGCMD>submode<CR>
     return output
 endfunction " }}}
 
 
 function! s:start_buffer() " {{{
+    if g:leaderGuide_toggle_show
+        call s:init_window()
+    endif
+    call s:wait_for_input()
+endfunction " }}}
+function! s:init_window() "{{{
     let s:winv = winsaveview()
     let s:winnr = winnr()
     let s:winres = winrestcmd()
     call s:winopen()
+
     let layout = s:calc_layout()
     let string = s:create_string(layout)
-
     if g:leaderGuide_max_size
         let layout.win_dim = min([g:leaderGuide_max_size, layout.win_dim])
     endif
@@ -314,8 +320,7 @@ function! s:start_buffer() " {{{
     silent 1put!=string
     normal! gg"_dd
     setlocal nomodifiable
-    call s:wait_for_input()
-endfunction " }}}
+endfunction"}}}
 function! s:handle_input(input) " {{{
     call s:winclose()
     if type(a:input) ==? type({})
@@ -336,7 +341,8 @@ function! s:handle_input(input) " {{{
 endfunction " }}}
 function! s:wait_for_input() " {{{
     redraw
-    let inp = input("")
+    "let inp = input("")
+    let inp = nr2char(getchar())
     if inp ==? ''
         call s:winclose()
     elseif match(inp, "^<LGCMD>submode") == 0
@@ -376,6 +382,9 @@ function! s:winopen() " {{{
     setlocal statusline=\ Leader\ Guide
 endfunction " }}}
 function! s:winclose() " {{{
+    if g:leaderGuide_toggle_show == 0
+        return
+    endif
     noautocmd execute s:gwin.'wincmd w'
     if s:gwin == winnr()
         close
@@ -480,6 +489,9 @@ function! leaderGuide#start(vis, dict) " {{{
     let s:lmap = a:dict
     call s:start_buffer()
 endfunction " }}}
+function! leaderGuide#toggle() "{{{
+    let g:leaderGuide_toggle_show = !g:leaderGuide_toggle_show
+endfunction"}}}
 
 let &cpo = s:save_cpo
 unlet s:save_cpo

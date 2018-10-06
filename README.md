@@ -248,6 +248,15 @@ Don't update the guide automatically: (Not recommended)
 let g:leaderGuide_run_map_on_popup = 0
 ```
 
+You can toggle it off (just not show the shortcut window) and then reopen it
+```vim
+    map <leader>lt :LeaderGuideToggle<CR>
+```
+If You just want to use the keyMap and not show the shortcut window, you should stick this in your vimrc:
+```vim
+    let g:leaderGuide_toggle_show = 0
+```
+
 The update is almost instantaneous and will only run when the guide
 actually pops up. Apart from that the automatic update has no performance impact.
 
