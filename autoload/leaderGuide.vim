@@ -323,6 +323,9 @@ function! s:handle_input(input) " {{{
         call s:start_buffer()
     else
         call feedkeys(s:vis.s:reg.s:count, 'ti')
+        if type(a:input) !=? type([])
+            return
+        endif
         redraw
         try
             unsilent execute a:input[0]
