@@ -380,6 +380,10 @@ function! s:wait_for_input() " {{{
     redraw
     "let inp = input("")
     let curr_inp = input("")
+    while len(curr_inp) > 1
+      echom " is not a recognised mapping"
+      let curr_inp = input("")
+    endwhile
     if curr_inp ==? ''
         call s:winclose()
     elseif match(curr_inp, "^<LGCMD>submode") == 0
